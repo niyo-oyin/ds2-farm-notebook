@@ -16,6 +16,7 @@ import { SummaryStrip, JudgeView } from './JudgeView';
 import { judge } from '../core/judge';
 import { LoopSearch } from './LoopSearch';
 import { HorseDialog } from './HorseDialog';
+import { SavePlanDialog } from './SavePlanDialog';
 import { isSearchJobActive, type SearchJob } from '../api';
 import { lineageReport, stopSearchJob, submitSearchJob } from '../store/search-jobs';
 import { useSearchJob } from '../store/search-jobs';
@@ -402,7 +403,7 @@ function MultiGen({ filter, setFilter, params, job }: { filter: StallionFilterSt
   const [open, setOpen] = useMemoState<string | null>('multi', 'open', null);
   const [resultHorse, setResultHorse] = useState('');
   const [resultFinal, setResultFinal] = useState('');
-  const [saveName, setSaveName] = useMemoState<string>('multi', 'saveName', '');
+  const [savingResult, setSavingResult] = useState<SearchResult | null>(null);
   const [saveRole, setSaveRole] = useMemoState<'stallion' | 'broodmare' | 'none'>('multi', 'saveRole', 'none');
   const [saved, setSaved] = useMemoState<Record<string, { id: string; name: string }>>('multi', 'saved', {});
   const [previewStep, setPreviewStep] = useMemoState<number>('multi', 'previewStep', -1);
@@ -442,7 +443,7 @@ function MultiGen({ filter, setFilter, params, job }: { filter: StallionFilterSt
       <div className="inline-row">
         {r.steps.length > 1 && <select value={stepIdx} onChange={(e) => setPreviewStep(Number(e.target.value))}>{r.steps.map((x, k) => <option key={k} value={k}>{k + 1}回目: {x.sireName}</option>)}</select>}
         <a href={`#/mating?sire=${encodeURIComponent(st.sire)}&dam=${encodeURIComponent(st.dam)}`}>{r.steps.length > 1 ? 'この回を' : ''}配合確認で開く</a>
-        {saved[resultKey(r)] ? <a href={`#/plans?id=${saved[resultKey(r)].id}`}>保存済み（計画を開く）</a> : <button className="primary" onClick={() => save(r)}>計画として保存</button>}
+        {saved[resultKey(r)] ? <a href={`#/plans?id=${saved[resultKey(r)].id}`}>保存済み（計画を開く）</a> : <button className="primary" onClick={() => setSavingResult(r)}>計画として保存</button>}
       </div>
       {j ? <><SummaryStrip j={j} /><Pedigree j={j} /><details><summary className="small">判定の根拠</summary><JudgeView j={j} showSummary={false} /></details></> : <div className="muted small">この手順の血統は表示できません</div>}
     </div>;
@@ -517,13 +518,12 @@ function MultiGen({ filter, setFilter, params, job }: { filter: StallionFilterSt
     addEventListener('keydown', f);
     return () => removeEventListener('keydown', f);
   }, [mobile, sorted, open, setOpen, resultOffset, resultPageSize, setResultPage]);
-  const save = (r: SearchResult) => {
-    const base = saveName.trim() || `${app.resolver.label(mare)} 計画 ${new Date().toLocaleDateString()}`;
-    const n = Object.keys(saved).length;
-    const name = n > 0 && !saveName.trim() ? `${base} (${n + 1})` : base;
+  const defaultPlanName = `${app.resolver.label(mare)} 計画 ${new Date().toLocaleDateString()}${Object.keys(saved).length ? ` (${Object.keys(saved).length + 1})` : ''}`;
+  const save = (r: SearchResult, name: string) => {
     const p = savePlanFromResult(name, mare, r, goals, report?.request, app.ctx.rulesVersion, app.ctx.dataVersion, saveRole);
     setSaved({ ...saved, [resultKey(r)]: { id: p.id, name: p.name } });
     setSavedMsg({ id: p.id, name: p.name });
+    setSavingResult(null);
   };
 
   return (
@@ -571,7 +571,6 @@ function MultiGen({ filter, setFilter, params, job }: { filter: StallionFilterSt
           </div>
           <div className="toolbar lineage-result-toolbar">
             <SortSelect value={sort} onChange={(value) => { setSort(value); resultPage.setPage(0); }} costLabel="費用が安い順" matings />
-            <label className="field">保存する計画名<input value={saveName} onChange={(e) => setSaveName(e.target.value)} placeholder="任意" /></label>
             <label className="field">最終産駒の役割<select value={saveRole} onChange={(e) => setSaveRole(e.target.value as typeof saveRole)}><option value="none">競走馬（指定なし）</option><option value="broodmare">繁殖牝馬にする</option><option value="stallion">種牡馬にする</option></select></label>
             <SearchResultFilters results={report.results} horse={resultHorse} final={resultFinal} count={sorted.length}
               onHorseChange={(key) => { setResultHorse(key); resultPage.setPage(0); }} onFinalChange={(key) => { setResultFinal(key); resultPage.setPage(0); }} />
@@ -605,7 +604,7 @@ function MultiGen({ filter, setFilter, params, job }: { filter: StallionFilterSt
                     <td className="num">{resultPage.offset + i + 1}</td><td className="num" title={`最短 ${estimateYears(r.matings).minYears} 年の目安`}>{r.matings}<span className="small muted">（{estimateYears(r.matings).minYears}年〜）</span></td><td className="num">{r.cost.toLocaleString()}</td>
                     <td className="name wrap">{r.steps.map((step) => step.sireName).join(' → ')} <Constraints steps={r.steps} /></td>
                     <td className="wrap"><Summary s={last.judgement} /></td>
-                    <td className="action">{saved[resultKey(r)] ? <a href={`#/plans?id=${saved[resultKey(r)].id}`} className="small" onClick={(e) => e.stopPropagation()}>保存済み</a> : <button title="この経路を計画として保存" onClick={(e) => { e.stopPropagation(); save(r); }}>保存</button>}</td>
+                    <td className="action">{saved[resultKey(r)] ? <a href={`#/plans?id=${saved[resultKey(r)].id}`} className="small" onClick={(e) => e.stopPropagation()}>保存済み</a> : <button title="この経路を計画として保存" onClick={(e) => { e.stopPropagation(); setSavingResult(r); }}>保存</button>}</td>
                   </tr>,
                   open === resultKey(r) && <tr key={'d' + resultKey(r)} className="result-expanded-row"><td colSpan={6} className="wrap">{expanded(r)}</td></tr>,
                 ];
@@ -618,6 +617,7 @@ function MultiGen({ filter, setFilter, params, job }: { filter: StallionFilterSt
           {report.results.length === 0 && !running && <div className="empty">条件を満たす経路は見つかりませんでした。配合回数を増やすか、条件を減らしてください。</div>}
         </div>
       )}
+      {savingResult && <SavePlanDialog defaultName={defaultPlanName} onSave={(name) => save(savingResult, name)} onClose={() => setSavingResult(null)} />}
     </div>
   );
 }

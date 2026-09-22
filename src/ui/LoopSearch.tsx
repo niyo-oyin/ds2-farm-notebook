@@ -14,6 +14,7 @@ import { loopReport, stopSearchJob, submitSearchJob } from '../store/search-jobs
 import { ResultPagination } from './ResultPagination';
 import { useResultPage } from './use-result-page';
 import { SearchResultFilters } from './SearchResultFilters';
+import { SavePlanDialog } from './SavePlanDialog';
 
 type LoopSort = 'cost' | 'nicks' | 'crosses' | 'perfect';
 const DEFAULT_GOALS: SearchGoal[] = [{ type: 'kotta' }, { type: 'notDangerous' }];
@@ -46,7 +47,7 @@ export function LoopSearch({ filter, setFilter, job }: { filter: StallionFilterS
   const [open, setOpen] = useMemoState<string | null>('loop', 'open', null);
   const [resultHorse, setResultHorse] = useState('');
   const [mare, setMare] = useMemoState<string>('loop', 'mare', '');
-  const [saveName, setSaveName] = useMemoState<string>('loop', 'saveName', '');
+  const [savingResult, setSavingResult] = useState<LoopResult | null>(null);
   const [saved, setSaved] = useMemoState<Record<string, { id: string; name: string }>>('loop', 'saved', {});
   const [err, setErr] = useState('');
   const [savedMsg, setSavedMsg] = useState<{ id: string; name: string } | null>(null);
@@ -102,13 +103,13 @@ export function LoopSearch({ filter, setFilter, job }: { filter: StallionFilterS
   const resultPage = useResultPage(sorted, mobile ? 100 : 200);
   // 選んだ牝馬から1周した実際の経路。元の牝馬の血統が残るので、定常状態と違って崩れる世代があり得る
   const firstCycle = (r: LoopResult) => (mare ? loopFromMare(env, mare, r.steps.map((s) => s.sire), goals) : null);
-  const save = (r: LoopResult) => {
+  const save = (r: LoopResult, name: string) => {
     const result = firstCycle(r);
-    if (!result) { setErr('起点の繁殖牝馬を選んでください'); return; }
-    const name = saveName.trim() || `${app.resolver.label(mare)} ループ ${r.steps.map((s) => s.sireName).join('→')}`;
+    if (!result) throw new Error('起点の繁殖牝馬を選んでください');
     const p = savePlanFromResult(name, mare, result, goals, undefined, app.ctx.rulesVersion, app.ctx.dataVersion, 'broodmare');
     setSaved({ ...saved, [resultKey(r)]: { id: p.id, name: p.name } });
     setSavedMsg({ id: p.id, name: p.name });
+    setSavingResult(null);
   };
   const route = (r: LoopResult) => r.steps.map((s) => s.sireName).join(' → ') + ' → …';
 
@@ -147,7 +148,6 @@ export function LoopSearch({ filter, setFilter, job }: { filter: StallionFilterS
           <div className="toolbar loop-result-toolbar">
             <label className="field">並び順<select value={sort} onChange={(e) => { setSort(e.target.value as LoopSort); resultPage.setPage(0); }}><option value="cost">1周の費用が安い順</option><option value="perfect">完璧／凝ったの世代が多い順</option><option value="nicks">ニックス段階の合計順</option><option value="crosses">クロスが少ない順</option></select></label>
             <label className="field">起点の繁殖牝馬（計画の保存用）<HorseSelect value={mare} onChange={setMare} options={dOpts} aria-label="起点の繁殖牝馬" plannedToggle /></label>
-            <label className="field">保存する計画名<input value={saveName} onChange={(e) => setSaveName(e.target.value)} placeholder="任意" /></label>
             <SearchResultFilters results={report.results} horse={resultHorse} count={sorted.length} onHorseChange={(key) => { setResultHorse(key); resultPage.setPage(0); }} />
           </div>
           <ResultPagination {...resultPage} onChange={resultPage.setPage} />
@@ -156,7 +156,7 @@ export function LoopSearch({ filter, setFilter, job }: { filter: StallionFilterS
             <div className="result-cards" style={{ marginTop: 8 }}>
               {resultPage.rows.map((r) => <div key={resultKey(r)} className="result-card">
                 <div className="result-head" onClick={() => setOpen(open === resultKey(r) ? null : resultKey(r))}><b>{route(r)} <Constraints steps={r.steps} /></b><span className="num muted">{r.length}頭 / {r.cost.toLocaleString()}万</span></div>
-                {open === resultKey(r) && <LoopDetail r={r} first={firstCycle(r)} saved={saved[resultKey(r)]} onSave={() => save(r)} mareChosen={!!mare} />}
+                {open === resultKey(r) && <LoopDetail r={r} first={firstCycle(r)} saved={saved[resultKey(r)]} onSave={() => setSavingResult(r)} mareChosen={!!mare} />}
               </div>)}
             </div>
           ) : (
@@ -167,9 +167,9 @@ export function LoopSearch({ filter, setFilter, job }: { filter: StallionFilterS
                   <td className="num">{resultPage.offset + i + 1}</td><td className="num">{r.length}</td><td className="num">{r.cost.toLocaleString()}</td>
                   <td className="name wrap">{route(r)} <Constraints steps={r.steps} /></td>
                   <td className="wrap small">{r.steps.map((s, k) => <span key={k} className="loop-gen">{k + 1}: {s.judgement.perfectKotta === '成立' ? '完璧／凝った' : s.judgement.perfect === '成立' ? '完璧' : [s.judgement.omoshiro === '成立' && '面白', s.judgement.migoto === '成立' && '見事', s.judgement.kotta === '成立' && '凝った'].filter(Boolean).join('・') || '—'}{s.judgement.nicksLevel > 0 && ` ★${s.judgement.nicksLevel}`}</span>)}</td>
-                  <td className="action">{saved[resultKey(r)] ? <a href={`#/plans?id=${saved[resultKey(r)].id}`} className="small" onClick={(e) => e.stopPropagation()}>保存済み</a> : <button title="選んだ繁殖牝馬から1周分を計画として保存" disabled={!mare} onClick={(e) => { e.stopPropagation(); save(r); }}>保存</button>}</td>
+                  <td className="action">{saved[resultKey(r)] ? <a href={`#/plans?id=${saved[resultKey(r)].id}`} className="small" onClick={(e) => e.stopPropagation()}>保存済み</a> : <button title="選んだ繁殖牝馬から1周分を計画として保存" disabled={!mare} onClick={(e) => { e.stopPropagation(); setSavingResult(r); }}>保存</button>}</td>
                 </tr>,
-                open === resultKey(r) && <tr key={'d' + resultKey(r)}><td colSpan={6} className="wrap"><LoopDetail r={r} first={firstCycle(r)} saved={saved[resultKey(r)]} onSave={() => save(r)} mareChosen={!!mare} /></td></tr>,
+                open === resultKey(r) && <tr key={'d' + resultKey(r)}><td colSpan={6} className="wrap"><LoopDetail r={r} first={firstCycle(r)} saved={saved[resultKey(r)]} onSave={() => setSavingResult(r)} mareChosen={!!mare} /></td></tr>,
               ])}</tbody>
             </table></div>
           )}
@@ -178,6 +178,7 @@ export function LoopSearch({ filter, setFilter, job }: { filter: StallionFilterS
           {report.results.length === 0 && !running && <div className="empty">条件を満たす周期は見つかりませんでした。周期を長くするか、条件を減らしてください。</div>}
         </div>
       )}
+      {savingResult && <SavePlanDialog defaultName={`${app.resolver.label(mare)} ループ ${savingResult.steps.map(s => s.sireName).join('→')}`} onSave={(name) => save(savingResult, name)} onClose={() => setSavingResult(null)} />}
     </div>
   );
 }
