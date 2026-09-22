@@ -29,7 +29,15 @@ credentials.json
 
 # Local development notes, reference images, and agent configuration
 /.local/
-/docs/
+/docs/*
+!/docs/README.md
+!/docs/breeding.md
+!/docs/horses.md
+!/docs/data-and-settings.md
+!/docs/horse-story.md
+!/docs/images/
+/docs/images/*
+!/docs/images/*.jpg
 /DESIGN.md
 /test/fixtures/screens/
 AGENTS.md
