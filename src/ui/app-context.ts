@@ -45,7 +45,7 @@ export function sireOptions(app: AppCtx, { onlyAvailable = false, includePlanned
 export function damOptions(app: AppCtx, { onlyAvailable = false, includePlanned = true, requirePedigree = false }: OptionFilter = {}): HorseOption[] {
   const master = app.master.broodmares
     .filter((b) => !(onlyAvailable && app.data.settings.hidePurchase && b.purchasePrice))
-    .map((b) => ({ key: b.id, name: b.name, group: b.purchasePrice ? '購入できる繁殖牝馬' : '繁殖牝馬', sub: `${b.smallSystem ?? '-'}系${b.purchasePrice ? ` / ${b.purchasePrice.toLocaleString()}万` : b.priceUnknown ? ' / 購入価格未確認' : ''}` }));
+    .map((b) => ({ key: b.id, name: b.name, group: '繁殖牝馬', sub: `${b.smallSystem ?? '-'}系${b.purchasePrice ? ` / ${b.purchasePrice.toLocaleString()}万` : b.priceUnknown ? ' / 購入価格未確認' : ''}` }));
   const own = [...app.data.horses, ...(includePlanned ? app.data.plannedHorses : [])]
     .filter((h) => (h.kind === 'owned' ? h.sex === 'F' : h.role === 'broodmare' || h.desiredSex === 'F'))
     .filter((h) => (h.kind === 'owned' ? ownedOk(h, { onlyAvailable, requirePedigree }) : !onlyAvailable || h.status !== '探索対象外'))

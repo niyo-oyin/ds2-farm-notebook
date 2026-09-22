@@ -1,5 +1,6 @@
 import { describe, expect, it } from 'vitest';
 import { createNameSearch } from '../src/core/name-search';
+import { horseSelectOptions } from '../src/ui/HorseSelect';
 
 const nameSearch = createNameSearch([
   ['Northern Dancer', 'ノーザンダンサー'],
@@ -12,6 +13,19 @@ const nameSearch = createNameSearch([
 const names = (query: string, candidates: string[]) => nameSearch(query).filter(candidates, (name) => [name]);
 
 describe('馬名・読みの検索', () => {
+  it('選択候補を同じ区分ごとにまとめ、検索順位と同名の別馬を保つ', () => {
+    const options = [
+      { key: 'bm:1', name: 'テストの母', group: '繁殖牝馬' },
+      { key: 'bm:2', name: 'テスト', group: '所有馬' },
+      { key: 'bm:3', name: 'テスト', group: '繁殖牝馬' },
+      { key: 'bm:4', name: 'テストの妹', group: '所有馬' },
+      { key: 'bm:5', name: '別の馬', group: '繁殖牝馬' },
+    ];
+    expect(horseSelectOptions(options, '').map(o => o.key)).toEqual(['bm:1', 'bm:3', 'bm:5', 'bm:2', 'bm:4']);
+    expect(horseSelectOptions(options, 'てすと').map(o => o.key)).toEqual(['bm:2', 'bm:4', 'bm:3', 'bm:1']);
+    expect(horseSelectOptions(options, '該当なし')).toEqual([]);
+    expect(options.map(o => o.key)).toEqual(['bm:1', 'bm:2', 'bm:3', 'bm:4', 'bm:5']);
+  });
   it('ひらがな、半角カナ、分離した濁点を同じ名前として探す', () => {
     for (const query of ['でぃーぷ', 'ﾃﾞｨｰﾌﾟ', 'テ\u3099ィープ']) {
       expect(names(query, ['キズナ', 'ディープインパクト'])).toEqual(['ディープインパクト']);

@@ -62,7 +62,7 @@ export function PhotoImport({ onClose, scope, target = null }: { onClose: () => 
     <p className="small muted photo-import-hint">{target
       ? '血統・クロスの画面を送ると、この馬の父母として登録します。'
       : scopeHint(scope)}</p>
-    {mares.length > 0 && <label className="field photo-import-mare">ニックスの反映先となる繁殖牝馬（任意）<select value={mareKey} onChange={(e) => setMareKey(e.target.value)}><option value="">選択…</option>{['所有馬', '繁殖牝馬', '購入できる繁殖牝馬'].map((g) => { const list = mares.filter((m) => m.group === g || (g === '所有馬' && !['繁殖牝馬', '購入できる繁殖牝馬'].includes(m.group))); return list.length ? <optgroup key={g} label={g}>{list.map((m) => <option key={m.key} value={m.key}>{m.name}{m.sub ? `（${m.sub}）` : ''}</option>)}</optgroup> : null; })}</select></label>}
+    {mares.length > 0 && <label className="field photo-import-mare">ニックスの反映先となる繁殖牝馬（任意）<select value={mareKey} onChange={(e) => setMareKey(e.target.value)}><option value="">選択…</option>{['所有馬', '繁殖牝馬'].map((g) => { const list = mares.filter((m) => m.group === g); return list.length ? <optgroup key={g} label={g}>{list.map((m) => <option key={m.key} value={m.key}>{m.name}{m.sub ? `（${m.sub}）` : ''}</option>)}</optgroup> : null; })}</select></label>}
 
     <div className={'photo-capture' + (dragging ? ' active' : '')}
       onDragOver={(e) => { e.preventDefault(); setDragging(true); }} onDragLeave={() => setDragging(false)}

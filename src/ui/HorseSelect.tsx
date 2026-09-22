@@ -5,6 +5,17 @@ import { nameSearch } from './name-search';
 
 export interface HorseSelectHandle { focus: () => void }
 
+/** 検索で上位に来た区分からまとめ、区分内の一致順を保つ。表示とキー操作に同じ順序を使う。 */
+export function horseSelectOptions(options: HorseOption[], query: string): HorseOption[] {
+  const groups = new Map<string, HorseOption[]>();
+  for (const option of nameSearch(query).filter(options, (o) => [o.name]).slice(0, 80)) {
+    const group = groups.get(option.group);
+    if (group) group.push(option);
+    else groups.set(option.group, [option]);
+  }
+  return [...groups.values()].flat();
+}
+
 export const HorseSelect = forwardRef<HorseSelectHandle, {
   onCreate?: (name: string) => void; disabled?: boolean; value: string; onChange: (key: string) => void; options: HorseOption[]; placeholder?: string; 'aria-label'?: string; clearAfterSelect?: boolean;
   /** 一覧の末尾に、計画馬を候補に出すかの切り替えを置く（設定 hidePlanned。父母を選ぶ場面で使う） */
@@ -24,10 +35,7 @@ export const HorseSelect = forwardRef<HorseSelectHandle, {
     addEventListener('mousedown', f);
     return () => removeEventListener('mousedown', f);
   }, []);
-  const filtered = useMemo(() => {
-    const list = text !== selected?.name ? nameSearch(text).filter(options, (o) => [o.name]) : options;
-    return list.slice(0, 80);
-  }, [text, options, selected]);
+  const filtered = useMemo(() => horseSelectOptions(options, text !== selected?.name ? text : ''), [text, options, selected]);
   const choose = (o: HorseOption) => { onChange(o.key); setOpen(false); setText(clearAfterSelect ? '' : o.name); };
   const clear = () => { onChange(''); setText(''); setOpen(false); input.current?.focus(); };
   return (
