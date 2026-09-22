@@ -1,7 +1,8 @@
 // 読み取り結果の反映。確認ダイアログ（ImportJobCard）と、設定による自動反映（ImportTray）で共有する。
 import { PORTRAIT_MAX_SIDE, fetchImage, hasBox, imageToBase64, uploadImage, type CardScreen, type ImportJob, type PedigreeScreen } from '../api';
-import type { MasterHorse, OwnedHorse } from '../core/types';
-import { compareAncestorFactors, diffAgainstBase, homebredBlockReason, isUserMasterId, masterFromReading, type NicksProposal } from '../core/master-edits';
+import type { AncestorInfo, MasterHorse, OwnedHorse } from '../core/types';
+import { compareAncestorFactors, diffAgainstBase, homebredBlockReason, prepareReadingAncestors, masterFromReading, type NicksProposal } from '../core/master-edits';
+import { newAncestorId } from '../core/horse-identity';
 import { baseMaster } from '../data/base-master';
 import { applyCardReading, cardMatchCandidates, inferredGameYear, pedigreeMatchCandidates, type CardReading } from '../core/owned-horse';
 import { store } from '../store/userdata';
@@ -17,7 +18,9 @@ export function matchName(name: string, options: HorseOption[]): string {
   if (!name) return '';
   const norm = (s: string) => s.replace(/[\s・()（）]/g, '').toLowerCase();
   const n = norm(name);
-  return options.find((o) => o.name === name)?.key ?? options.find((o) => norm(o.name) === n)?.key ?? '';
+  const exact = options.filter(o => o.name === name);
+  const matches = exact.length ? exact : options.filter(o => norm(o.name) === n);
+  return matches.length === 1 ? matches[0].key : '';
 }
 
 /** カードを所有馬に反映する。target が無ければ新規登録。年齢と生年から推定した年が進んでいれば設定も更新する */
@@ -44,8 +47,8 @@ export async function applyCardJob(app: AppCtx, job: ImportJob, reading: CardScr
 
 /** 血統画面で読んだ祖先の因子のうち、祖先マスターに未登録の馬だけを登録する（自動反映用。既存の値は書き換えない） */
 export function saveNewAncestorFactors(app: AppCtx, reading: PedigreeScreen) {
-  const rows = compareAncestorFactors(reading.pedigree.ancestors ?? [], app.ctx.ancestors).filter((r) => r.status === '新規');
-  if (rows.length) store.saveAncestorEdits(rows.map((r) => ({ name: r.name, system: null, sex: null, effects: r.factors })));
+  const rows = compareAncestorFactors(reading.pedigree.ancestors ?? [], app.master).filter((r) => r.status === '新規');
+  if (rows.length) store.saveAncestorEdits(rows.map((r) => ({ id: r.id ?? newAncestorId(), name: r.name, system: r.id ? app.ctx.ancestors.get(r.id)?.system ?? null : null, sex: r.id ? app.ctx.ancestors.get(r.id)?.sex ?? null : null, effects: r.factors })));
 }
 
 /** 血統画面の父母を所有馬に登録する */
@@ -66,7 +69,7 @@ export function applyNicksProposals(proposals: NicksProposal[], mareName: string
 export type AutoDecision =
   | { kind: 'card'; reading: CardScreen; target: OwnedHorse | undefined }
   | { kind: 'pedigree'; reading: PedigreeScreen; target: OwnedHorse; sireKey: string; damKey: string }
-  | { kind: 'master'; existing: MasterHorse | null; next: MasterHorse };
+  | { kind: 'master'; existing: MasterHorse | null; next: MasterHorse; additions: AncestorInfo[] };
 /**
  * 反映先が確実なときだけ自動反映の判断を返す。迷いがあれば null（手動）。
  * カード: 反映先固定、馬名一致なら更新。候補が1頭もなければ新規登録。
@@ -91,9 +94,12 @@ export function autoDecision(app: AppCtx, job: ImportJob): AutoDecision | null {
     if (homebredBlockReason(r.master, app.data.horses, app.data.plannedHorses)) return null;
     const kind = r.screen_type === '種牡馬' ? 'stallion' : 'broodmare';
     const norm = (s: string) => s.replace(/[\s・()（）]/g, '');
-    const existing = (kind === 'stallion' ? app.master.stallions : app.master.broodmares).find((h) => norm(h.name) === norm(r.master.name));
-    if (existing) return importAutoMasterUpdate ? { kind: 'master', existing, next: masterFromReading(kind, r.master, existing, app.master, app.ctx.ancestors) } : null;
-    return importAutoMasterAdd ? { kind: 'master', existing: null, next: masterFromReading(kind, r.master, null, app.master, app.ctx.ancestors) } : null;
+    const matches = (kind === 'stallion' ? app.master.stallions : app.master.broodmares).filter(h => norm(h.name) === norm(r.master.name));
+    if (matches.length > 1) return null;
+    const existing = matches[0] ?? null;
+    const prepared = prepareReadingAncestors(app.master, r.master);
+    if (prepared.ambiguous.length || !(existing ? importAutoMasterUpdate : importAutoMasterAdd)) return null;
+    return { kind: 'master', existing, next: masterFromReading(kind, r.master, existing, prepared.master, app.ctx.ancestors, prepared.parentIds), additions: prepared.additions };
   }
   if (!importAutoApply) return null;
   if (r.screen_type === '血統') {
@@ -109,18 +115,20 @@ export function autoDecision(app: AppCtx, job: ImportJob): AutoDecision | null {
 }
 
 /** 種牡馬・繁殖牝馬の読み取りをマスターデータに新しい馬として追加する */
-export function addMasterJob(next: MasterHorse): AppliedInfo {
+export function addMasterJob(next: MasterHorse, additions: AncestorInfo[] = []): AppliedInfo {
+  if (additions.length) store.saveAncestorEdits(additions);
   const { id: _id, kind: _kind, ...data } = next;
   store.saveMasterEdit({ id: next.id, kind: next.kind, added: true, data });
   return { name: next.name, href: `#/data?tab=${next.kind === 'stallion' ? 'stallions' : 'broodmares'}` };
 }
 /** 種牡馬・繁殖牝馬の読み取りをマスターデータに反映する（既存馬の更新） */
-export function applyMasterJob(existing: MasterHorse, next: MasterHorse): AppliedInfo {
-  if (isUserMasterId(existing.id)) {
+export function applyMasterJob(existing: MasterHorse, next: MasterHorse, additions: AncestorInfo[] = []): AppliedInfo {
+  if (additions.length) store.saveAncestorEdits(additions.filter(a => next.ancestors.includes(a.id)));
+  const base = (existing.kind === 'stallion' ? baseMaster.stallions : baseMaster.broodmares).find(h => h.id === existing.id);
+  if (!base) {
     const { id: _id, kind: _kind, ...data } = next;
     store.saveMasterEdit({ id: existing.id, kind: existing.kind, added: true, data });
   } else {
-    const base = (existing.kind === 'stallion' ? baseMaster.stallions : baseMaster.broodmares).find((h) => h.id === existing.id)!;
     const data = diffAgainstBase(base, next);
     if (Object.keys(data).length) store.saveMasterEdit({ id: existing.id, kind: existing.kind, added: false, data });
   }

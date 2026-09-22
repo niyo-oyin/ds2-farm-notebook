@@ -10,7 +10,8 @@ import { LLM, classifyScreen, isScreenType, llmReady, readScreenAs, type ScreenT
 import { detectHorseBox, samReady } from './sam.js';
 import { ImageStore } from './images.js';
 import { JobQueue } from './jobs.js';
-import { SearchJobQueue } from './search-jobs.js';
+import { SearchJobQueue, searchJobRoutes } from './search-jobs.js';
+import { loadMasterCatalog, masterCatalogRoutes } from './master-catalog.js';
 import { SaveDataStore, saveDataRoutes } from './save-data.js';
 import { horseStoryRoutes } from './horse-stories.js';
 import { horseNameRoutes } from './horse-names.js';
@@ -20,6 +21,7 @@ const root = resolve(here, '..');
 const PORT = Number(process.env.PORT ?? 8877);
 const DB_PATH = process.env.DS2_DB ?? resolve(here, 'data', 'ds2.sqlite');
 const TOKEN = process.env.DS2_TOKEN ?? '';
+const catalog = loadMasterCatalog();
 
 mkdirSync(dirname(DB_PATH), { recursive: true });
 const db = new DatabaseSync(DB_PATH);
@@ -43,9 +45,12 @@ const jobs = new JobQueue(db, async (job) => {
 
 // 探索ジョブは同期済みレコードから判定の材料を作る。ロードで世代が変わったら写真のジョブと一緒に捨てる
 const savedData = new SaveDataStore(db, images, () => { searchJobs.clear(); return jobs.clear(); });
-const searchJobs = new SearchJobQueue(db, () => savedData.records(savedData.generation).records, 2);
+const searchJobs = new SearchJobQueue(db, () => savedData.records(savedData.generation).records, catalog, 2);
 
 const app = new Hono();
+
+// ユーザーデータを含まない共通マスターは、認証設定画面を開く前に取得する。
+app.route('/api', masterCatalogRoutes(catalog));
 
 // 認証（DS2_TOKEN が設定されている場合のみ）。画像の GET は img タグから読むため ?token= も受け付ける
 app.use('/api/*', async (c, next) => {
@@ -62,6 +67,7 @@ app.get('/api/health', (c) => c.json({ ok: true, model: LLM.model, imageReading:
 app.route('/api', saveDataRoutes(savedData));
 app.route('/api/horse-stories', horseStoryRoutes());
 app.route('/api/horse-names', horseNameRoutes());
+app.route('/api', searchJobRoutes(searchJobs, () => savedData.generation));
 
 // ---- 写真取り込みのジョブ ----
 app.get('/api/jobs', (c) => c.json({ jobs: jobs.list() }));
@@ -84,24 +90,6 @@ app.delete('/api/jobs/:id', (c) => {
   if (imageId) savedData.deleteUnusedImage(imageId);
   return c.json({ ok: true });
 });
-
-// ---- 探索ジョブ（数世代探索・ループ探索のバックグラウンド実行） ----
-app.get('/api/search-jobs', (c) => c.json({ jobs: searchJobs.list() }));
-app.get('/api/search-jobs/:id', (c) => {
-  const job = searchJobs.get(c.req.param('id'));
-  return job ? c.json({ job }) : c.json({ error: 'この探索は見つかりません' }, 404);
-});
-app.post('/api/search-jobs', async (c) => {
-  const body = (await c.req.json()) as { kind: unknown; request: unknown; generation: number };
-  if (body.generation !== savedData.generation) return c.json({ error: 'セーブデータがロードされました。同期してから探索してください。' }, 409);
-  if ((body.kind !== 'lineage' && body.kind !== 'loop') || !body.request || typeof body.request !== 'object') return c.json({ error: '探索の指定が不正です' }, 400);
-  return c.json({ job: searchJobs.enqueue(body.kind, body.request as never) });
-});
-app.post('/api/search-jobs/:id/cancel', (c) => {
-  const job = searchJobs.cancel(c.req.param('id'));
-  return job ? c.json({ job }) : c.json({ error: 'この探索は見つかりません' }, 404);
-});
-app.delete('/api/search-jobs/:id', (c) => { searchJobs.remove(c.req.param('id')); return c.json({ ok: true }); });
 
 // ---- 画像（馬の画像・取り込み写真） ----
 app.post('/api/images', async (c) => {

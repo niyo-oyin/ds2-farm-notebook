@@ -22,21 +22,20 @@ const DEFAULT_GOALS: SearchGoal[] = [{ type: 'kotta' }, { type: 'notDangerous' }
  * 種牡馬を決まった順に交配し、毎世代の産駒牝馬で目標が成立し続ける周期を探す。
  * 結果は、元の牝馬の血統が抜けた後の定常状態で判定する。
  */
-export function LoopSearch({ job }: { job: (SearchJob & { kind: 'loop' }) | null }) {
+export function LoopSearch({ filter, setFilter, job }: { filter: StallionFilterState; setFilter: (filter: StallionFilterState) => void; job: (SearchJob & { kind: 'loop' }) | null }) {
   const app = useApp();
   const mobile = useMobile();
   // バックグラウンドの探索を開いた時は、その条件を入力欄に戻し、結果は取り直すたびに差し替える（この画面で新しく探索を始めたら切り離す）
   const jr = job?.request ?? null;
   const [viewingJob, setViewingJob] = useState(!!job);
   const [progress, setProgress] = useState<{ evaluated: number; pruned: number; found: number } | null>(null);
-  const sOpts = useMemo(() => sireOptions(app, { onlyAvailable: true, requirePedigree: true, includePlanned: includePlannedInSearch(app) }), [app]);
+  const sOpts = useMemo(() => sireOptions(app, { onlyAvailable: true, requirePedigree: true, includePlanned: includePlannedInSearch(app), includeOverseas: filter.includeOverseas }), [app, filter.includeOverseas]);
   const dOpts = useMemo(() => damOptions(app, { onlyAvailable: true, requirePedigree: true, includePlanned: !app.data.settings.hidePlanned }), [app]);
   const [minL, setMinL] = useMemoState<number>('loop', 'minL', 5, jr?.minLength ?? null);
   const [maxL, setMaxL] = useMemoState<number>('loop', 'maxL', 6, jr?.maxLength ?? null);
   const [goals, setGoals] = useMemoState<SearchGoal[]>('loop', 'goals', DEFAULT_GOALS, jr?.goals ?? null);
   const [maxCost, setMaxCost] = useMemoState<string>('loop', 'maxCost', '', jr ? (jr.maxCost == null ? '' : String(jr.maxCost)) : null);
   const [maxEval, setMaxEval] = useMemoState<number>('loop', 'maxEval', 2_000_000, jr?.maxEvaluations ?? null);
-  const [filter, setFilter] = useMemoState<StallionFilterState>('loop', 'filter', EMPTY_FILTER);
   const [report, setReport] = useMemoState<LoopReport | null>('loop', 'report', null, job ? loopReport(job) : null);
   const [started, setStarted] = useState<SearchJob | null>(null);
   useEffect(() => { if (job && viewingJob) setReport(loopReport(job)); }, [job, viewingJob, setReport]);
@@ -145,12 +144,12 @@ export function LoopSearch({ job }: { job: (SearchJob & { kind: 'loop' }) | null
             <div><b>{running ? `探索中: 条件を満たす周期 ${report.results.length} 件` : report.status === '完了' ? (report.results.length ? `条件を満たす周期 ${report.results.length} 件` : '指定範囲に解なし') : `探索未完了（${report.status}）: ${report.results.length} 件`}</b></div>
             <div className="small muted">判定 {report.evaluated.toLocaleString()} 回、枝刈り {report.pruned.toLocaleString()}、{(report.elapsedMs / 1000).toFixed(1)} 秒{running && '（途中）'}。判定は周期を回し続けた定常状態のもの</div>
           </div>
-          <div className="toolbar">
+          <div className="toolbar loop-result-toolbar">
             <label className="field">並び順<select value={sort} onChange={(e) => { setSort(e.target.value as LoopSort); resultPage.setPage(0); }}><option value="cost">1周の費用が安い順</option><option value="perfect">完璧／凝ったの世代が多い順</option><option value="nicks">ニックス段階の合計順</option><option value="crosses">クロスが少ない順</option></select></label>
             <label className="field">起点の繁殖牝馬（計画の保存用）<HorseSelect value={mare} onChange={setMare} options={dOpts} aria-label="起点の繁殖牝馬" plannedToggle /></label>
             <label className="field">保存する計画名<input value={saveName} onChange={(e) => setSaveName(e.target.value)} placeholder="任意" /></label>
+            <SearchResultFilters results={report.results} horse={resultHorse} count={sorted.length} onHorseChange={(key) => { setResultHorse(key); resultPage.setPage(0); }} />
           </div>
-          <SearchResultFilters results={report.results} horse={resultHorse} count={sorted.length} onHorseChange={(key) => { setResultHorse(key); resultPage.setPage(0); }} />
           <ResultPagination {...resultPage} onChange={resultPage.setPage} />
           {savedMsg && <div className="notice" style={{ marginBottom: 8 }}>計画「{savedMsg.name}」を保存しました。<a href={`#/plans?id=${savedMsg.id}`}>計画を開く</a></div>}
           {mobile ? (

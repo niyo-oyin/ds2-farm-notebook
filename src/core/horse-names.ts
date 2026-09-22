@@ -1,5 +1,6 @@
 import type { NamingParent, NamingPedigree } from '../shared/horse-names';
-import { foalNodes, nameOfKey, nodePath, unknownRecord, type HorseResolver } from './pedigree';
+import { foalNodes, nodePath, unknownRecord, type HorseResolver } from './pedigree';
+import { isMasterKey } from './horse-identity';
 import type { MasterData, Sex } from './types';
 
 /** 親の参照先を優先し、仮名から取り出した母名は一致する登録馬が一頭の場合だけ解決する。 */
@@ -16,7 +17,7 @@ function resolveParentKey(key: string, resolver: HorseResolver, master: MasterDa
 export function namingParent(key: string, resolver: HorseResolver, master: MasterData, sex: Sex, inferredName = ''): NamingParent {
   key = resolveParentKey(key, resolver, master, sex, inferredName);
   const real = resolver.master(key);
-  if (real) return { origin: 'real', name: real.name, color: real.color ?? '', pedigree: { sire: real.ancestors[0] ?? '', dam: real.ancestors[1] ?? '' } };
+  if (real) return { origin: 'real', name: real.name, color: real.color ?? '', pedigree: { sire: resolver.label(real.ancestors[0] ?? ''), dam: resolver.label(real.ancestors[1] ?? '') } };
   const own = resolver.user(key);
   if (own?.kind === 'owned') {
     const profile = own.profile;
@@ -31,7 +32,7 @@ export function namingParent(key: string, resolver: HorseResolver, master: Maste
       factors: own.effects ?? [], memo: own.memo ?? '',
     };
   }
-  return { origin: 'unknown', name: own?.name ?? nameOfKey(key) ?? inferredName };
+  return { origin: 'unknown', name: own?.name ?? (key ? resolver.label(key) : inferredName) };
 }
 
 /** 命名する産駒から見た3代血統。重複する祖先も血統上の位置ごとに残す。 */
@@ -41,7 +42,7 @@ export function namingPedigree(sireKey: string, damKey: string, resolver: HorseR
   const nodes = foalNodes(sire ?? unknownRecord(), dam ?? unknownRecord());
   return nodes.slice(2, 16).flatMap((key, i) => {
     if (!key) return i === 1 && inferredDamName ? [{ position: '母', name: inferredDamName, origin: 'unknown' as const }] : [];
-    const origin = nameOfKey(key) !== null ? 'real' : resolver.user(key)?.kind === 'owned' ? 'homebred' : 'unknown';
+    const origin = isMasterKey(key) ? 'real' : resolver.user(key)?.kind === 'owned' ? 'homebred' : 'unknown';
     return [{ position: nodePath(i + 2), name: resolver.label(key), origin }];
   });
 }

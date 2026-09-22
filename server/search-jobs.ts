@@ -3,6 +3,9 @@
 import { Worker } from 'node:worker_threads';
 import type { DatabaseSync } from 'node:sqlite';
 import { randomBytes } from 'node:crypto';
+import { Hono } from 'hono';
+import { MASTER_CHANGED_MESSAGE, type MasterCatalog } from '../src/shared/master-catalog.js';
+import type { MasterData } from '../src/core/types.js';
 import type { SyncRecord } from '../src/shared/save-data.js';
 import type { SearchReport, SearchRequest, SearchResult, SearchStatus } from '../src/core/search.js';
 import type { LoopReport, LoopRequest, LoopResult } from '../src/core/loop-search.js';
@@ -13,10 +16,10 @@ export interface SearchProgress { evaluated: number; pruned: number; found: numb
 /** 終了した探索の集計（結果本体は results に持つ） */
 export interface SearchOutcome { status: SearchStatus; evaluated: number; pruned: number; elapsedMs: number; dataIssues?: number }
 export type SearchJob = {
-  id: string; status: SearchJobStatus; progress: SearchProgress; outcome?: SearchOutcome; error?: string; createdAt: string; updatedAt: string;
+  id: string; masterRevision: string; status: SearchJobStatus; progress: SearchProgress; outcome?: SearchOutcome; error?: string; createdAt: string; updatedAt: string;
 } & ({ kind: 'lineage'; request: SearchRequest; results?: SearchResult[] } | { kind: 'loop'; request: LoopRequest; results?: LoopResult[] });
 
-export interface SearchWorkerIn { kind: SearchJobKind; request: SearchRequest | LoopRequest; records: SyncRecord[] }
+export interface SearchWorkerIn { kind: SearchJobKind; request: SearchRequest | LoopRequest; records: SyncRecord[]; master: MasterData }
 export type SearchWorkerOut =
   | { type: 'progress'; evaluated: number; pruned: number; found: number; elapsedMs: number; results: (SearchResult | LoopResult)[] }
   | { type: 'done'; report: SearchReport | LoopReport }
@@ -25,24 +28,30 @@ export type SearchWorkerOut =
 interface Row { id: string; status: SearchJobStatus; kind: SearchJobKind; request: string; progress: string; results: string | null; outcome: string | null; error: string | null; created_at: string; updated_at: string }
 const ZERO: SearchProgress = { evaluated: 0, pruned: 0, found: 0, elapsedMs: 0 };
 const now = () => new Date().toISOString();
-const toJob = (r: Row): SearchJob => ({
-  id: r.id, status: r.status, kind: r.kind, request: JSON.parse(r.request), progress: JSON.parse(r.progress), createdAt: r.created_at, updatedAt: r.updated_at,
-  ...(r.results ? { results: JSON.parse(r.results) } : {}), ...(r.outcome ? { outcome: JSON.parse(r.outcome) } : {}), ...(r.error ? { error: r.error } : {}),
-} as SearchJob);
+const toJob = (r: Row): SearchJob => {
+  const { masterRevision, ...request } = JSON.parse(r.request);
+  return {
+    id: r.id, masterRevision, status: r.status, kind: r.kind, request, progress: JSON.parse(r.progress), createdAt: r.created_at, updatedAt: r.updated_at,
+    ...(r.results ? { results: JSON.parse(r.results) } : {}), ...(r.outcome ? { outcome: JSON.parse(r.outcome) } : {}), ...(r.error ? { error: r.error } : {}),
+  } as SearchJob;
+};
 
 export class SearchJobQueue {
   private running = new Map<string, Worker>();
   /** records は探索の材料（所有馬・計画馬・マスターデータの修正・判定ルール）。開始時点の同期済みレコードを使う */
-  constructor(private db: DatabaseSync, private records: () => SyncRecord[], private concurrency = 2) {
+  constructor(private db: DatabaseSync, private records: () => SyncRecord[], private catalog: MasterCatalog, private concurrency = 2) {
     db.exec(`
       CREATE TABLE IF NOT EXISTS search_jobs (
         id TEXT PRIMARY KEY, status TEXT NOT NULL, kind TEXT NOT NULL, request TEXT NOT NULL, progress TEXT NOT NULL,
         results TEXT NOT NULL, outcome TEXT, error TEXT, created_at TEXT NOT NULL, updated_at TEXT NOT NULL
       );`);
-    // 前回の終了時に探索中だったものは最初からやり直す
+    db.prepare(`UPDATE search_jobs SET status = 'failed', error = ?, updated_at = ? WHERE status IN ('queued', 'running') AND json_extract(request, '$.masterRevision') IS NOT ?`)
+      .run(MASTER_CHANGED_MESSAGE, now(), catalog.revision);
+    // 同じマスターで実行できる探索だけ、最初からやり直す。
     db.prepare(`UPDATE search_jobs SET status = 'queued', progress = ?, results = '[]', updated_at = ? WHERE status = 'running'`).run(JSON.stringify(ZERO), now());
     this.tick();
   }
+  get masterRevision() { return this.catalog.revision; }
   /** 一覧は結果本体を含まない（進捗の found が件数） */
   list(): SearchJob[] {
     return (this.db.prepare('SELECT id, status, kind, request, progress, NULL AS results, outcome, error, created_at, updated_at FROM search_jobs ORDER BY created_at').all() as unknown as Row[]).map(toJob);
@@ -53,7 +62,7 @@ export class SearchJobQueue {
   }
   enqueue(kind: SearchJobKind, request: SearchRequest | LoopRequest): SearchJob {
     const id = `search_${randomBytes(6).toString('hex')}`, t = now();
-    this.db.prepare(`INSERT INTO search_jobs (id, status, kind, request, progress, results, created_at, updated_at) VALUES (?, 'queued', ?, ?, ?, '[]', ?, ?)`).run(id, kind, JSON.stringify(request), JSON.stringify(ZERO), t, t);
+    this.db.prepare(`INSERT INTO search_jobs (id, status, kind, request, progress, results, created_at, updated_at) VALUES (?, 'queued', ?, ?, ?, '[]', ?, ?)`).run(id, kind, JSON.stringify({ ...request, masterRevision: this.masterRevision }), JSON.stringify(ZERO), t, t);
     this.tick();
     return this.get(id)!;
   }
@@ -91,7 +100,7 @@ export class SearchJobQueue {
   }
   private execute(job: SearchJob) {
     const worker = new Worker(new URL('./search-worker.ts', import.meta.url), {
-      workerData: { kind: job.kind, request: job.request, records: this.records() } satisfies SearchWorkerIn,
+      workerData: { kind: job.kind, request: job.request, records: this.records(), master: this.catalog.data.master } satisfies SearchWorkerIn,
       execArgv: ['--import', 'tsx'],
     });
     this.running.set(job.id, worker);
@@ -118,4 +127,26 @@ export class SearchJobQueue {
     worker.on('error', (e) => finish({ status: 'failed', error: e.message }));
     worker.on('exit', (code) => { if (code !== 0) finish({ status: 'failed', error: `探索が異常終了しました（${code}）` }); });
   }
+}
+
+export function searchJobRoutes(queue: SearchJobQueue, generation: () => number) {
+  const app = new Hono();
+  app.get('/search-jobs', c => c.json({ jobs: queue.list() }));
+  app.get('/search-jobs/:id', c => {
+    const job = queue.get(c.req.param('id'));
+    return job ? c.json({ job }) : c.json({ error: 'この探索は見つかりません' }, 404);
+  });
+  app.post('/search-jobs', async c => {
+    const body = await c.req.json<{ kind: unknown; request: unknown; generation: number; masterRevision: string }>();
+    if (body.generation !== generation()) return c.json({ error: 'セーブデータがロードされました。同期してから探索してください。' }, 409);
+    if (body.masterRevision !== queue.masterRevision) return c.json({ error: MASTER_CHANGED_MESSAGE }, 409);
+    if ((body.kind !== 'lineage' && body.kind !== 'loop') || !body.request || typeof body.request !== 'object') return c.json({ error: '探索の指定が不正です' }, 400);
+    return c.json({ job: queue.enqueue(body.kind, body.request as SearchRequest | LoopRequest) });
+  });
+  app.post('/search-jobs/:id/cancel', c => {
+    const job = queue.cancel(c.req.param('id'));
+    return job ? c.json({ job }) : c.json({ error: 'この探索は見つかりません' }, 404);
+  });
+  app.delete('/search-jobs/:id', c => { queue.remove(c.req.param('id')); return c.json({ ok: true }); });
+  return app;
 }

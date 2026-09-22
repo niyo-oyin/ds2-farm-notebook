@@ -2,6 +2,7 @@ import { beforeEach, describe, expect, it, vi } from 'vitest';
 import type { SearchResult } from '../src/core/search';
 import { emptyUserData, horsePlanLinks, setHorsePlanLinks, validateOwnedParents } from '../src/store/model';
 import { memoryStorage, owned, planned, plan, timestamp } from './horse-fixtures';
+import { testCatalog } from './setup-catalog';
 
 vi.mock('../src/store/sync', () => ({ pushDiff: vi.fn(), pushAll: vi.fn(), pull: vi.fn().mockResolvedValue(null) }));
 
@@ -32,7 +33,10 @@ describe('所有馬と計画馬のデータ分離', () => {
 });
 
 describe('保存操作の境界', () => {
-  beforeEach(() => { vi.resetModules(); vi.stubGlobal('localStorage', memoryStorage()); });
+  beforeEach(async () => {
+    vi.resetModules(); vi.stubGlobal('localStorage', memoryStorage());
+    (await import('../src/data/catalog')).initializeCatalog(testCatalog);
+  });
 
   it('レースをバックアップから復元し、一覧から削除しても馬の戦績を残す', async () => {
     const { store, getUserData } = await import('../src/store/userdata');

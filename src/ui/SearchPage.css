@@ -68,7 +68,7 @@
 .stallion-growth { align-items: center; gap: 6px 18px; margin-top: 12px; font-size: 13px; }
 .stallion-growth > span { color: var(--ink-muted); font-size: 12px; }
 .stallion-growth label { cursor: pointer; gap: 8px; }
-.stallion-intermediate { margin-left: auto; }
+.stallion-options { margin-left: auto; justify-content: flex-end; gap: 6px 18px; }
 .search-actions { display: flex; align-items: center; justify-content: space-between; gap: 12px; padding-top: 4px; }
 .search-actions button { display: inline-flex; align-items: center; justify-content: center; gap: 10px; min-height: 44px; }
 .search-actions .search-icon { width: 18px; height: 18px; color: currentColor; }
@@ -87,7 +87,6 @@
   .search-section { gap: 16px; padding: 16px; }
   .goal-count-grid { grid-template-columns: repeat(2, minmax(0, 1fr)); }
   .stallion-filter-fields { grid-template-columns: repeat(4, minmax(0, 1fr)); }
-  .stallion-intermediate { margin-left: 0; }
   .effect-fields, .effect-inheritance .checks { grid-template-columns: repeat(3, minmax(0, 1fr)); }
 }
 @media (max-width: 720px) {
@@ -115,6 +114,7 @@
   .effect-toggle, .effect-footer .search-text-button, .effect-inheritance .checks label { min-height: 44px; }
   .stallion-filter-fields { grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 12px; }
   .stallion-growth > span { width: 100%; }
+  .stallion-options { width: 100%; margin-left: 0; justify-content: flex-start; }
   .stallion-growth label, .search-repeat { min-height: 44px; }
   .search-actions { flex-wrap: wrap; gap: 8px; }
   .search-actions .search-reset { font-size: 12px; flex: 1; padding: 8px; gap: 6px; }
@@ -144,6 +144,8 @@ tr.result-expanded-row > td { background: var(--paper); }
 
 .result-filters > .field { flex: 0 1 280px; min-width: 0; gap: 6px; }
 .result-filters .combo, .result-filters input { width: 100%; }
+.loop-result-toolbar > .result-filters { flex: 1 1 280px; margin-bottom: 0; }
+.loop-result-toolbar .result-filters > .field { gap: 3px; }
 .lineage-result-toolbar > .field { flex: 1 1 0; min-width: 0; }
 .lineage-result-toolbar > .field > input, .lineage-result-toolbar > .field > select { width: 100%; min-width: 0; }
 .lineage-result-toolbar > .result-filters { flex: 3 1 0; min-width: 0; margin-bottom: 0; }

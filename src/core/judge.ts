@@ -1,7 +1,9 @@
 // 配合判定。配合確認・所有馬比較・探索で同じ処理を使う。
 import type { AncestorInfo, CrossInfo, HorseRecord, Judgement, MasterData, TheoryResult, UserHorse, Verdict } from './types';
+import { isMasterKey } from './horse-identity';
+import { kottaParents, kottaProfile, compareKottaProfiles, type KottaProfile } from './kotta';
 import { DEFAULT_RULES, RULES_VERSION, type RuleOptions } from './rules';
-import { SYS_CHARS, foalNodes, gen, nameOfKey, sideOf, nodePath } from './pedigree';
+import { SYS_CHARS, foalNodes, gen, sideOf, nodePath } from './pedigree';
 
 export interface JudgeContext {
   rules: RuleOptions;
@@ -11,7 +13,9 @@ export interface JudgeContext {
   ancestors: Map<string, AncestorInfo>;
   /** 自家製馬（ユーザー登録）の因子・性別。キーは馬ID */
   userAncestors: Map<string, AncestorInfo>;
-  kottaPairs: Set<string>;      // "父側名|母側名"
+  kottaProfiles: Map<string, KottaProfile>;
+  userEffects: Map<string, string[] | undefined>;
+  kottaPairs: Set<string>;      // "父側ID|母側ID"
   /** 全血統表から復元した親リンク（ノードキー → [父キー, 母キー]）。自家製馬の凝ったペア推定に使う */
   parents: Map<string, [string, string]>;
   nicks: Map<string, number>;   // "父小系統|母小系統" → 段階
@@ -22,20 +26,15 @@ export function makeContext(master: MasterData, rules: Partial<RuleOptions> = {}
   const kottaPairs = new Set<string>();
   for (const [a, b] of master.kotta) {
     kottaPairs.add(a + '|' + b);
-    if (r.kottaSymmetric) kottaPairs.add(b + '|' + a);
   }
-  const parents = new Map<string, [string, string]>();
-  for (const h of [...master.stallions, ...master.broodmares]) {
-    const n = ['', h.name, ...h.ancestors];
-    for (let k = 1; k < 16; k++) if (n[k] && n[2 * k] && n[2 * k + 1]) parents.set('n:' + n[k], ['n:' + n[2 * k], 'n:' + n[2 * k + 1]]);
-  }
-  for (const u of userHorses) if (u.sireKey && u.damKey) parents.set(u.id, [resolveKey(master, u.sireKey), resolveKey(master, u.damKey)]);
+  const parents = kottaParents(master, userHorses);
   return {
-    parents,
+    parents, kottaProfiles: new Map(),
     rules: r, rulesVersion: RULES_VERSION, dataVersion: master.meta.dataVersion,
     bigSystems: master.meta.bigSystems,
-    ancestors: new Map(master.ancestors.map((a) => [a.name, a])),
-    userAncestors: new Map(userHorses.filter((h) => h.effects || h.sex).map((h) => [h.id, { name: h.name, system: null, sex: h.sex ?? null, effects: h.effects ?? [] }])),
+    ancestors: new Map(master.ancestors.map((a) => [a.id, a])),
+    userAncestors: new Map(userHorses.filter((h) => h.effects || h.sex).map((h) => [h.id, { id: h.id, name: h.name, system: null, sex: h.sex ?? null, effects: h.effects ?? [] }])),
+    userEffects: new Map(userHorses.map(h => [h.id, h.effects])),
     kottaPairs,
     nicks: new Map(master.nicks.map((n) => [n.sire + '|' + n.dam, n.level])),
   };
@@ -43,32 +42,16 @@ export function makeContext(master: MasterData, rules: Partial<RuleOptions> = {}
 
 const res = (verdict: Verdict, reasons: string[] = [], missing: string[] = []): TheoryResult => ({ verdict, reasons, missing });
 
-/** マスターの馬のIDは名前キーに、ユーザー馬のIDはそのまま */
-function resolveKey(master: MasterData, key: string): string {
-  const m = [...master.stallions, ...master.broodmares].find((h) => h.id === key);
-  return m ? 'n:' + m.name : key;
-}
+const profileOf = (ctx: JudgeContext, key: string) => {
+  let profile = ctx.kottaProfiles.get(key);
+  if (!profile) { profile = kottaProfile(key, ctx.parents); ctx.kottaProfiles.set(key, profile); }
+  return profile;
+};
 
-/** 名前キーから3代までの祖先キー（自身を含む）。親リンクがない所で途切れる */
-function ancestorKeys(ctx: JudgeContext, key: string, gens: number): { keys: string[]; complete: boolean } {
-  const keys = [key]; let cur = [key]; let complete = true;
-  for (let g = 0; g < gens; g++) {
-    const next: string[] = [];
-    for (const k of cur) { const p = ctx.parents.get(k); if (p) next.push(...p); else complete = false; }
-    keys.push(...next); cur = next;
-  }
-  return { keys, complete };
-}
-const effectsOf = (ctx: JudgeContext, key: string) => { const nm = nameOfKey(key); return (nm ? ctx.ancestors.get(nm) : ctx.userAncestors.get(key))?.effects; };
-
-/** 前作解説の規則: ペア同士の3代以内に効果のあるクロスが3本。自家製馬が関わる場合の推定に使う */
-function estimateKottaPair(ctx: JudgeContext, a: string, b: string): { pair: boolean; complete: boolean } {
-  const A = ancestorKeys(ctx, a, 3), B = ancestorKeys(ctx, b, 3);
-  const shared = new Set(A.keys.filter((k) => B.keys.includes(k)));
-  let eff = 0;
-  for (const k of shared) if ((effectsOf(ctx, k) ?? []).length) eff++;
-  return { pair: eff >= 3, complete: A.complete && B.complete };
-}
+const effectsOf = (ctx: JudgeContext, key: string) => {
+  const info = ctx.ancestors.get(key);
+  return isMasterKey(key) ? info?.effectsKnown === false ? undefined : info?.effects : ctx.userEffects.get(key);
+};
 
 function sysName(ctx: JudgeContext, c: string): string {
   const i = SYS_CHARS.indexOf(c);
@@ -76,7 +59,7 @@ function sysName(ctx: JudgeContext, c: string): string {
 }
 
 function nitroOf(info: AncestorInfo | undefined) {
-  if (!info) return null;
+  if (!info || info.effectsKnown === false) return null;
   const e = new Set(info.effects);
   const short = e.has('短距離') ? 1 : 0;
   return {
@@ -129,15 +112,14 @@ export function judge(sire: HorseRecord, dam: HorseRecord, ctx: JudgeContext): J
       if (!inherited) { sNodes.add(a); dNodes.add(b); }
     }
     if (!sNodes.size) continue;
-    const name = nameOfKey(k);
-    const info = name ? ctx.ancestors.get(name) : ctx.userAncestors.get(k);
+    const info = ctx.ancestors.get(k) ?? ctx.userAncestors.get(k);
     if (info?.sex === 'F') mareCrossCount++;
-    if (!info) unknownSex++;
+    if (!info || info.effectsKnown === false) unknownSex++;
     crosses.push({
-      key: k, name: labels[k] ?? name ?? k,
+      key: k, name: labels[k] ?? k,
       sireGens: [...sNodes].map(gen).sort((p, q) => p - q), damGens: [...dNodes].map(gen).sort((p, q) => p - q),
       sireNodes: [...sNodes].sort((p, q) => p - q), damNodes: [...dNodes].sort((p, q) => p - q),
-      effects: info?.effects ?? [], effectsKnown: !!info, sex: info?.sex ?? null,
+      effects: info?.effects ?? [], effectsKnown: !!info && info.effectsKnown !== false, sex: info?.sex ?? null,
     });
   }
   crosses.sort((a, b) => Math.min(...a.sireGens, ...a.damGens) - Math.min(...b.sireGens, ...b.damGens));
@@ -147,7 +129,7 @@ export function judge(sire: HorseRecord, dam: HorseRecord, ctx: JudgeContext): J
     : hasUnknownSlots
       ? { ...res('未確定', ['判明している範囲では危険条件に該当しません'], ['血統（不明な祖先）']), causes: [] }
       : { ...res('不成立', [`クロス${crosses.length}本、1×N・2×2なし`]), causes: [] };
-  if (unknownSex) warnings.push(`祖先マスター未登録の共通祖先が${unknownSex}頭あり、効果と性別が不明です`);
+  if (unknownSex) warnings.push(`因子が未確認の共通祖先が${unknownSex}頭あります`);
 
   const outbreed: TheoryResult = crosses.length
     ? res('不成立', [`クロスが${crosses.length}本あります`])
@@ -219,11 +201,10 @@ export function judge(sire: HorseRecord, dam: HorseRecord, ctx: JudgeContext): J
   const sideNames = (side: 2 | 3) => {
     const names = new Set<string>(); const homebred: string[] = []; let unknown = 0;
     for (let n = 2; n < 64; n++) {
-      if (sideOf(n) !== side || gen(n) > kg) continue;
+      if (sideOf(n) !== side || gen(n) > kg || n % 2 !== 0) continue;
       const k = nodes[n];
       if (!k) { unknown++; continue; }
-      const nm = nameOfKey(k);
-      if (nm) names.add(nm); else homebred.push(labels[k] ?? k);
+      if (isMasterKey(k)) names.add(k); else homebred.push(labels[k] ?? k);
     }
     return { names, homebred, unknown };
   };
@@ -235,14 +216,14 @@ export function judge(sire: HorseRecord, dam: HorseRecord, ctx: JudgeContext): J
   const estimatedPairs: [string, string][] = [];
   let estimateIncomplete = false;
   if (rules.kottaEstimateHomebred && homebredInRange.length) {
-    const sideKeys = (side: 2 | 3) => { const ks: number[] = []; for (let n = 2; n < 64; n++) if (sideOf(n) === side && gen(n) <= kg && nodes[n] && (n === side || n % 2 === 0)) ks.push(n); return ks; };
+    const sideKeys = (side: 2 | 3) => { const ks: number[] = []; for (let n = 2; n < 64; n++) if (sideOf(n) === side && gen(n) <= kg && nodes[n] && n % 2 === 0) ks.push(n); return ks; };
     for (const na of sideKeys(2)) for (const nb of sideKeys(3)) {
       const a = nodes[na], b = nodes[nb];
-      const aHome = !nameOfKey(a), bHome = !nameOfKey(b);
+      const aHome = !isMasterKey(a), bHome = !isMasterKey(b);
       if (!aHome && !bHome) continue;
       if (a === b) continue;
-      const r = estimateKottaPair(ctx, a, b);
-      if (r.pair) estimatedPairs.push([labels[a] ?? a, labels[b] ?? b]);
+      const r = compareKottaProfiles(profileOf(ctx, a), profileOf(ctx, b), key => effectsOf(ctx, key));
+      if (r.pair) estimatedPairs.push([a, b]);
       else if (!r.complete) estimateIncomplete = true;
     }
   }
@@ -250,24 +231,24 @@ export function judge(sire: HorseRecord, dam: HorseRecord, ctx: JudgeContext): J
   let kotEst = false;
   if (!pairs.length && estimatedPairs.length) {
     kotEst = true;
-    kotR.push(...estimatedPairs.map(([a, b]) => `推定ペア: ${a}（父側）× ${b}（母側）。前作規則（3代以内に効果ありクロス3本）による`));
+    kotR.push(...estimatedPairs.map(([a, b]) => `推定ペア: ${labels[a] ?? a}（父側）× ${labels[b] ?? b}（母側）。3代血統の父側の独立した枝に有効クロス3本以上`));
     if (dangerous.verdict === '成立') { kotV = '不成立'; kotR.push('危険な配合のため無効'); }
     else if (dangerous.verdict === '未確定') { kotV = '未確定'; kotM.push('血統（不明な祖先）'); }
     else kotV = '成立';
   } else if (pairs.length) {
-    kotR.push(...pairs.map(([a, b]) => `ペア: ${a}（父側）× ${b}（母側）`));
+    kotR.push(...pairs.map(([a, b]) => `ペア: ${labels[a] ?? a}（父側）× ${labels[b] ?? b}（母側）`));
     if (dangerous.verdict === '成立') { kotV = '不成立'; kotR.push('危険な配合のため無効'); }
     else if (dangerous.verdict === '未確定') { kotV = '未確定'; kotR.push('危険な配合になる可能性が残っています'); kotM.push('血統（不明な祖先）'); }
     else kotV = '成立';
-  } else if (sk.unknown + dk.unknown > 0) { kotV = '未確定'; kotR.push('4代以内に不明な欄があります'); kotM.push('血統（不明な祖先）'); }
-  else if (homebredInRange.length) {
+  } else if (dangerous.verdict === '成立') {
+    kotV = '不成立'; kotR.push('危険な配合のため無効');
+  } else if (sk.unknown || dk.unknown) {
+    kotV = '未確定'; kotM.push('凝った配合の対象祖先'); kotR.push('対象範囲に不明な祖先があります');
+  } else if (homebredInRange.length && (!rules.kottaEstimateHomebred || estimateIncomplete)) {
     kotV = '未確定';
-    kotR.push(rules.kottaEstimateHomebred
-      ? `自家製馬（${homebredInRange.join('、')}）が関わるペアは前作規則で推定しましたが該当なし${estimateIncomplete ? '（祖先の親リンクや因子が欠けており数え漏れの可能性あり）' : ''}`
-      : `自家製馬（${homebredInRange.join('、')}）がペア対象になる可能性がありますが判定できません`);
-    kotM.push('自家製馬のペア情報');
-  }
-  else { kotV = '不成立'; kotR.push('成立ペアが見つかりません'); }
+    kotR.push(rules.kottaEstimateHomebred ? '自家製馬の3代血統や因子が不足しているため、ペアを判定できません' : '自家製馬のペアの推定が無効です');
+    kotM.push('自家製馬の3代血統・因子');
+  } else { kotV = '不成立'; kotR.push('成立ペアが見つかりません'); }
   const kotta: Judgement['kotta'] = { ...res(kotV, kotR, kotM), estimated: kotEst || undefined, pairs, homebredInRange, estimatedPairs };
   // ---- 完璧／凝った配合（公式資料の最上位複合配合） ----
   const perfectKotta: TheoryResult = perfect.verdict === '成立' && kotta.verdict === '成立' ? { ...res('成立', ['完璧な配合と凝った配合が同時成立']), estimated: kotta.estimated }
@@ -304,8 +285,7 @@ export function judge(sire: HorseRecord, dam: HorseRecord, ctx: JudgeContext): J
   const seen = new Set<string>();
   for (const k of [...sN, ...dN]) {
     if (seen.has(k)) continue; seen.add(k);
-    const nm = nameOfKey(k);
-    const v = nitroOf(nm ? ctx.ancestors.get(nm) : ctx.userAncestors.get(k));
+    const v = nitroOf(ctx.ancestors.get(k) ?? ctx.userAncestors.get(k));
     if (v) { nitro.speed += v.speed; nitro.stamina += v.stamina; nitro.power += v.power; }
     else nitro.unknownNames.push(labels[k] ?? k);
   }

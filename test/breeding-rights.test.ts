@@ -9,6 +9,7 @@ import { horseUnlockConditions } from '../src/core/master-horse';
 import { horseCell } from '../src/ui/master-horse-catalog';
 import { sireOptions } from '../src/ui/app-context';
 import { emptyUserData } from '../src/store/model';
+import { owned } from './horse-fixtures';
 
 const horse = { ...baseMaster.stallions[0], price: 100, breedingRightPrice: 180000, unlock: null };
 const master = { ...baseMaster, stallions: [horse] };
@@ -17,6 +18,29 @@ const ctx = makeContext(master);
 const env = { resolve: (key: string) => resolver.get(key), rules: DEFAULT_RULES, ctx };
 
 describe('種付け権と種付料の分離', () => {
+  it('海外区分で探索候補を切り替え、馬名・所有馬・血統参照には影響しない', async () => {
+    const domestic = { ...horse, name: 'Domestic Horse', overseas: false, breedingRightPrice: null };
+    const foreign = { ...baseMaster.stallions[1], name: 'カタカナの海外馬', overseas: true, breedingRightPrice: null, unlock: null };
+    const m = { ...baseMaster, stallions: [domestic, foreign] };
+    const data = emptyUserData();
+    data.horses.push(owned('u:own', { sex: 'M', name: 'My Horse', category: '種牡馬' }));
+    const resolver = new HorseResolver(m, data.horses, DEFAULT_RULES);
+    const ctx = makeContext(m);
+    const app = { master: m, data, resolver, ctx, rules: DEFAULT_RULES };
+    for (const includeOverseas of [false, true]) {
+      const options = sireOptions(app, { onlyAvailable: true, includeOverseas });
+      expect(options.map(h => h.key)).toEqual(includeOverseas ? ['u:own', domestic.id, foreign.id] : ['u:own', domestic.id]);
+      const req: SearchRequest = { startMare: m.broodmares[0].id, finalStallion: null, intermediateStallion: null, finalPool: null, stallionPool: options.filter(h => h.group === '種牡馬').map(h => h.key), minMatings: 2, maxMatings: 2, goals: [], maxCost: null, maxEvaluations: 100, allowRepeatStallion: true };
+      const report = await searchLineage({ ctx, rules: DEFAULT_RULES, resolve: key => resolver.get(key) }, req);
+      expect(report.results.length).toBeGreaterThan(0);
+      for (const index of [0, 1]) expect(report.results.some(r => r.steps[index].sire === foreign.id)).toBe(includeOverseas);
+    }
+    expect(sireOptions(app).some(h => h.key === foreign.id)).toBe(true);
+    expect(resolver.get(foreign.id)).not.toBeNull();
+    const edit = diffAgainstBase(foreign, { ...foreign, overseas: false });
+    const changed = applyMasterEdits(m, [{ id: foreign.id, kind: 'stallion', added: false, updatedAt: '', data: edit }]);
+    expect(sireOptions({ ...app, master: changed }, { includeOverseas: false }).some(h => h.key === foreign.id)).toBe(true);
+  });
   it('権利代を各世代の種付料に加算せず、解禁条件として伝える', async () => {
     const req: SearchRequest = { startMare: master.broodmares[0].id, stallionPool: [horse.id], intermediateStallion: null, finalStallion: horse.id, minMatings: 2, maxMatings: 2, goals: [], maxCost: 200, maxEvaluations: 1000, allowRepeatStallion: true };
     for (const run of [searchLineage, searchLineageForward]) {
@@ -48,9 +72,9 @@ describe('種付け権と種付料の分離', () => {
     expect(judge(r.get(base.id)!, r.get(master.broodmares[0].id)!, ctx).costUnknown).toBe(true);
     const reading = { fee: '無料', age: -1, sex: '牡' } as MasterReading;
     for (const key of ['name', 'color', 'sire', 'dam', 'dam_sire', 'big_system', 'small_system', 'price', 'distance', 'growth', 'dirt', 'kenko', 'kisyo', 'jisseki', 'konjo', 'antei'] as const) reading[key] = '';
-    const next = masterFromReading('stallion', reading, base, master, new Map(master.ancestors.map(a => [a.name, a])));
+    const next = masterFromReading('stallion', reading, base, master, new Map(master.ancestors.map(a => [a.id, a])));
     expect(next.breedingRightPrice).toBe(180000);
-    expect(masterDiffRows(base, next, master.meta.bigSystems)).toContainEqual({ key: 'price', label: '種付料（万円）', before: '未確認', after: '0' });
+    expect(masterDiffRows(base, next, master.meta.bigSystems, id => r.label(id))).toContainEqual({ key: 'price', label: '種付料（万円）', before: '未確認', after: '0' });
     const applied = applyMasterFields(base, next, ['price']);
     expect(applied.priceUnknown).toBe(false);
     expect(applied.breedingRightPrice).toBe(180000);

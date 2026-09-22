@@ -1,15 +1,11 @@
 // 血統処理: マスターの馬・ユーザー馬を共通の HorseRecord に展開する。
 import type { HorseKey, HorseRecord, MasterData, MasterHorse, UserHorse, Sex } from './types';
+import { horseIdentities, type HorseIdentity } from './horse-identity';
 import { horseUnlockConditions } from './master-horse';
 import type { RuleOptions } from './rules';
 
 export const UNKNOWN = '';
 export const SYS_CHARS = 'abcdefghijklmno';
-
-/** 名前ベースのノードキー（マスターの馬と血統表上の祖先は名前が識別子） */
-export const nameKey = (name: string): string => 'n:' + name;
-export const isNameKey = (key: string): boolean => key.startsWith('n:');
-export const nameOfKey = (key: string): string | null => (isNameKey(key) ? key.slice(2) : null);
 
 /** ノード番号から世代（1 = 父母）を求める */
 export const gen = (node: number): number => 31 - Math.clz32(node);
@@ -22,16 +18,16 @@ export function unknownRecord(key = '?:unknown', name = '（未定）'): HorseRe
   };
 }
 
-export function masterToRecord(h: MasterHorse): HorseRecord {
+export function masterToRecord(h: MasterHorse, identities: Map<string, HorseIdentity>): HorseRecord {
   const nodes: string[] = Array(32).fill(UNKNOWN);
   const labels: Record<string, string> = {};
-  nodes[1] = nameKey(h.name);
+  nodes[1] = h.id;
   labels[nodes[1]] = h.name;
   let missing = 0;
   h.ancestors.forEach((n, i) => {
     if (!n) { missing++; return; }
-    nodes[i + 2] = nameKey(n);
-    labels[nodes[i + 2]] = n;
+    nodes[i + 2] = n;
+    labels[n] = identities.get(n)?.name ?? '（未登録）';
   });
   return {
     key: h.id, name: h.name, sex: h.sex, kind: h.kind, price: h.kind === 'stallion' && !h.priceUnknown ? h.price : 0, priceUnknown: h.kind === 'stallion' && h.priceUnknown,
@@ -87,16 +83,16 @@ export function makeFoalRecord(
 /** マスターの馬・ユーザー馬のキーから HorseRecord を解決する（結果はキャッシュ） */
 export class HorseResolver {
   private masterById = new Map<string, MasterHorse>();
-  private masterByName = new Map<string, MasterHorse>();
+  private identities: Map<string, HorseIdentity>;
   private users = new Map<string, UserHorse>();
   private cache = new Map<string, HorseRecord | null>();
   private rules: RuleOptions;
 
   constructor(master: MasterData, userHorses: UserHorse[], rules: RuleOptions) {
     this.rules = rules;
+    this.identities = horseIdentities(master);
     for (const h of [...master.stallions, ...master.broodmares]) {
       this.masterById.set(h.id, h);
-      this.masterByName.set(h.name, h);
     }
     for (const u of userHorses) this.users.set(u.id, u);
   }
@@ -111,7 +107,7 @@ export class HorseResolver {
     if (this.cache.has(key)) return this.cache.get(key)!;
     let rec: HorseRecord | null = null;
     const m = this.masterById.get(key);
-    if (m) rec = masterToRecord(m);
+    if (m) rec = masterToRecord(m, this.identities);
     else {
       const u = this.users.get(key);
       if (u) {
@@ -134,7 +130,7 @@ export class HorseResolver {
   label(key: HorseKey): string {
     const r = this.get(key);
     if (r) return r.name;
-    return nameOfKey(key) ?? key;
+    return this.identities.get(key)?.name ?? (key ? '（未登録）' : '');
   }
 }
 

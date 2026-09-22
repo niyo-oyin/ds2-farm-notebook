@@ -1,7 +1,6 @@
 // ブラウザと共通の探索コアを Node のワーカースレッドで実行し、進捗と結果を親へ送る。
 // 中止メッセージは探索コアの処理の区切りで受け付ける。
 import { parentPort, workerData } from 'node:worker_threads';
-import { baseMaster } from '../src/data/base-master.js';
 import { applyMasterEdits } from '../src/core/master-edits.js';
 import { DEFAULT_RULES } from '../src/core/rules.js';
 import { HorseResolver } from '../src/core/pedigree.js';
@@ -21,7 +20,7 @@ port.on('message', (m: unknown) => { if (m === 'cancel') cancelled = true; });
 const POST_INTERVAL_MS = 1000;
 try {
   const data = userDataFromRecords(input.records);
-  const master = applyMasterEdits(baseMaster, data.masterEdits, data.ancestorEdits, data.kottaEdits, data.nicksEdits);
+  const master = applyMasterEdits(input.master, data.masterEdits, data.ancestorEdits, data.kottaEdits, data.nicksEdits);
   const rules = { ...DEFAULT_RULES, ...data.settings.rules };
   const userHorses = allUserHorses(data);
   const resolver = new HorseResolver(master, userHorses, rules);

@@ -12,6 +12,21 @@ const response = (records: unknown[]) => ({ records, generation: 0, replace: fal
 describe('所有馬と計画馬の同期', () => {
   beforeEach(() => { mockedApi.mockReset(); vi.stubGlobal('localStorage', memoryStorage()); });
 
+  it('同名の祖先を別々に同期し、改名しても同じIDの編集だけを更新する', async () => {
+    const a = { id: 'a:1', name: '同名馬', system: null, sex: null, effects: ['速力'], updatedAt: timestamp };
+    const b = { ...a, id: 'a:2', effects: ['底力'] };
+    const data = { ...emptyUserData(), ancestorEdits: [a, b] };
+    const records = toRecords(data);
+    expect(userDataFromRecords(records).ancestorEdits).toEqual([a, b]);
+    mockedApi.mockResolvedValueOnce(response(records));
+    const synced = await pull(() => emptyUserData(), true);
+    expect(synced?.ancestorEdits).toEqual([a, b]);
+    const renamed = { ...a, name: '新しい名前', updatedAt: '2099-01-01' };
+    mockedApi.mockResolvedValueOnce(response(toRecords({ ...emptyUserData(), ancestorEdits: [renamed] })));
+    const updated = await pull(() => synced!);
+    expect(updated?.ancestorEdits).toEqual([renamed, b]);
+  });
+
   it('レースの追加・修正を端末とサーバで復元し、削除差分も反映する', async () => {
     const data = { ...emptyUserData(), raceEdits: [
       { id: 'rc:img-1-1', added: false, data: { distance: 2000 }, updatedAt: timestamp },

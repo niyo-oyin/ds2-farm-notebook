@@ -1,11 +1,14 @@
 import { useId, useMemo, useState } from 'react';
 import { horseUnlockConditions } from '../core/master-horse';
-import type { MasterHorse } from '../core/types';
+import type { AncestorInfo, MasterHorse } from '../core/types';
 import { GROWTH_TYPES, DIRT_APTITUDES, ABILITY_RANKS } from '../core/owned-horse';
-import { OMOSHIRO_SLOTS, MIGOTO_SLOTS, SLOT_LABELS, charSys, deriveCodes, diffAgainstBase, fillFromParents, isUserMasterId, newMasterId, sysChar, validateMasterHorse } from '../core/master-edits';
+import { OMOSHIRO_SLOTS, MIGOTO_SLOTS, SLOT_LABELS, charSys, deriveCodes, diffAgainstBase, fillFromParents, newMasterId, sysChar, validateMasterHorse } from '../core/master-edits';
 import { baseMaster } from '../data/base-master';
 import { store } from '../store/userdata';
 import { useApp } from './app-context';
+import { horseIdentities, newAncestorId } from '../core/horse-identity';
+import { HorseSelect } from './HorseSelect';
+import { ancestorOptions } from './ancestor-options';
 import { nodePath } from '../core/pedigree';
 import { EffectChips, SystemBadge } from './Pedigree';
 import { ActionDialog } from './ActionDialog';
@@ -30,18 +33,18 @@ export function HorseDialog({ horseKey, kind = 'stallion', onClose, onSaved, seq
 
 function HorseOverview({ horse }: { horse: MasterHorse }) {
   return <>
-    <div className="horse-dialog-meta"><span className={`pill cat-${horse.kind === 'stallion' ? '種牡馬' : '繁殖牝馬'}`}>{horse.kind === 'stallion' ? '種牡馬' : '繁殖牝馬'}</span><span>{horse.bigSystem ? `${horse.bigSystem}系` : '大系統未設定'} / {horse.smallSystem ? `${horse.smallSystem}系` : '小系統未設定'}</span><span>{horse.kind === 'stallion' ? '種付料' : '購入価格'} {horseCell(horse, 'price')}{!horse.priceUnknown && (horse.kind === 'stallion' || !!horse.purchasePrice) ? '万円' : ''}</span>{horse.color && <span>{horse.color}</span>}{horseUnlockConditions(horse).map(c => <span key={c} className="tag warn">解禁条件: {c}</span>)}</div>
+    <div className="horse-dialog-meta">{horse.overseas && <span className="pill">海外種牡馬</span>}<span className={`pill cat-${horse.kind === 'stallion' ? '種牡馬' : '繁殖牝馬'}`}>{horse.kind === 'stallion' ? '種牡馬' : '繁殖牝馬'}</span><span>{horse.bigSystem ? `${horse.bigSystem}系` : '大系統未設定'} / {horse.smallSystem ? `${horse.smallSystem}系` : '小系統未設定'}</span><span>{horse.kind === 'stallion' ? '種付料' : '購入価格'} {horseCell(horse, 'price')}{!horse.priceUnknown && (horse.kind === 'stallion' || !!horse.purchasePrice) ? '万円' : ''}</span>{horse.color && <span>{horse.color}</span>}{horseUnlockConditions(horse).map(c => <span key={c} className="tag warn">解禁条件: {c}</span>)}</div>
     <dl className="horse-dialog-attrs">{horseColumns(horse.kind).slice(2).map(c => <div key={c.key}><dt>{c.label}</dt><dd>{horseCell(horse, c.key)}</dd></div>)}</dl>
   </>;
 }
 
-interface Form { name: string; price: string; purchasePrice: string; breedingRightPrice: string; color: string; bigSystem: string; smallSystem: string; unlock: string; hidden: boolean; priceUnknown: boolean; ancestors: string[]; omoshiro: string[]; migoto: string[]; attrs: Record<string, string> }
+interface Form { overseas: boolean; name: string; price: string; purchasePrice: string; breedingRightPrice: string; color: string; bigSystem: string; smallSystem: string; unlock: string; hidden: boolean; priceUnknown: boolean; ancestors: string[]; omoshiro: string[]; migoto: string[]; attrs: Record<string, string> }
 const ATTR_FIELDS: Record<Kind, { key: string; label: string; type: 'number' | 'select'; options?: readonly string[] }[]> = {
   stallion: [
     { key: 'distMin', label: '距離下限（m）', type: 'number' }, { key: 'distMax', label: '距離上限（m）', type: 'number' },
     { key: 'grown', label: '成長', type: 'select', options: GROWTH_TYPES }, { key: 'dirt', label: 'ダート', type: 'select', options: DIRT_APTITUDES },
-    { key: 'jisseki', label: '実績', type: 'select', options: ABILITY_RANKS }, { key: 'antei', label: '安定', type: 'select', options: ABILITY_RANKS }, { key: 'konjo', label: '底力', type: 'select', options: ABILITY_RANKS },
     { key: 'kenko', label: '体質', type: 'select', options: ABILITY_RANKS }, { key: 'kisyo', label: '気性', type: 'select', options: ABILITY_RANKS },
+    { key: 'jisseki', label: '実績', type: 'select', options: ABILITY_RANKS }, { key: 'konjo', label: '底力', type: 'select', options: ABILITY_RANKS }, { key: 'antei', label: '安定', type: 'select', options: ABILITY_RANKS },
   ],
   broodmare: [
     { key: 'speed', label: 'スピード', type: 'number' }, { key: 'stamina', label: 'スタミナ', type: 'number' }, { key: 'power', label: 'パワー', type: 'number' },
@@ -70,9 +73,12 @@ function HorseDetails({ kind, horse, onDone, onClose, sequence, mode }: { mode: 
   const app = useApp();
   const bigSystems = app.master.meta.bigSystems;
   const edit = horse ? app.data.masterEdits.find((e) => e.id === horse.id) : undefined;
-  const isPublic = !!horse && !isUserMasterId(horse.id);
-  const base = isPublic ? (kind === 'stallion' ? baseMaster.stallions : baseMaster.broodmares).find((h) => h.id === horse!.id)! : null;
+  const base = horse ? (kind === 'stallion' ? baseMaster.stallions : baseMaster.broodmares).find(h => h.id === horse.id) : undefined;
+  const isPublic = !!base;
+  const [newAncestors, setNewAncestors] = useState<AncestorInfo[]>([]);
+  const [identityId, setIdentityId] = useState('');
   const initial = (): Form => ({
+    overseas: !!horse?.overseas,
     name: horse?.name ?? '', price: String(horse?.price ?? (kind === 'stallion' ? '' : 0)), purchasePrice: String(horse?.purchasePrice ?? ''), breedingRightPrice: String(horse?.breedingRightPrice ?? ''),
     color: horse?.color ?? '', bigSystem: horse?.bigSystem ?? '', smallSystem: horse?.smallSystem ?? '', unlock: horse?.unlock ?? '', hidden: !!edit?.hidden, priceUnknown: !!horse?.priceUnknown,
     ancestors: horse ? [...horse.ancestors, ...Array(30 - horse.ancestors.length).fill('')] : Array(30).fill(''),
@@ -89,20 +95,24 @@ function HorseDetails({ kind, horse, onDone, onClose, sequence, mode }: { mode: 
   const formId = useId();
   const dirty = editing && JSON.stringify(form) !== JSON.stringify(baseline);
   const finish = (action: 'close' | 'cancel') => {
-    setPending(null);
+    setPending(null); setNewAncestors([]);
     if (action === 'close' || !horse) onClose();
     else { const f = initial(); setForm(f); setBaseline(f); setEditing(mode === 'data'); setPedEditing(false); setSaved(false); setError(''); }
   };
   const requestFinish = (action: 'close' | 'cancel') => { if (dirty) setPending(action); else finish(action); };
-  const beginEdit = () => { const f = initial(); setForm(f); setBaseline(f); setEditing(true); setSaved(false); setError(''); };
+  const beginEdit = () => { setNewAncestors([]); const f = initial(); setForm(f); setBaseline(f); setEditing(true); setSaved(false); setError(''); };
   const [error, setError] = useState('');
   const change = (patch: Partial<Form>) => { setForm({ ...form, ...patch }); setSaved(false); setError(''); };
   const smalls = useMemo(() => [...new Set([...app.master.stallions, ...app.master.broodmares].map((h) => h.smallSystem).filter((s): s is string => !!s))].sort(), [app.master]);
-  const knownNames = useMemo(() => [...new Set([...app.master.ancestors.map((a) => a.name), ...[...app.master.stallions, ...app.master.broodmares].flatMap((h) => [h.name, ...h.ancestors])])].filter(Boolean).sort(), [app.master]);
-  const byName = useMemo(() => new Map([...app.master.stallions, ...app.master.broodmares].map((h) => [h.name, h])), [app.master]);
+  const draftMaster = useMemo(() => ({ ...app.master, ancestors: [...app.master.ancestors, ...newAncestors] }), [app.master, newAncestors]);
+  const ancestorsOptions = useMemo(() => ancestorOptions(draftMaster), [draftMaster]);
+  const identities = useMemo(() => horseIdentities(draftMaster), [draftMaster]);
+  const reusableAncestors = app.master.ancestors.filter(a => a.name === form.name.trim() && !app.resolver.master(a.id));
+  const byId = useMemo(() => new Map([...app.master.stallions, ...app.master.broodmares].map((h) => [h.id, h])), [app.master]);
   const derived = deriveCodes(form.bigSystem || null, form.ancestors, app.ctx.ancestors, bigSystems);
   const toHorse = (): MasterHorse => ({
-    ...horse, id: horse?.id ?? newMasterId(kind), kind, sex: kind === 'stallion' ? 'M' : 'F',
+    ...horse, id: horse?.id ?? (reusableAncestors.some(a => a.id === identityId) ? identityId : newMasterId(kind)), kind, sex: kind === 'stallion' ? 'M' : 'F',
+    overseas: kind === 'stallion' && form.overseas,
     name: form.name.trim(), price: kind === 'stallion' && !form.priceUnknown ? Number(form.price || 0) : 0, priceUnknown: form.priceUnknown, color: form.color.trim() || null,
     bigSystem: form.bigSystem || null, smallSystem: form.smallSystem.trim() || null,
     omoshiro: horse?.omoshiro == null && form.omoshiro.join('') === '????' ? null : form.omoshiro.join(''), migoto: kind === 'stallion' && !(horse?.migoto == null && form.migoto.join('') === '????') ? form.migoto.join('') : null,
@@ -122,6 +132,7 @@ function HorseDetails({ kind, horse, onDone, onClose, sequence, mode }: { mode: 
       }
       if (kind === 'stallion' && !!form.attrs.distMin !== !!form.attrs.distMax) throw new Error('距離は下限と上限の両方を入力してください');
       if (Number(form.attrs.distMin) > Number(form.attrs.distMax)) throw new Error('距離上限は下限以上にしてください');
+      if (newAncestors.length) store.saveAncestorEdits(newAncestors.filter(a => next.ancestors.includes(a.id)));
       if (isPublic && base) {
         const data = diffAgainstBase(base, next);
         if (!Object.keys(data).length && !form.hidden) {
@@ -154,7 +165,7 @@ function HorseDetails({ kind, horse, onDone, onClose, sequence, mode }: { mode: 
       const n = (1 << generation) + row, idx = n - 2;
       const info = app.ctx.ancestors.get(ancestors[idx]?.trim() ?? '');
       cells.push(<div key={n} className={'master-anc ' + (n % 2 ? 'dam' : 'sire')} style={{ gridColumn: generation, gridRow: `${row * span + 1} / span ${span}` }}>
-        {editing && pedEditing ? <input list="master-known-names" aria-label={nodePath(n)} placeholder={nodePath(n)} value={form.ancestors[idx]} onChange={(e) => { const a = [...form.ancestors]; a[idx] = e.target.value; change({ ancestors: a }); }} /> : <span>{ancestors[idx] || <span className="muted">（不明）</span>}</span>}
+        {editing && pedEditing ? <HorseSelect options={ancestorsOptions} onCreate={name => { const id = newAncestorId(); setNewAncestors([...newAncestors, { id, name, sex: n % 2 ? 'F' : 'M', system: null, effects: [], effectsKnown: false }]); const a = [...form.ancestors]; a[idx] = id; change({ ancestors: a }); }} aria-label={nodePath(n)} placeholder={nodePath(n)} value={form.ancestors[idx]} onChange={(id) => { const a = [...form.ancestors]; a[idx] = id; change({ ancestors: a }); }} /> : <span>{(ancestors[idx] ? identities.get(ancestors[idx])?.name ?? '（未登録）' : '') || <span className="muted">（不明）</span>}</span>}
         {!!info?.effects.length && <EffectChips effects={info.effects} size="sm" />}
       </div>);
       if (generation === 4 && n % 2 === 0) cells.push(<div key={`sys-${n}`} className="master-anc-sys" style={{ gridColumn: 5, gridRow: `${row * span + 1} / span 2` }}><SystemBadge system={info?.system ? bigSystems[info.system - 1] : null} /></div>);
@@ -185,6 +196,7 @@ function HorseDetails({ kind, horse, onDone, onClose, sequence, mode }: { mode: 
         <div className="sheet-section-heading"><h3>基本情報</h3></div>
         <div className="master-fields">
           <label className="field">馬名<input value={form.name} onChange={(e) => change({ name: e.target.value })} /></label>
+          {!horse && reusableAncestors.length > 0 && <label className="field">登録済みの祖先との対応<select value={identityId} onChange={e => setIdentityId(e.target.value)}><option value="">同名の別馬として追加</option>{reusableAncestors.map(a => <option key={a.id} value={a.id}>{a.name}（{a.sex === 'M' ? '牡' : a.sex === 'F' ? '牝' : '性別不明'}・{a.id}）</option>)}</select></label>}
           {kind === 'stallion' ? <label className="field">種付料（万円）<input type="number" min={0} disabled={form.priceUnknown} value={form.price} onChange={(e) => change({ price: e.target.value })} /></label>
             : <label className="field">購入価格（万円、空欄は初期から利用可）<input type="number" min={0} disabled={form.priceUnknown} value={form.purchasePrice} onChange={(e) => change({ purchasePrice: e.target.value })} /></label>}
           <label className="field">毛色<select value={form.color} onChange={(e) => change({ color: e.target.value })}><option value="">未確認</option>{[...new Set([...COAT_COLORS, form.color].filter(Boolean))].map(c => <option key={c}>{c}</option>)}</select></label>
@@ -192,6 +204,7 @@ function HorseDetails({ kind, horse, onDone, onClose, sequence, mode }: { mode: 
           <label className="field">小系統<input list="master-smalls" value={form.smallSystem} onChange={(e) => change({ smallSystem: e.target.value })} /><datalist id="master-smalls">{smalls.map((s) => <option key={s} value={s} />)}</datalist></label>
           <label className="field">解禁条件<input value={form.unlock} placeholder="例: 皐月賞に勝利" onChange={(e) => change({ unlock: e.target.value })} /></label>
           {kind === 'stallion' && <label className="field">種付け権購入額（万円）<input type="number" min={0} placeholder="条件なし" value={form.breedingRightPrice} onChange={e => change({ breedingRightPrice: e.target.value })} /></label>}
+          {kind === 'stallion' && <label className="field">種牡馬の区分<select value={form.overseas ? 'overseas' : 'domestic'} onChange={e => change({ overseas: e.target.value === 'overseas' })}><option value="domestic">国内</option><option value="overseas">海外</option></select></label>}
           <label className="master-hidden"><input type="checkbox" checked={form.priceUnknown} onChange={e => change({ priceUnknown: e.target.checked })} /><span>{kind === 'stallion' ? '種付料' : '購入価格'}は未確認</span></label>
           {isPublic && <label className="master-hidden"><input type="checkbox" checked={form.hidden} onChange={(e) => change({ hidden: e.target.checked })} /><span>非表示にする</span></label>}
         </div>
@@ -206,9 +219,9 @@ function HorseDetails({ kind, horse, onDone, onClose, sequence, mode }: { mode: 
       <div className="horse-dialog-tabs" role="tablist" aria-label="馬の詳細内容"><button type="button" role="tab" aria-selected={tab === 'pedigree'} onClick={() => setTab('pedigree')}>血統表</button>{horse && <button type="button" role="tab" aria-selected={tab === 'hints'} onClick={() => setTab('hints')}>配合の手がかり</button>}</div>
       {tab === 'pedigree' ? <>
       <section className="sheet-section master-pedigree-section">
-        <div className="sheet-section-heading"><h3>血統（4代）</h3>{editing && <div className="horse-dialog-pedigree-actions">{pedEditing && <button type="button" onClick={() => change({ ancestors: fillFromParents(form.ancestors, byName) })}>父母の血統から埋める</button>}<button type="button" onClick={() => setPedEditing(!pedEditing)}>{pedEditing ? '血統表の表示に戻す' : '血統表を編集'}</button></div>}</div>
+        <div className="sheet-section-heading"><h3>血統（4代）</h3>{editing && <div className="horse-dialog-pedigree-actions">{pedEditing && <button type="button" onClick={() => change({ ancestors: fillFromParents(form.ancestors, byId) })}>父母の血統から埋める</button>}<button type="button" onClick={() => setPedEditing(!pedEditing)}>{pedEditing ? '血統表の表示に戻す' : '血統表を編集'}</button></div>}</div>
         <div className="sheet-pedigree-scroll"><div className="master-pedigree" style={{ gridTemplateColumns: 'repeat(4, minmax(150px, 1fr)) 52px', gridTemplateRows: 'repeat(16, minmax(30px, auto))' }}>{cells}</div></div>
-        <datalist id="master-known-names">{knownNames.map((n) => <option key={n} value={n} />)}</datalist>
+
       </section>
       {editing && <details className="sheet-section"><summary>系統コードを編集</summary>
         <div className="sheet-section-heading"><h3>系統コード</h3><button type="button" onClick={() => change({ omoshiro: derived.omoshiro.split(''), migoto: derived.migoto.split('') })}>祖先マスターから導出</button></div>

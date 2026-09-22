@@ -22,7 +22,7 @@ it('父母の参照先で実在馬と自家生産馬を区別し、同名の実�
   const mare = baseMaster.broodmares[0];
   const homebred = owned('u:dam', { name: mare.name, profile: { record: '18戦5勝', wins: '京都記念', earnings: 12000 }, memo: '京都で初重賞。' });
   const parents = new HorseResolver(baseMaster, [homebred], DEFAULT_RULES);
-  expect(namingParent(mare.id, parents, baseMaster, 'F')).toMatchObject({ origin: 'real', name: mare.name, pedigree: { sire: mare.ancestors[0], dam: mare.ancestors[1] } });
+  expect(namingParent(mare.id, parents, baseMaster, 'F')).toMatchObject({ origin: 'real', name: mare.name, pedigree: { sire: resolver.label(mare.ancestors[0]), dam: resolver.label(mare.ancestors[1]) } });
   expect(namingParent(homebred.id, parents, baseMaster, 'F')).toMatchObject({ origin: 'homebred', name: mare.name, career: { record: '18戦5勝', wins: '京都記念' } });
   expect(namingParent('', resolver, baseMaster, 'F', mare.name)).toMatchObject({ origin: 'real', name: mare.name });
   expect(namingParent('', parents, baseMaster, 'F', mare.name)).toEqual({ origin: 'unknown', name: mare.name });
@@ -59,15 +59,15 @@ it('産駒を起点に3代14枠を展開し、自家生産の祖先と同じ馬�
     { position: '父', name: sire.name, origin: 'real' },
     { position: '母', name: mother.name, origin: 'homebred' },
     { position: '母父', name: sire.name, origin: 'real' },
-    { position: '父母父', name: sire.ancestors[4], origin: 'real' },
-    { position: '母母母', name: dam.ancestors[1], origin: 'real' },
+    { position: '父母父', name: resolver.label(sire.ancestors[4]), origin: 'real' },
+    { position: '母母母', name: resolver.label(dam.ancestors[1]), origin: 'real' },
   ]));
   expect(pedigree.every(p => p.position.length <= 3)).toBe(true);
   expect(namingPedigree('', '', parents, baseMaster)).toEqual([]);
   expect(namingPedigree('', '', parents, baseMaster, '登録のない母')).toEqual([{ position: '母', name: '登録のない母', origin: 'unknown' }]);
   const inferred = namingPedigree('', '', parents, baseMaster, dam.name);
   expect(inferred).toHaveLength(7);
-  expect(inferred).toContainEqual({ position: '母母父', name: dam.ancestors[4], origin: 'real' });
+  expect(inferred).toContainEqual({ position: '母母父', name: resolver.label(dam.ancestors[4]), origin: 'real' });
 });
 
 it('3候補だけに指定位置の冠名を付け、残り2候補は独立した名前にする', () => {

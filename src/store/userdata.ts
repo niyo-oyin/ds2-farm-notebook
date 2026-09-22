@@ -2,9 +2,10 @@
 import { useSyncExternalStore } from 'react';
 import type { HorseKey, OwnedHorse, PlannedHorse } from '../core/types';
 import { validateOwnedDetails } from '../core/owned-horse';
-import { pairKey, type AncestorEdit, type KottaEdit, type MasterEdit, type NicksEdit } from '../core/master-edits';
+import { applyMasterEdits, pairKey, type AncestorEdit, type KottaEdit, type MasterEdit, type NicksEdit } from '../core/master-edits';
 import type { SearchGoal, SearchRequest, SearchResult } from '../core/search';
 import { EMPTY_RACE_FIELDS, validateRace, type RaceEdit } from '../core/races';
+import { baseMaster } from '../data/base-master';
 import { baseRaces } from '../data/races';
 import { acceptRecords, onSyncConflict, pushDiff, pull, pushAll, toRecords } from './sync';
 import { USER_DATA_KEY, workspaceGeneration } from './workspace';
@@ -191,14 +192,23 @@ export const store = {
     set({ ...state, masterEdits: state.masterEdits.filter((e) => e.id !== id) });
     return null;
   },
-  /** 祖先マスターの追加・修正を保存する（名前が同じなら置き換え）。複数まとめて保存できる */
+  /** 祖先マスターの追加・修正を保存する（IDが同じなら置き換え）。複数まとめて保存できる */
   saveAncestorEdits(edits: Omit<AncestorEdit, 'updatedAt'>[]) {
     const t = now();
-    const names = new Set(edits.map((e) => e.name));
-    set({ ...state, ancestorEdits: [...state.ancestorEdits.filter((e) => !names.has(e.name)), ...edits.map((e) => ({ ...e, updatedAt: t }))] });
+    const ids = new Set(edits.map((e) => e.id));
+    set({ ...state, ancestorEdits: [...state.ancestorEdits.filter((e) => !ids.has(e.id)), ...edits.map((e) => ({ ...e, updatedAt: t }))] });
   },
-  deleteAncestorEdit(name: string) { set({ ...state, ancestorEdits: state.ancestorEdits.filter((e) => e.name !== name) }); },
-  /** 凝ったペア表の行を保存する（同じ父側名・母側名なら置き換え） */
+  deleteAncestorEdit(id: string): string | null {
+    if (!baseMaster.ancestors.some(a => a.id === id)) {
+      const master = applyMasterEdits(baseMaster, state.masterEdits, state.ancestorEdits, state.kottaEdits);
+      const ref = [...master.stallions, ...master.broodmares].find(h => h.ancestors.includes(id));
+      if (ref) return `${ref.name} の血統に使われています`;
+      if (master.kotta.some(pair => pair.includes(id))) return '凝ったペアに使われています';
+    }
+    set({ ...state, ancestorEdits: state.ancestorEdits.filter(e => e.id !== id) });
+    return null;
+  },
+  /** 凝ったペア表の行を保存する（同じ父側ID・母側IDなら置き換え） */
   saveKottaEdit(edit: Omit<KottaEdit, 'updatedAt'>) {
     const k = pairKey(edit.sire, edit.dam);
     set({ ...state, kottaEdits: [...state.kottaEdits.filter((e) => pairKey(e.sire, e.dam) !== k), { ...edit, updatedAt: now() }] });

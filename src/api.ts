@@ -4,6 +4,7 @@ import type { BreedingReading, MasterReading } from './core/master-edits';
 import type { SearchRequest, SearchResult, SearchStatus } from './core/search';
 import type { LoopRequest, LoopResult } from './core/loop-search';
 import { checkWorkspace, workspaceGeneration } from './store/workspace';
+import { getCatalog } from './data/catalog';
 const TOKEN_KEY = 'ds2tool.apitoken';
 export const getToken = () => localStorage.getItem(TOKEN_KEY) ?? '';
 export const setToken = (t: string) => (t ? localStorage.setItem(TOKEN_KEY, t) : localStorage.removeItem(TOKEN_KEY));
@@ -99,11 +100,11 @@ export interface SearchProgress { evaluated: number; pruned: number; found: numb
 /** 終了した探索の集計。結果本体は results（一覧では省かれ、個別取得で付く） */
 export interface SearchOutcome { status: SearchStatus; evaluated: number; pruned: number; elapsedMs: number; dataIssues?: number }
 export type SearchJob = {
-  id: string; status: SearchJobStatus; progress: SearchProgress; outcome?: SearchOutcome; error?: string; createdAt: string; updatedAt: string;
+  id: string; masterRevision: string; status: SearchJobStatus; progress: SearchProgress; outcome?: SearchOutcome; error?: string; createdAt: string; updatedAt: string;
 } & ({ kind: 'lineage'; request: SearchRequest; results?: SearchResult[] } | { kind: 'loop'; request: LoopRequest; results?: LoopResult[] });
 export const isSearchJobActive = (job: SearchJob) => job.status === 'queued' || job.status === 'running';
 export async function createSearchJob(kind: SearchJobKind, request: SearchRequest | LoopRequest): Promise<SearchJob> {
-  return (await api<{ job: SearchJob }>('/api/search-jobs', { method: 'POST', body: JSON.stringify({ kind, request, generation: workspaceGeneration() }) })).job;
+  return (await api<{ job: SearchJob }>('/api/search-jobs', { method: 'POST', body: JSON.stringify({ kind, request, generation: workspaceGeneration(), masterRevision: getCatalog().revision }) })).job;
 }
 export const listSearchJobs = async () => (await api<{ jobs: SearchJob[] }>('/api/search-jobs')).jobs;
 export const getSearchJob = async (id: string) => (await api<{ job: SearchJob }>(`/api/search-jobs/${encodeURIComponent(id)}`)).job;

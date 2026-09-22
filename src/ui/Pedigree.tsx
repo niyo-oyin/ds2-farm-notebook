@@ -1,6 +1,6 @@
 import { useMemo, useState } from 'react';
 import type { Judgement, AncestorInfo } from '../core/types';
-import { gen, nodePath, nameOfKey, sideOf } from '../core/pedigree';
+import { gen, nodePath, sideOf } from '../core/pedigree';
 import { useApp } from './app-context';
 
 const COLORS = ['#d97706', '#059669', '#2563eb', '#dc2626', '#7c3aed', '#db2777', '#0d9488', '#ea580c', '#4f46e5', '#65a30d'];
@@ -72,7 +72,7 @@ export function Pedigree({ j }: { j: Judgement }) {
     for (let n = 2; n < 64; n++) if (j.nodes[n]) m.set(j.nodes[n], [...(m.get(j.nodes[n]) ?? []), n]);
     return m;
   }, [j]);
-  const infoOf = (key: string): AncestorInfo | undefined => { const nm = nameOfKey(key); return nm ? app.ctx.ancestors.get(nm) : app.ctx.userAncestors.get(key); };
+  const infoOf = (key: string): AncestorInfo | undefined => { return app.ctx.ancestors.get(key) ?? app.ctx.userAncestors.get(key); };
 
   const rows = [];
   const total = 1 << gens;
@@ -83,9 +83,9 @@ export function Pedigree({ j }: { j: Judgement }) {
       if (r % span !== 0) continue;
       const n = (1 << g) + (r >> (gens - g));
       const key = j.nodes[n];
-      const label = key ? (j.labels[key] ?? key.replace(/^n:/, '')) : '（不明）';
+      const label = key ? (j.labels[key] ?? app.resolver.label(key)) : '（不明）';
       const info = key ? infoOf(key) : undefined;
-      const isKotta = key && kottaNames.has(label);
+      const isKotta = key && kottaNames.has(key);
       const color = key ? crossColor.get(key) : undefined;
       const cls = [key ? ((n & 1) ? 'female' : 'male') : 'unknown', color ? 'cross' : '', selected === n ? 'selected' : '', key ? 'tappable' : ''].join(' ');
       cells.push(
@@ -107,7 +107,7 @@ export function Pedigree({ j }: { j: Judgement }) {
   const selInfo = sel ? infoOf(sel) : undefined;
   const selCross = sel ? j.crosses.find((c) => c.key === sel) : undefined;
   const selOcc = sel ? occurrences.get(sel) ?? [] : [];
-  const selName = sel ? (j.labels[sel] ?? sel.replace(/^n:/, '')) : '';
+  const selName = sel ? (j.labels[sel] ?? app.resolver.label(sel)) : '';
 
   return (
     <div>
@@ -134,7 +134,7 @@ export function Pedigree({ j }: { j: Judgement }) {
             <button className="small" onClick={() => setSelected(null)}>閉じる</button>
           </div>
           <div className="small" style={{ marginTop: 6 }}>
-            因子: {selInfo ? (selInfo.effects.length ? <EffectChips effects={selInfo.effects} /> : 'なし') : <span className="muted">不明（祖先マスター未登録）</span>}
+            因子: {selInfo && selInfo.effectsKnown !== false ? (selInfo.effects.length ? <EffectChips effects={selInfo.effects} /> : 'なし') : <span className="muted">不明（祖先マスター未登録）</span>}
           </div>
           <div className="small">
             出現位置: {selOcc.map((n) => `${nodePath(n)}（${gen(n)}代・${sideOf(n) === 2 ? '父側' : '母側'}）`).join('、')}

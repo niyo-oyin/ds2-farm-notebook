@@ -8,7 +8,7 @@ import { useApp } from './app-context';
 export function MatingHints({ horse }: { horse: MasterHorse }) {
   const app = useApp();
   const nicks = useMemo(() => nicksHints(horse.smallSystem, horse.kind, app.master.nicks), [horse, app.master.nicks]);
-  const kotta = useMemo(() => kottaHints(horse, app.master.kotta, app.rules.kottaSymmetric, app.rules.kottaGenerations), [horse, app.master.kotta, app.rules]);
+  const kotta = useMemo(() => kottaHints(horse, app.master.kotta, app.rules.kottaGenerations), [horse, app.master.kotta, app.rules]);
   // マスターに登録された相手全頭と判定し、凝った配合とニックスが成立する相手を挙げる。
   const partners = useMemo(() => {
     const self = app.resolver.get(horse.id);
@@ -33,7 +33,7 @@ export function MatingHints({ horse }: { horse: MasterHorse }) {
       : <p className="small muted">相性表に登録がありません（未確認）。</p>}
     {partners.nicks.length > 0 && <p className="small">成立する相手 {partners.nicks.length}頭: {partners.nicks.slice(0, 20).map((p) => `${p.name} ${stars(p.level)}`).join('、')}{partners.nicks.length > 20 ? ` 他${partners.nicks.length - 20}頭` : ''}</p>}
     <h4 className="master-code-title">凝ったペア（本馬と4代以内の祖先）</h4>
-    {kotta.length ? <table className="small hints-table"><tbody>{kotta.map((k) => <tr key={k.path}><th>{k.path}</th><td>{k.name}</td><td className="wrap">{k.partners.join('、')}</td></tr>)}</tbody></table>
+    {kotta.length ? <table className="small hints-table"><tbody>{kotta.map((k) => <tr key={k.path}><th>{k.path}</th><td>{app.resolver.label(k.name)}</td><td className="wrap">{k.partners.map(id => app.resolver.label(id)).join('、')}</td></tr>)}</tbody></table>
       : <p className="small muted">本馬と4代以内の祖先はペア表に載っていません。</p>}
     <p className="small">{partners.kotta.length ? <>凝った配合になる相手 {partners.kotta.length}頭: {partners.kotta.slice(0, 20).join('、')}{partners.kotta.length > 20 ? ` 他${partners.kotta.length - 20}頭` : ''}</> : <span className="muted">凝った配合になる相手はいません。</span>}</p>
   </section>;

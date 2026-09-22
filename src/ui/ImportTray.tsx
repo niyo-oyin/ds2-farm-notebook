@@ -70,7 +70,7 @@ export function ImportTray() {
           applying.current.add(job.id);
           const run: Promise<AppliedInfo> = decision.kind === 'card' ? applyCardJob(app, job, decision.reading, decision.target, true).then((h) => ({ name: h.name, href: `#/horses?id=${encodeURIComponent(h.id)}` }))
             : decision.kind === 'pedigree' ? Promise.resolve(applyPedigreeJob(decision.target, decision.sireKey, decision.damKey)).then((h) => { saveNewAncestorFactors(app, decision.reading); return { name: h.name, href: `#/horses?id=${encodeURIComponent(h.id)}` }; })
-              : Promise.resolve(decision.existing ? applyMasterJob(decision.existing, decision.next) : addMasterJob(decision.next));
+              : Promise.resolve(decision.existing ? applyMasterJob(decision.existing, decision.next, decision.additions) : addMasterJob(decision.next, decision.additions));
           void run.then((info) => { setImported(info); void dismissJob(job.id); }).catch(() => { handled.current.add(job.id); }).finally(() => applying.current.delete(job.id));
           continue;
         }

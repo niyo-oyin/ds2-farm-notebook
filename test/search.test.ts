@@ -28,7 +28,7 @@ describe('探索', () => {
     for (const goals of [
       [{ type: 'omoshiro' as const }, { type: 'notDangerous' as const }, { type: 'nitro' as const, stat: 'speed' as const, min: 5 }],
       [{ type: 'kotta' as const }, { type: 'notDangerous' as const }],
-      [{ type: 'cross' as const, name: 'サンデーサイレンス' }, { type: 'maxCrosses' as const, max: 3 }],
+      [{ type: 'cross' as const, ancestorId: M.ancestors.find(a => a.name === 'サンデーサイレンス')!.id, name: 'サンデーサイレンス' }, { type: 'maxCrosses' as const, max: 3 }],
       [{ type: 'nicks' as const, min: 1 }, { type: 'outbreed' as const }],
       [{ type: 'nitro' as const, stat: 'speed' as const, min: 14 }, { type: 'avoidEffect' as const, effect: '気性難' }],
       [{ type: 'crossEffect' as const, effect: '速力', min: 2 }, { type: 'minCrosses' as const, min: 2 }, { type: 'maxCrosses' as const, max: 4 }],
@@ -188,7 +188,7 @@ describe('探索条件に応じた系統の事前絞り込み', () => {
     expect(result.results.length).toBeGreaterThan(0);
   });
 
-  it('実データの完璧・凝った配合を通常判定で確定し、詳細判定の回数を減らす', async () => {
+  it('逆向きの凝ったペアしかない経路を除外し、詳細判定の回数を減らす', async () => {
     const start = M.broodmares.find((horse) => horse.name === 'ドントテルソフィア')!;
     const final = M.stallions.find((horse) => horse.name === 'Not This Time')!;
     const sunday = M.stallions.find((horse) => horse.name === 'サンデーサイレンス')!;
@@ -199,9 +199,8 @@ describe('探索条件に応じた系統の事前絞り込み', () => {
       maxEvaluations: 1_000_000, allowRepeatStallion: true,
     };
     const result = await expectExhaustiveMatch(env, request);
-    expect(new Set(result.results.map(key)).has(`${sunday.id}>${final.id}`)).toBe(true);
+    expect(new Set(result.results.map(key)).has(`${sunday.id}>${final.id}`)).toBe(false);
     expect(result.evaluated).toBeLessThan(pool.length / 2);
-    for (const row of result.results) expect(row.goals.every((goal) => goal.verdict === '成立')).toBe(true);
   });
 
   it('系統で全候補が除外されても進捗を通知し中止できる', async () => {

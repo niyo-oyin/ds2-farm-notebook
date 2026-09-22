@@ -24,13 +24,15 @@ export interface OptionFilter {
   includePlanned?: boolean;
   /** 血統（父母）が登録済みの所有馬だけ。配合確認・探索は判定に血統が要るため */
   requirePedigree?: boolean;
+  includeOverseas?: boolean;
 }
 /** 探索の相手の候補に計画馬を入れるか（設定 excludePlannedFromSearch。未設定は除外） */
 export const includePlannedInSearch = (app: AppCtx) => app.data.settings.excludePlannedFromSearch === false;
 const ownedOk = (h: UserData['horses'][number], f: OptionFilter) => (!f.onlyAvailable || (!h.excludeFromSearch && h.category !== '引退')) && (!f.requirePedigree || !pedigreeIssue(h));
 /** 父候補: 種牡馬 + 牡の所有馬 + 種牡馬予定の計画馬 */
-export function sireOptions(app: AppCtx, { onlyAvailable = false, includePlanned = true, requirePedigree = false }: OptionFilter = {}): HorseOption[] {
+export function sireOptions(app: AppCtx, { onlyAvailable = false, includePlanned = true, requirePedigree = false, includeOverseas = true }: OptionFilter = {}): HorseOption[] {
   const master = app.master.stallions
+    .filter((s) => includeOverseas || !s.overseas)
     .filter((s) => !(onlyAvailable && app.data.settings.hideLocked && horseUnlockConditions(s).length > 0))
     .map((s) => ({ key: s.id, name: s.name, group: '種牡馬', sub: `${s.priceUnknown ? '種付料未確認' : `${s.price}万`} / ${s.smallSystem ?? '-'}系${horseUnlockConditions(s).map(c => ` / 要解禁: ${c}`).join('')}` }));
   const own = [...app.data.horses, ...(includePlanned ? app.data.plannedHorses : [])]

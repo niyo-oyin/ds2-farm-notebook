@@ -1,6 +1,7 @@
 // データ（種牡馬・繁殖牝馬）への利用者の追加・修正・非表示。
 import type { AncestorInfo, MasterData, MasterHorse, OwnedHorse, PlannedHorse } from './types';
 import { parseFoalName, parseManYen } from './owned-horse';
+import { horseIdentities, newAncestorId, uniqueHorseNamed } from './horse-identity';
 import { nodePath } from './pedigree';
 
 export interface MasterEdit {
@@ -15,32 +16,31 @@ export interface MasterEdit {
   updatedAt: string;
 }
 
-/** 祖先マスター（名前ごとの大系統・性別・因子）への利用者の追加・修正。名前が識別子 */
-export interface AncestorEdit { name: string; system: number | null; sex: 'M' | 'F' | null; effects: string[]; updatedAt: string }
+/** 祖先の個体IDごとの名前・大系統・性別・因子への追加・修正 */
+export interface AncestorEdit { id: string; name: string; system: number | null; sex: 'M' | 'F' | null; effects: string[]; effectsKnown?: boolean; updatedAt: string }
 
 /** 凝ったペア表・ニックス相性表の利用者の行の出典。 */
 export type PairSource = '実機確認' | '推定';
 export const PAIR_SOURCES: PairSource[] = ['実機確認', '推定'];
-/** 凝ったペア表への追加・確認・無効化。父側名と母側名が識別子。マスターデータの行に対して active=false なら無効化、true なら確認の記録 */
+/** 凝ったペア表への追加・確認・無効化。父側IDと母側IDが識別子。マスターデータの行に対して active=false なら無効化、true なら確認の記録 */
 export interface KottaEdit { sire: string; dam: string; active: boolean; source: PairSource; note: string; updatedAt: string }
 /** ニックス相性表への追加・訂正。父小系統と母小系統が識別子。level 0 は「ニックスなしを確認した」行で、表にない（未確認）と区別する */
 export interface NicksEdit { sire: string; dam: string; level: number; source: PairSource; note: string; updatedAt: string }
 export const pairKey = (sire: string, dam: string) => `${sire}|${dam}`;
 
-/** 本馬と4代以内の祖先のうち凝ったペア表に載る馬と、その相手（種牡馬は父側として、繁殖牝馬は母側として引く。対称設定なら逆向きも含める） */
-export function kottaHints(horse: Pick<MasterHorse, 'name' | 'ancestors' | 'kind'>, kotta: [string, string][], symmetric: boolean, generations = 4): { name: string; path: string; partners: string[] }[] {
-  const own = [{ name: horse.name, path: '本馬' }];
+/** 本馬と4代以内の祖先のうち凝ったペア表に載る馬と、その相手（種牡馬は父側として、繁殖牝馬は母側として引く） */
+export function kottaHints(horse: Pick<MasterHorse, 'id' | 'ancestors' | 'kind'>, kotta: [string, string][], generations = 4): { name: string; path: string; partners: string[] }[] {
+  const own = horse.kind === 'stallion' ? [{ name: horse.id, path: '本馬' }] : [];
   for (let i = 0; i < horse.ancestors.length; i++) {
     const node = i + 2;
     if (Math.floor(Math.log2(node)) > generations - 1) break;
-    if (horse.ancestors[i]) own.push({ name: horse.ancestors[i], path: nodePath(node) });
+    if (node % 2 === 0 && horse.ancestors[i]) own.push({ name: horse.ancestors[i], path: nodePath(node) });
   }
   const sireSide = horse.kind === 'stallion';
   return own.map((o) => {
     const partners = new Set<string>();
     for (const [a, b] of kotta) {
       if ((sireSide ? a : b) === o.name) partners.add(sireSide ? b : a);
-      if (symmetric && (sireSide ? b : a) === o.name) partners.add(sireSide ? a : b);
     }
     return { ...o, partners: [...partners].sort((x, y) => x.localeCompare(y, 'ja')) };
   }).filter((o) => o.partners.length);
@@ -72,8 +72,9 @@ export function breedingCardRows(reading: BreedingReading, stallions: MasterHors
   // 画面のローマ数字（Ⅱ）はマスターデータの ASCII（II）に合わせ、小さいカナ（ヴァ／ヴア）の揺れは大きいカナに揃えて照合する
   const SMALL = 'ァィゥェォャュョッ', LARGE = 'アイウエオヤユヨツ';
   const key = (s: string) => normName(s).replace(/Ⅱ/g, 'II').replace(/Ⅲ/g, 'III').replace(/[ァィゥェォャュョッ]/g, (c) => LARGE[SMALL.indexOf(c)]).toLowerCase();
-  const byName = new Map(stallions.map((h) => [key(h.name), h]));
-  return reading.cards.filter((c) => c.name.trim()).map((c) => ({ name: c.name, stallion: byName.get(key(c.name)) ?? null, reading: c, level: c.stars === null ? null : Math.max(0, Math.min(3, Math.round(c.stars))) }));
+  const byName = new Map<string, MasterHorse[]>();
+  for (const h of stallions) byName.set(key(h.name), [...(byName.get(key(h.name)) ?? []), h]);
+  return reading.cards.filter((c) => c.name.trim()).map((c) => ({ name: c.name, stallion: byName.get(key(c.name))?.length === 1 ? byName.get(key(c.name))![0] : null, reading: c, level: c.stars === null ? null : Math.max(0, Math.min(3, Math.round(c.stars))) }));
 }
 /** 種牡馬ごとの段階を父小系統ごとにまとめ、母小系統との組としてニックス表への提案にする */
 export function nicksProposals(rows: BreedingCardRow[], mareSmall: string, current: MasterData['nicks'], includeZero: boolean): NicksProposal[] {
@@ -93,7 +94,6 @@ export function nicksProposals(rows: BreedingCardRow[], mareSmall: string, curre
 }
 
 export const SYS_CHARS = 'abcdefghijklmno';
-export const isUserMasterId = (id: string) => /^(st|bm):u-/.test(id);
 /** 追加した馬のID。初期データと衝突しないよう "st:u-…" / "bm:u-…" にする。 */
 export const newMasterId = (kind: 'stallion' | 'broodmare') => `${kind === 'stallion' ? 'st' : 'bm'}:u-${Date.now().toString(36)}${Math.random().toString(36).slice(2, 8)}`;
 
@@ -101,10 +101,10 @@ export const newMasterId = (kind: 'stallion' | 'broodmare') => `${kind === 'stal
 export function applyMasterEdits(base: MasterData, edits: MasterEdit[], ancestorEdits: AncestorEdit[] = [], kottaEdits: KottaEdit[] = [], nicksEdits: NicksEdit[] = []): MasterData {
   if (!edits.length && !ancestorEdits.length && !kottaEdits.length && !nicksEdits.length) return base;
   const ancestors = ancestorEdits.length ? (() => {
-    const byName = new Map(ancestorEdits.map((e) => [e.name, e]));
-    const merged = base.ancestors.map((a) => { const e = byName.get(a.name); return e ? { name: a.name, system: e.system, sex: e.sex, effects: [...e.effects] } : a; });
-    const known = new Set(base.ancestors.map((a) => a.name));
-    return [...merged, ...ancestorEdits.filter((e) => !known.has(e.name)).map((e) => ({ name: e.name, system: e.system, sex: e.sex, effects: [...e.effects] }))];
+    const byId = new Map(ancestorEdits.map((e) => [e.id, e]));
+    const merged = base.ancestors.map((a) => { const e = byId.get(a.id); return e ? { id: a.id, name: e.name, system: e.system, sex: e.sex, effects: [...e.effects], ...(e.effectsKnown === false ? { effectsKnown: false } : {}) } : a; });
+    const known = new Set(base.ancestors.map((a) => a.id));
+    return [...merged, ...ancestorEdits.filter((e) => !known.has(e.id)).map((e) => ({ id: e.id, name: e.name, system: e.system, sex: e.sex, effects: [...e.effects], ...(e.effectsKnown === false ? { effectsKnown: false } : {}) }))];
   })() : base.ancestors;
   const kotta = kottaEdits.length ? (() => {
     const byKey = new Map(kottaEdits.map((e) => [pairKey(e.sire, e.dam), e]));
@@ -118,7 +118,6 @@ export function applyMasterEdits(base: MasterData, edits: MasterEdit[], ancestor
     return [...base.nicks.map((n) => { const e = byKey.get(pairKey(n.sire, n.dam)); return e ? { ...n, level: e.level } : n; }),
       ...nicksEdits.filter((e) => !known.has(pairKey(e.sire, e.dam))).map((e) => ({ sire: e.sire, dam: e.dam, level: e.level }))];
   })() : base.nicks;
-  if (!edits.length) return { ...base, ancestors, kotta, nicks };
   const byId = new Map(edits.map((e) => [e.id, e]));
   const merge = (list: MasterHorse[]) => list.flatMap((h) => {
     const e = byId.get(h.id);
@@ -130,7 +129,18 @@ export function applyMasterEdits(base: MasterData, edits: MasterEdit[], ancestor
     kind, id: e.id, sex: kind === 'stallion' ? 'M' : 'F', name: '', price: 0, color: null, bigSystem: null, smallSystem: null, omoshiro: null, migoto: null,
     ancestors: Array<string>(30).fill(''), unlock: null, purchasePrice: null, attrs: {}, ...e.data,
   } as MasterHorse));
-  return { ...base, ancestors, kotta, nicks, stallions: [...merge(base.stallions), ...addedOf('stallion')], broodmares: [...merge(base.broodmares), ...addedOf('broodmare')] };
+  const names = new Map<string, { name: string; at: string }>();
+  for (const e of edits) if (e.data.name !== undefined) names.set(e.id, { name: e.data.name, at: e.updatedAt });
+  for (const e of ancestorEdits) if (!names.has(e.id) || e.updatedAt >= names.get(e.id)!.at) names.set(e.id, { name: e.name, at: e.updatedAt });
+  const rename = <T extends { id: string; name: string }>(h: T): T => names.has(h.id) ? { ...h, name: names.get(h.id)!.name } : h;
+  const stallions = [...merge(base.stallions), ...addedOf('stallion')].map(rename);
+  const broodmares = [...merge(base.broodmares), ...addedOf('broodmare')].map(rename);
+  const known = new Set(ancestors.map(a => a.id));
+  const identities = [...base.stallions, ...base.broodmares, ...stallions, ...broodmares].filter(h => {
+    if (known.has(h.id)) return false;
+    known.add(h.id); return true;
+  }).map((h): AncestorInfo => ({ id: h.id, name: h.name, sex: h.sex, system: h.bigSystem ? base.meta.bigSystems.indexOf(h.bigSystem) + 1 || null : null, effects: [], effectsKnown: false }));
+  return { ...base, ancestors: [...ancestors, ...identities].map(rename), kotta, nicks, stallions, broodmares };
 }
 
 /** 血統表の位置（祖先配列の添字）。面白用は 自身・父母父・母父・母母父、見事用は 父父母父・父母母父・母父母父・母母母父 */
@@ -155,11 +165,11 @@ export function deriveCodes(bigSystem: string | null, ancestors: string[], ances
   return { omoshiro: OMOSHIRO_SLOTS.map(at).join(''), migoto: MIGOTO_SLOTS.map(at).join('') };
 }
 
-/** 父母の名前が登録済みの馬に一致すれば、その血統で2代目以降を埋める。手入力済みの欄は上書きしない */
-export function fillFromParents(ancestors: string[], horsesByName: Map<string, MasterHorse>): string[] {
+/** 父母のIDが登録済みの馬に一致すれば、その血統で2代目以降を埋める。手入力済みの欄は上書きしない */
+export function fillFromParents(ancestors: string[], horsesById: Map<string, MasterHorse>): string[] {
   const out = [...ancestors];
   for (const [side, name] of [[2, ancestors[0]], [3, ancestors[1]]] as const) {
-    const parent = name ? horsesByName.get(name) : undefined;
+    const parent = name ? horsesById.get(name) : undefined;
     if (!parent) continue;
     // 親ツリーのノード k（1 = 親自身、世代 g）は本馬ツリーの side*2^g + (k - 2^g) に対応する
     for (let k = 2; k < 32; k++) {
@@ -175,8 +185,9 @@ export function fillFromParents(ancestors: string[], horsesByName: Map<string, M
 /** 変更した項目だけを保存用の差分として返す。 */
 export function diffAgainstBase(base: MasterHorse, next: MasterHorse): MasterEdit['data'] {
   const data: Record<string, unknown> = {};
-  for (const key of ['name', 'price', 'priceUnknown', 'color', 'bigSystem', 'smallSystem', 'omoshiro', 'migoto', 'ancestors', 'unlock', 'breedingRightPrice', 'purchasePrice', 'attrs'] as const) {
+  for (const key of ['name', 'price', 'priceUnknown', 'overseas', 'color', 'bigSystem', 'smallSystem', 'omoshiro', 'migoto', 'ancestors', 'unlock', 'breedingRightPrice', 'purchasePrice', 'attrs'] as const) {
     if (key === 'priceUnknown' && !!base[key] === !!next[key]) continue;
+    if (key === 'overseas' && !!base[key] === !!next[key]) continue;
     if (JSON.stringify(base[key] ?? null) !== JSON.stringify(next[key] ?? null)) data[key] = next[key];
   }
   return data as MasterEdit['data'];
@@ -244,28 +255,33 @@ export function masterFromBreedingCard(base: MasterHorse, card: BreedingReading[
  * 読み取りを種牡馬・繁殖牝馬のレコードにする。base があれば読めた項目だけを上書きし、なければ新規。
  * 父・母・母父は血統の該当欄に入れ、父母が登録済みなら残りを補完する。系統コードは祖先マスターから導出する
  */
-export function masterFromReading(kind: 'stallion' | 'broodmare', r: MasterReading, base: MasterHorse | null, master: MasterData, ancestorMaster: Map<string, AncestorInfo>): MasterHorse {
+export function masterFromReading(kind: 'stallion' | 'broodmare', r: MasterReading, base: MasterHorse | null, master: MasterData, ancestorMaster: Map<string, AncestorInfo>, parentIds: Partial<Record<'sire' | 'dam' | 'dam_sire', string>> = {}): MasterHorse {
   const known = (v: string) => (v.trim() ? v.trim() : undefined);
   const set = <T,>(v: T | undefined, fallback: T): T => (v === undefined ? fallback : v);
   const ancestors = [...(base?.ancestors ?? Array<string>(30).fill(''))];
-  const byName = new Map([...master.stallions, ...master.broodmares].map((h) => [h.name, h]));
-  // 父（母）が別の登録済みの馬に変わった時だけ、その側の古い祖先を消して補完し直す。
-  // 表記の修正やマスターデータにない名前への変更は同じ馬とみなし、祖先を残す
+  const byId = new Map([...master.stallions, ...master.broodmares].map((h) => [h.id, h]));
+  const identities = horseIdentities(master);
+  // 別の個体に変わった側の祖先は消して補完し直す。
   const clearSide = (side: 2 | 3) => { for (let n = side * 2; n < 32; n++) { let k = n; while (k > 3) k >>= 1; if (k === side) ancestors[n - 2] = ''; } };
   for (const [idx, side, name] of [[0, 2, r.sire.trim()], [1, 3, r.dam.trim()]] as const) {
     if (!name) continue;
-    if (ancestors[idx] && ancestors[idx] !== name && byName.has(name)) clearSide(side);
-    ancestors[idx] = name;
+    const explicit = parentIds[idx === 0 ? 'sire' : 'dam'];
+    const match = explicit ? identities.get(explicit) : uniqueHorseNamed(identities.values(), name);
+    if (!match) continue;
+    if (ancestors[idx] && ancestors[idx] !== match.id) clearSide(side);
+    ancestors[idx] = match.id;
   }
-  if (known(r.dam_sire)) ancestors[4] = r.dam_sire.trim();
-  const filled = fillFromParents(ancestors, byName);
+  const damSire = parentIds.dam_sire ? identities.get(parentIds.dam_sire) : uniqueHorseNamed(identities.values(), r.dam_sire);
+  if (damSire) ancestors[4] = damSire.id;
+  const filled = fillFromParents(ancestors, byId);
   const bigSystem = master.meta.bigSystems.includes(r.big_system.trim()) ? r.big_system.trim() : base?.bigSystem ?? null;
   const attrs = kind === 'stallion' ? stallionAttrsFromReading(r, base?.attrs) : { ...base?.attrs };
   const next: MasterHorse = {
-    id: base?.id ?? newMasterId(kind), kind, sex: kind === 'stallion' ? 'M' : 'F',
+    id: base?.id ?? uniqueHorseNamed(master.ancestors, r.name)?.id ?? newMasterId(kind), kind, sex: kind === 'stallion' ? 'M' : 'F',
     name: set(known(r.name), base?.name ?? ''), price: kind === 'stallion' ? set(parseFee(r.fee), base?.price ?? 0) : base?.price ?? 0,
     color: set(known(r.color), base?.color ?? null), bigSystem, smallSystem: set(known(r.small_system), base?.smallSystem ?? null),
     omoshiro: base?.omoshiro ?? null, migoto: base?.migoto ?? null,
+    overseas: base?.overseas,
     ancestors: filled, unlock: base?.unlock ?? null, breedingRightPrice: base?.breedingRightPrice ?? null,
     priceUnknown: kind === 'stallion' ? parseFee(r.fee) == null && !!base?.priceUnknown : parseManYen(r.price) == null && !!base?.priceUnknown,
     purchasePrice: kind === 'broodmare' ? set(parseManYen(r.price), base?.purchasePrice ?? null) : null,
@@ -279,6 +295,25 @@ export function masterFromReading(kind: 'stallion' | 'broodmare', r: MasterReadi
   return next;
 }
 
+/** 読み取りにだけ現れた祖先にもIDを発行する。同名候補が複数ある欄は選択を待つ。 */
+export function prepareReadingAncestors(master: MasterData, reading: Pick<MasterReading, 'sire' | 'dam' | 'dam_sire'>, selected: Partial<Record<'sire' | 'dam' | 'dam_sire', string>> = {}) {
+  const identities = horseIdentities(master);
+  const additions: AncestorInfo[] = [];
+  const ambiguous: ('sire' | 'dam' | 'dam_sire')[] = [];
+  const parentIds: typeof selected = {};
+  for (const field of ['sire', 'dam', 'dam_sire'] as const) {
+    const name = reading[field].trim();
+    if (!name) continue;
+    if (selected[field] && identities.has(selected[field]!)) { parentIds[field] = selected[field]; continue; }
+    const matches = [...identities.values()].filter(h => normName(h.name) === normName(name));
+    if (matches.length > 1) { ambiguous.push(field); continue; }
+    if (matches.length === 1) { parentIds[field] = matches[0].id; continue; }
+    const ancestor: AncestorInfo = { id: newAncestorId(), name, sex: field === 'dam' ? 'F' : 'M', system: null, effects: [], effectsKnown: false };
+    additions.push(ancestor); identities.set(ancestor.id, ancestor); parentIds[field] = ancestor.id;
+  }
+  return { additions, ambiguous, parentIds, master: { ...master, ancestors: [...master.ancestors, ...additions] } };
+}
+
 /** 反映する項目の単位。血統は父母・母父・補完をまとめて1つ、能力は項目ごと */
 export type MasterFieldKey = 'name' | 'color' | 'bigSystem' | 'smallSystem' | 'price' | 'purchasePrice' | 'ancestors' | 'omoshiro' | 'migoto' | `attr:${string}`;
 export interface MasterDiffRow { key: MasterFieldKey; label: string; before: string; after: string }
@@ -286,13 +321,13 @@ const ATTR_LABEL: Record<string, string> = { dist: '距離', grown: '成長', di
 const text = (v: unknown) => (v == null || v === '' ? '' : Array.isArray(v) ? v.join('-') : String(v));
 
 /** 読み取りの反映で変わる項目。項目ごとに選んで反映できるよう key を付ける */
-export function masterDiffRows(base: MasterHorse | null, next: MasterHorse, bigSystems: string[]): MasterDiffRow[] {
+export function masterDiffRows(base: MasterHorse | null, next: MasterHorse, bigSystems: string[], label: (id: string) => string): MasterDiffRow[] {
   const rows: MasterDiffRow[] = [];
   const push = (key: MasterFieldKey, label: string, b: unknown, a: unknown) => { const bs = text(b), as = text(a); if (bs !== as) rows.push({ key, label, before: bs || '未登録', after: as || '未登録' }); };
   push('name', '馬名', base?.name, next.name); push('color', '毛色', base?.color, next.color); push('bigSystem', '大系統', base?.bigSystem, next.bigSystem); push('smallSystem', '小系統', base?.smallSystem, next.smallSystem);
   if (next.kind === 'stallion') push('price', '種付料（万円）', base?.priceUnknown ? '未確認' : base?.price, next.priceUnknown ? '未確認' : next.price); else push('purchasePrice', '購入価格（万円）', base?.priceUnknown ? '未確認' : base?.purchasePrice, next.priceUnknown ? '未確認' : next.purchasePrice);
   if (JSON.stringify(base?.ancestors ?? []) !== JSON.stringify(next.ancestors)) {
-    const parts = ([[0, '父'], [1, '母'], [4, '母父']] as const).filter(([i]) => (base?.ancestors[i] ?? '') !== next.ancestors[i]).map(([i, l]) => `${l} ${base?.ancestors[i] || '未登録'}→${next.ancestors[i] || '未登録'}`);
+    const parts = ([[0, '父'], [1, '母'], [4, '母父']] as const).filter(([i]) => (base?.ancestors[i] ?? '') !== next.ancestors[i]).map(([i, l]) => `${l} ${base?.ancestors[i] ? label(base.ancestors[i]) : '未登録'}→${next.ancestors[i] ? label(next.ancestors[i]) : '未登録'}`);
     const filled = next.ancestors.filter(Boolean).length, was = base?.ancestors.filter(Boolean).length ?? 0;
     if (filled !== was) parts.push(`登録済みの祖先 ${was}頭→${filled}頭`);
     rows.push({ key: 'ancestors', label: '血統', before: '', after: parts.join('、') || '祖先の表記を更新' });
@@ -320,19 +355,24 @@ export function applyMasterFields(existing: MasterHorse, next: MasterHorse, keys
 }
 
 /** 血統画面で読んだ祖先の因子と、祖先マスターの登録を突き合わせる */
-export interface AncestorFactorRow { name: string; factors: string[]; known: string[] | null; status: '新規' | '一致' | '相違' }
-export function compareAncestorFactors(read: { name: string; factors: string[] }[], ancestorMaster: Map<string, AncestorInfo>): AncestorFactorRow[] {
+export interface AncestorFactorRow { id: string | null; name: string; factors: string[]; known: string[] | null; status: '新規' | '一致' | '相違' | '要選択' }
+export function compareAncestorFactors(read: { name: string; factors: string[] }[], master: MasterData, selected: Record<string, string> = {}): AncestorFactorRow[] {
   const rows: AncestorFactorRow[] = [];
+  const identities = horseIdentities(master);
+  const ancestorMaster = new Map(master.ancestors.map(a => [a.id, a]));
   const seen = new Set<string>();
   for (const a of read) {
     const name = a.name.trim();
     if (!name || seen.has(name)) continue;
     seen.add(name);
     const factors = [...new Set(a.factors)];
-    const info = ancestorMaster.get(name);
-    if (!info) { rows.push({ name, factors, known: null, status: '新規' }); continue; }
+    const matches = [...identities.values()].filter(a => a.name === name);
+    if (matches.length > 1 && !matches.some(a => a.id === selected[name])) { rows.push({ id: null, name, factors, known: null, status: '要選択' }); continue; }
+    const identity = matches.find(a => a.id === selected[name]) ?? matches[0];
+    const info = identity ? ancestorMaster.get(identity.id) : undefined;
+    if (!info || info.effectsKnown === false) { rows.push({ id: identity?.id ?? null, name, factors, known: null, status: '新規' }); continue; }
     const same = info.effects.length === factors.length && info.effects.every((e) => factors.includes(e));
-    rows.push({ name, factors, known: info.effects, status: same ? '一致' : '相違' });
+    rows.push({ id: info.id, name, factors, known: info.effects, status: same ? '一致' : '相違' });
   }
   return rows;
 }

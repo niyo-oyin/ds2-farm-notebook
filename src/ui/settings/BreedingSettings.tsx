@@ -31,9 +31,6 @@ export function BreedingSettings() {
       <SettingRow label="見事な配合：必要な系統数" description="0 は不問" changed={changed('migotoMinSystems')}>
         {(id, descriptionId) => <input id={id} aria-describedby={descriptionId} type="number" required min={0} max={4} value={rules.migotoMinSystems} onChange={(e) => { if (e.currentTarget.validity.valid) setRule('migotoMinSystems', e.target.valueAsNumber); }} />}
       </SettingRow>
-      <SettingRow label="凝った配合：ペアの父母逆転" changed={changed('kottaSymmetric')}>
-        {(id) => <select id={id} value={String(rules.kottaSymmetric)} onChange={(e) => setRule('kottaSymmetric', e.target.value === 'true')}><option value="true">成立させる</option><option value="false">成立させない</option></select>}
-      </SettingRow>
       <SettingRow label="凝った配合：自家製馬のペア" changed={changed('kottaEstimateHomebred')}>
         {(id) => <select id={id} value={String(rules.kottaEstimateHomebred)} onChange={(e) => setRule('kottaEstimateHomebred', e.target.value === 'true')}><option value="true">前作の規則で推定する</option><option value="false">未確定にする</option></select>}
       </SettingRow>

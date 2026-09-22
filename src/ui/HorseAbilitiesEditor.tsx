@@ -10,9 +10,9 @@ const fields: Record<Group, Field[]> = {
     { key: 'power', label: 'パワー', type: 'number' }, rank('health', '体質'), rank('temperament', '気性'), { key: 'dirt', label: 'ダート', options: DIRT_APTITUDES },
   ],
   stallion: [
-    { key: 'dirt', label: 'ダート', options: DIRT_APTITUDES }, { key: 'growth', label: '成長', options: GROWTH_TYPES }, rank('temperament', '気性'), rank('guts', '底力'), rank('health', '体質'),
-    rank('achievement', '実績'), rank('stability', '安定'),
     { key: 'distanceMin', label: '距離下限（m）', type: 'number' }, { key: 'distanceMax', label: '距離上限（m）', type: 'number' },
+    { key: 'growth', label: '成長', options: GROWTH_TYPES }, { key: 'dirt', label: 'ダート', options: DIRT_APTITUDES },
+    rank('health', '体質'), rank('temperament', '気性'), rank('achievement', '実績'), rank('guts', '底力'), rank('stability', '安定'),
   ],
 };
 

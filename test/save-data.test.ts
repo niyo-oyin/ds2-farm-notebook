@@ -16,8 +16,8 @@ describe('サーバのセーブ・ロード', () => {
   const original = (): UserData => ({
     ...emptyUserData(), horses: [owned('u:mare', { name: '試行前の牝馬' })], plannedHorses: [planned('p:foal', { realizedIds: ['u:mare'] })], plans: [plan('plan:1', ['p:foal'])],
     masterEdits: [{ id: 'st:1', kind: 'stallion', added: false, data: { name: '訂正した種牡馬' }, updatedAt: timestamp }],
-    ancestorEdits: [{ name: '祖先A', system: 1, sex: 'M' as const, effects: ['速力'], updatedAt: timestamp }],
-    kottaEdits: [{ sire: '父A', dam: '母A', active: true, source: '実機確認', note: '', updatedAt: timestamp }],
+    ancestorEdits: [{ id: 'a:test', name: '祖先A', system: 1, sex: 'M' as const, effects: ['速力'], updatedAt: timestamp }],
+    kottaEdits: [{ sire: 'a:sire', dam: 'a:dam', active: true, source: '実機確認', note: '', updatedAt: timestamp }],
     nicksEdits: [{ sire: '父系統', dam: '母系統', level: 2, source: '実機確認', note: '', updatedAt: timestamp }],
     raceEdits: [{ id: 'rc:img-1-1', added: false, data: { month: 1, distance: 2000 }, updatedAt: timestamp }],
     settings: { rules: { omoshiroThreshold: 6 }, gameYear: 28, importAutoApply: true, updatedAt: timestamp,

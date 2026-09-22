@@ -3,11 +3,15 @@ import { pedigreeEffectCounts, validateOwnedDetails } from '../src/core/owned-ho
 import type { AncestorInfo } from '../src/core/types';
 import { normalizeUserData } from '../src/store/model';
 import { memoryStorage, owned, planned } from './horse-fixtures';
+import { testCatalog } from './setup-catalog';
 
 vi.mock('../src/store/sync', () => ({ pushDiff: vi.fn(), pushAll: vi.fn(), pull: vi.fn().mockResolvedValue(null) }));
 
 describe('所有馬の能力・プロフィール', () => {
-  beforeEach(() => { vi.resetModules(); vi.stubGlobal('localStorage', memoryStorage()); });
+  beforeEach(async () => {
+    vi.resetModules(); vi.stubGlobal('localStorage', memoryStorage());
+    (await import('../src/data/catalog')).initializeCatalog(testCatalog);
+  });
 
 
   it('負数・非数・不正な生年を保存せず、0は入力値として許可する', async () => {
@@ -53,10 +57,10 @@ describe('所有馬の能力・プロフィール', () => {
 describe('所有馬の血統内の因子数', () => {
   it('4代内の同祖先の再出現を数え、5代目を除外し、未確認と因子なしを区別する', () => {
     const nodes = Array<string>(64).fill('');
-    nodes[1] = 'u:self'; nodes[2] = 'n:祖先A'; nodes[4] = 'n:祖先A'; nodes[3] = 'u:mother';
-    nodes[5] = 'n:因子なし'; nodes[32] = 'n:祖先A';
-    const ancestor = (name: string, effects: string[]): AncestorInfo => ({ name, effects, sex: null, system: null });
-    const context = { ancestors: new Map([['祖先A', ancestor('祖先A', ['速力', '底力'])], ['因子なし', ancestor('因子なし', [])]]), userAncestors: new Map([['u:mother', ancestor('母', ['長距離'])]]) };
+    nodes[1] = 'u:self'; nodes[2] = 'a:1'; nodes[4] = 'a:1'; nodes[3] = 'u:mother';
+    nodes[5] = 'a:2'; nodes[32] = 'a:1';
+    const ancestor = (name: string, effects: string[]): AncestorInfo => ({ id: name, name, effects, sex: null, system: null });
+    const context = { ancestors: new Map([['a:1', ancestor('祖先A', ['速力', '底力'])], ['a:2', ancestor('因子なし', [])]]), userAncestors: new Map([['u:mother', ancestor('母', ['長距離'])]]) };
     expect(pedigreeEffectCounts(nodes, context)).toEqual({ counts: { 速力: 2, 底力: 2, 長距離: 1 }, unknown: 26 });
     context.userAncestors.delete('u:mother');
     expect(pedigreeEffectCounts(nodes, context).unknown).toBe(27);

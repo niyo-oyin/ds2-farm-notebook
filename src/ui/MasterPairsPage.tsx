@@ -1,9 +1,11 @@
-import { useMemo, useState } from 'react';
+import { useCallback, useMemo, useState } from 'react';
 import { PAIR_SOURCES, pairKey, type KottaEdit, type NicksEdit, type PairSource } from '../core/master-edits';
 import { baseMaster } from '../data/base-master';
 import { store } from '../store/userdata';
 import { requestCapture } from '../store/jobs';
 import { useApp } from './app-context';
+import { HorseSelect } from './HorseSelect';
+import { ancestorOptions } from './ancestor-options';
 import { nameSearch } from './name-search';
 import { DataMaintenanceFilters } from './DataMaintenanceFilters';
 import { matchesMaintenance } from './data-maintenance';
@@ -21,6 +23,7 @@ type KottaTarget = { row: KottaRow } | { sire: string } | 'new';
  */
 export function KottaPairsPage() {
   const app = useApp();
+  const label = useCallback((id: string) => app.resolver.label(id), [app.resolver]);
   const [q, setQ] = useState('');
   const [pedigree, setPedigree] = useState('');
   const [maintenance, setMaintenance] = useState<string[]>([]);
@@ -30,7 +33,7 @@ export function KottaPairsPage() {
   // 収録馬の血統表に現れる名前。ここに両方ある組だけがマスターの馬同士の配合で効く
   const pedigreeNames = useMemo(() => {
     const s = new Set<string>();
-    for (const h of [...app.master.stallions, ...app.master.broodmares]) { s.add(h.name); for (const n of h.ancestors) if (n) s.add(n); }
+    for (const h of [...app.master.stallions, ...app.master.broodmares]) { s.add(h.id); for (const n of h.ancestors) if (n) s.add(n); }
     return s;
   }, [app.master]);
   const rows = useMemo((): KottaRow[] => {
@@ -49,9 +52,9 @@ export function KottaPairsPage() {
   const groups = useMemo(() => {
     const m = new Map<string, KottaRow[]>();
     for (const r of rows) { if (!m.has(r.sire)) m.set(r.sire, []); m.get(r.sire)!.push(r); }
-    return [...m.entries()].sort(([a], [b]) => a.localeCompare(b, 'ja')).map(([sire, list]) => ({ sire, rows: list.sort((a, b) => a.dam.localeCompare(b.dam, 'ja')) }));
-  }, [rows]);
-  const visible = search.filter(groups.map((g) => ({ ...g, rows: search.filter(g.rows.filter(passes), (r) => [g.sire, r.dam]) })).filter((g) => g.rows.length), (g) => [g.sire, ...g.rows.map((r) => r.dam)]);
+    return [...m.entries()].sort(([a], [b]) => label(a).localeCompare(label(b), 'ja')).map(([sire, list]) => ({ sire, rows: list.sort((a, b) => label(a.dam).localeCompare(label(b.dam), 'ja')) }));
+  }, [rows, label]);
+  const visible = search.filter(groups.map((g) => ({ ...g, rows: search.filter(g.rows.filter(passes), (r) => [label(g.sire), label(r.dam)]) })).filter((g) => g.rows.length), (g) => [label(g.sire), ...g.rows.map((r) => label(r.dam))]);
   const shown = visible.reduce((n, g) => n + g.rows.length, 0);
   const isTarget = (r: KottaRow) => !!target && typeof target === 'object' && 'row' in target && target.row.sire === r.sire && target.row.dam === r.dam;
   const chipClass = (r: KottaRow) => r.edit?.active === false ? 'disabled' : !r.inBase ? 'added' : r.edit ? 'confirmed' : 'base';
@@ -70,25 +73,22 @@ export function KottaPairsPage() {
       onDone={done} onCancel={() => setTarget(null)} />}
     {visible.length === 0 && <p className="small muted">該当する組がありません。</p>}
     <div className="pairs-groups">{visible.map((g) => <section key={g.sire} className="panel pairs-group">
-      <h3>父側 {g.sire}<span className="small muted">{g.rows.length}組</span></h3>
+      <h3>父側 {label(g.sire)}<span className="small muted">{g.rows.length}組</span></h3>
       <div className="pairs-chips">
         {g.rows.map((r) => <button key={r.dam} type="button" className={['pairs-chip', chipClass(r), inPedigree(r) ? '' : 'faint', isTarget(r) ? 'selected' : ''].filter(Boolean).join(' ')} title={`${r.inBase ? (r.edit ? (r.edit.active === false ? 'マスター（無効化）' : `マスター（${r.edit.source}で確認）`) : 'マスター') : r.edit?.source}${r.edit?.note ? ` · ${r.edit.note}` : ''}${inPedigree(r) ? '' : ' · 収録馬の血統表には現れない'}`} onClick={() => { setTarget({ row: r }); setMessage(''); }}>
-          <span className="pairs-chip-name">{r.dam}</span>
+          <span className="pairs-chip-name">{label(r.dam)}</span>
         </button>)}
-        <button type="button" className="pairs-chip add" aria-label={`父側 ${g.sire} に組を追加`} onClick={() => { setTarget({ sire: g.sire }); setMessage(''); }}>＋</button>
+        <button type="button" className="pairs-chip add" aria-label={`父側 ${label(g.sire)} に組を追加`} onClick={() => { setTarget({ sire: g.sire }); setMessage(''); }}>＋</button>
       </div>
     </section>)}</div>
-    <p className="small muted">チップ: 追加＝青、実機で確認＝緑枠、無効化＝取り消し線。薄い文字は収録馬の血統表に現れない組。チップを押すと確認・無効化・取り消し、＋でその父側の馬に組を追加。向きは区別し、逆向きの組は別の行に出る（判定は設定で対称に扱う）。</p>
+    <p className="small muted">チップ: 追加＝青、実機で確認＝緑枠、無効化＝取り消し線。薄い文字は収録馬の血統表に現れない組。チップを押すと確認・無効化・取り消し、＋でその父側の馬に組を追加。向きは区別し、逆向きの組は別の行に出る。</p>
   </div>;
 }
 
 function KottaSheet({ row, initialSire, onDone, onCancel }: { row: KottaRow | null; initialSire: string; onDone: (message: string) => void; onCancel: () => void }) {
   const app = useApp();
-  const names = useMemo(() => {
-    const s = new Set<string>(app.master.ancestors.map((a) => a.name));
-    for (const h of [...app.master.stallions, ...app.master.broodmares]) { s.add(h.name); for (const n of h.ancestors) if (n) s.add(n); }
-    return [...s].sort((a, b) => a.localeCompare(b, 'ja'));
-  }, [app.master]);
+  const label = useCallback((id: string) => app.resolver.label(id), [app.resolver]);
+  const options = useMemo(() => ancestorOptions(app.master), [app.master]);
   const [sire, setSire] = useState(row?.sire ?? initialSire);
   const [dam, setDam] = useState(row?.dam ?? '');
   const [active, setActive] = useState(row?.edit?.active ?? true);
@@ -107,10 +107,9 @@ function KottaSheet({ row, initialSire, onDone, onCancel }: { row: KottaRow | nu
     if (!row?.edit || !confirm(row.inBase ? 'この組の確認・無効化を取り消して元の状態に戻しますか？' : 'この組を削除しますか？')) return;
     store.deleteKottaEdit(row.sire, row.dam); onDone('取り消しました');
   };
-  const unknown = [sire, dam].filter((n) => n.trim() && !names.includes(n.trim()));
   return <form className="panel pairs-sheet" noValidate onSubmit={(e) => { e.preventDefault(); save(); }}>
     <div className="pairs-sheet-head">
-      <div><span className="small muted">{row ? (row.inBase ? (row.edit ? (row.edit.active === false ? 'マスター（無効化）' : `マスター（${row.edit.source}で確認）`) : 'マスター') : `追加した組 · ${row.edit?.source}`) : '新しい組'}</span><h3>{row ? `${row.sire} × ${row.dam}` : `${sire.trim() || '？'} × ${dam.trim() || '？'}`}</h3></div>
+      <div><span className="small muted">{row ? (row.inBase ? (row.edit ? (row.edit.active === false ? 'マスター（無効化）' : `マスター（${row.edit.source}で確認）`) : 'マスター') : `追加した組 · ${row.edit?.source}`) : '新しい組'}</span><h3>{row ? `${label(row.sire)} × ${label(row.dam)}` : `${label(sire) || '？'} × ${label(dam) || '？'}`}</h3></div>
       <div className="master-sheet-actions">
         {row?.edit && <button type="button" className="danger" onClick={revert}>{row.inBase ? '取り消す' : 'この組を削除'}</button>}
         <button type="button" onClick={onCancel}>{row ? '閉じる' : 'キャンセル'}</button>
@@ -118,14 +117,12 @@ function KottaSheet({ row, initialSire, onDone, onCancel }: { row: KottaRow | nu
       </div>
     </div>
     <div className="master-fields pairs-fields">
-      <label className="field">父側の馬<input list="kotta-names" value={sire} disabled={!!row} onChange={(e) => setSire(e.target.value)} /></label>
-      <label className="field">母側の馬<input list="kotta-names" value={dam} disabled={!!row} onChange={(e) => setDam(e.target.value)} /></label>
+      <label className="field">父側の馬<HorseSelect options={options} value={sire} onChange={setSire} disabled={!!row} /></label>
+      <label className="field">母側の馬<HorseSelect options={options} value={dam} onChange={setDam} disabled={!!row} /></label>
       <label className="field">出典<select value={source} onChange={(e) => setSource(e.target.value as PairSource)}>{PAIR_SOURCES.map((s) => <option key={s} value={s}>{s}</option>)}</select></label>
       {row?.inBase ? <label className="master-hidden"><input type="checkbox" checked={!active} onChange={(e) => setActive(!e.target.checked)} />この組を無効にする（判定に使わない）</label> : <span />}
       <label className="field pairs-note">備考<input value={note} onChange={(e) => setNote(e.target.value)} placeholder="例: 種付け画面で凝った配合を確認（父名×母名）。他に該当する組なし" /></label>
     </div>
-    {!row && <datalist id="kotta-names">{names.map((n) => <option key={n} value={n} />)}</datalist>}
-    {unknown.length > 0 && <p className="small muted">{unknown.join('、')} は祖先マスターにも血統表にもない名前です。表記を確かめてください。</p>}
     <p className="small muted">父側4代以内と母側4代以内にこの2頭がいると凝った配合。種付け画面のアイコンは父×母の成立しか示さず、どの祖先の組が原因かは分からないので、実機確認はその配合で他に該当する組がない時だけ記録する。</p>
     <div role={error ? 'alert' : 'status'} className={error ? 'sheet-error' : 'sheet-save-status'}>{error}</div>
   </form>;

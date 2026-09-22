@@ -6,10 +6,10 @@ import { nameSearch } from './name-search';
 export interface HorseSelectHandle { focus: () => void }
 
 export const HorseSelect = forwardRef<HorseSelectHandle, {
-  value: string; onChange: (key: string) => void; options: HorseOption[]; placeholder?: string; 'aria-label'?: string; clearAfterSelect?: boolean;
+  onCreate?: (name: string) => void; disabled?: boolean; value: string; onChange: (key: string) => void; options: HorseOption[]; placeholder?: string; 'aria-label'?: string; clearAfterSelect?: boolean;
   /** 一覧の末尾に、計画馬を候補に出すかの切り替えを置く（設定 hidePlanned。父母を選ぶ場面で使う） */
   plannedToggle?: boolean;
-}>(function HorseSelect({ value, onChange, options, placeholder, 'aria-label': ariaLabel, clearAfterSelect = false, plannedToggle = false }, ref) {
+}>(function HorseSelect({ onCreate, disabled = false, value, onChange, options, placeholder, 'aria-label': ariaLabel, clearAfterSelect = false, plannedToggle = false }, ref) {
   const app = useApp();
   const [text, setText] = useState('');
   const [open, setOpen] = useState(false);
@@ -32,7 +32,7 @@ export const HorseSelect = forwardRef<HorseSelectHandle, {
   const clear = () => { onChange(''); setText(''); setOpen(false); input.current?.focus(); };
   return (
     <div className="combo" ref={wrap}>
-      <input ref={input} value={text} placeholder={placeholder ?? '馬名で検索'} aria-label={ariaLabel}
+      <input disabled={disabled} ref={input} value={text} placeholder={placeholder ?? '馬名で検索'} aria-label={ariaLabel}
         onFocus={(e) => { setOpen(true); setActive(0); e.target.select(); }}
         onChange={(e) => { setText(e.target.value); setOpen(true); setActive(0); }}
         onKeyDown={(e) => {
@@ -42,8 +42,8 @@ export const HorseSelect = forwardRef<HorseSelectHandle, {
           else if (e.key === 'Enter' && open && filtered[active]) { choose(filtered[active]); e.preventDefault(); }
           else if (e.key === 'Escape') { setOpen(false); input.current?.blur(); }
         }} />
-      {(text || value) && <button type="button" className="combo-clear" title="クリア" aria-label="クリア" onMouseDown={(e) => e.preventDefault()} onClick={clear}>×</button>}
-      {open && (
+      {!disabled && (text || value) && <button type="button" className="combo-clear" title="クリア" aria-label="クリア" onMouseDown={(e) => e.preventDefault()} onClick={clear}>×</button>}
+      {!disabled && open && (
         <div className="list">
           {filtered.map((o, i) => (
             <div key={o.key}>
@@ -54,6 +54,7 @@ export const HorseSelect = forwardRef<HorseSelectHandle, {
             </div>
           ))}
           {!filtered.length && <div className="item muted">該当なし</div>}
+          {onCreate && text.trim() && <button type="button" className="item" onClick={() => { onCreate(text.trim()); setOpen(false); }}>「{text.trim()}」を別の馬として追加</button>}
           {plannedToggle && <label className="combo-toggle" onMouseDown={(e) => e.preventDefault()}><input type="checkbox" checked={!!app.data.settings.hidePlanned} onChange={(e) => store.setSettings({ hidePlanned: e.target.checked })} />計画馬を非表示</label>}
         </div>
       )}

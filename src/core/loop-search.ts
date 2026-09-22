@@ -1,7 +1,8 @@
 // 凝った配合ループの探索: 種牡馬を決まった順で回し、毎世代の産駒牝馬に次の種牡馬を付け続けても目標が成立し続ける周期を探す。
 // 定常状態（元の繁殖牝馬が4代の外へ抜けた後）では、母側の血統は直近の種牡馬だけで決まるので、周期の列だけで判定できる。
 import type { HorseKey, HorseRecord, Verdict } from './types';
-import { makeFoalRecord, nameOfKey, unknownRecord } from './pedigree';
+import { makeFoalRecord, unknownRecord } from './pedigree';
+import { isMasterKey } from './horse-identity';
 import { judge } from './judge';
 import { goalVerdict, summarize, type JudgementSummary, type SearchEnv, type SearchGoal, type SearchHooks, type SearchResult, type SearchStatus } from './search';
 
@@ -19,10 +20,10 @@ export interface LoopStep { sire: HorseKey; sireName: string; cost: number; judg
 export interface LoopResult { steps: LoopStep[]; length: number; cost: number; goals: { goal: SearchGoal; verdict: Verdict }[] }
 export interface LoopReport { status: SearchStatus; results: LoopResult[]; evaluated: number; pruned: number; elapsedMs: number; request: LoopRequest }
 
-/** 血統表のノード 1..limit の名前（マスターの馬の祖先だけ。自家製馬は名前を持たない） */
+/** 血統表のノード 1..limit のID（マスターの馬の祖先だけ） */
 const namesUpTo = (rec: HorseRecord, limit: number): string[] => {
   const out: string[] = [];
-  for (let n = 1; n <= limit; n++) { const nm = nameOfKey(rec.nodes[n]); if (nm) out.push(nm); }
+  for (let n = 1; n <= limit; n++) { const key = rec.nodes[n]; if (isMasterKey(key)) out.push(key); }
   return out;
 };
 
@@ -47,9 +48,11 @@ export async function searchLoops(env: SearchEnv, req: LoopRequest, hooks: Searc
   if (!pool.length) throw new Error('種牡馬の候補がありません');
   const report: LoopReport = { status: '完了', results: [], evaluated: 0, pruned: 0, elapsedMs: 0, request: req };
   const wantKotta = req.goals.some((g) => g.type === 'kotta' || g.type === 'perfectKotta');
+  // 自家製種牡馬の血統から成立するペアは登録表にないため、表だけで枝を切らない。
+  const canPruneKotta = wantKotta && env.rules.kottaGenerations === 4 && !(env.rules.kottaEstimateHomebred && pool.some(s => s.nodes.some((key, n) => n > 0 && n < 16 && (n === 1 || n % 2 === 0) && key && !isMasterKey(key))));
   const wantSafe = req.goals.some((g) => g.type === 'notDangerous');
   const pairs = env.ctx.kottaPairs;
-  // 種牡馬ごとに、母側に来た時の名前（世代数ごと）と、その相手を4代以内に持つ種牡馬の集合を前計算する
+  // 種牡馬ごとに、母側に来た時のID（世代数ごと）と、その相手を4代以内に持つ種牡馬の集合を前計算する
   const names4 = new Map<HorseRecord, string[]>(pool.map((s) => [s, [...new Set(namesUpTo(s, 15))]]));
   const holders = new Map<string, HorseRecord[]>();
   for (const s of pool) for (const nm of names4.get(s)!) { if (!holders.has(nm)) holders.set(nm, []); holders.get(nm)!.push(s); }
@@ -58,13 +61,13 @@ export async function searchLoops(env: SearchEnv, req: LoopRequest, hooks: Searc
   const holdersOfPartners = (names: string[]) => { const set = new Set<HorseRecord>(); for (const b of names) for (const a of partners.get(b) ?? []) for (const s of holders.get(a) ?? []) set.add(s); return set; };
   // 母父（3代分）・母母父（2代分）・母母母父（自身）として見た時に、凝ったペアを作れる種牡馬
   const via = [7, 3, 1].map((limit) => new Map<HorseRecord, Set<HorseRecord>>(pool.map((s) => [s, holdersOfPartners(namesUpTo(s, limit))])));
-  // 1×N の検査用: 母側5代に現れる名前（母父の4代、母母父の3代、母母母父の2代、母母母母父自身）
+  // 1×N の検査用: 母側5代に現れるID（母父の4代、母母父の3代、母母母父の2代、母母母母父自身）
   const namesAt = [15, 7, 3, 1].map((limit) => new Map<HorseRecord, Set<string>>(pool.map((s) => [s, new Set(namesUpTo(s, limit))])));
   /** prev は直前の世代から新しい順 */
   const kottaOk = (s: HorseRecord, prev: HorseRecord[]) => prev.slice(0, 3).some((p, k) => via[k].get(p)!.has(s));
-  const safeOk = (s: HorseRecord, prev: HorseRecord[]) => !prev.slice(0, 4).some((p, k) => namesAt[k].get(p)!.has(s.name));
+  const safeOk = (s: HorseRecord, prev: HorseRecord[]) => !prev.slice(0, 4).some((p, k) => namesAt[k].get(p)!.has(s.key));
   const candidates = (prev: HorseRecord[]): HorseRecord[] => {
-    if (!wantKotta) return pool;
+    if (!canPruneKotta) return pool;
     const set = new Set<HorseRecord>();
     prev.slice(0, 3).forEach((p, k) => { for (const s of via[k].get(p)!) set.add(s); });
     return [...set];
@@ -88,7 +91,7 @@ export async function searchLoops(env: SearchEnv, req: LoopRequest, hooks: Searc
     // 周期の先頭3世代は、列が閉じて初めて相手が決まる
     for (let i = 0; i < Math.min(4, L); i++) {
       const prev = previous(cycle, i, 4);
-      if (wantKotta && !kottaOk(cycle[i], prev)) { report.pruned++; return; }
+      if (canPruneKotta && !kottaOk(cycle[i], prev)) { report.pruned++; return; }
       if (wantSafe && !safeOk(cycle[i], prev)) { report.pruned++; return; }
     }
     const judged = steadyStateJudgements(env, cycle);
@@ -121,7 +124,7 @@ export async function searchLoops(env: SearchEnv, req: LoopRequest, hooks: Searc
         const nextCost = cost + s.price;
         if (req.maxCost != null && nextCost > req.maxCost) { report.pruned++; continue; }
         // 凝ったペアは直前3世代が揃ってから、1×N は分かっている範囲で先に切る
-        if (i >= 3 && wantKotta && !kottaOk(s, prev)) { report.pruned++; continue; }
+        if (i >= 3 && canPruneKotta && !kottaOk(s, prev)) { report.pruned++; continue; }
         if (wantSafe && (cycle.some((c) => c.key === s.key) || !safeOk(s, prev))) { report.pruned++; continue; }
         cycle.push(s);
         await rec(i + 1, nextCost);

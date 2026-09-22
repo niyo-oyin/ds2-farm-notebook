@@ -22,6 +22,9 @@
 .horse-detail-dialog .master-hidden input { width: 16px; min-height: 16px; height: 16px; }
 .horse-detail-dialog .master-anc { font-size: 12px; overflow-wrap: anywhere; }
 .horse-detail-dialog .master-anc input { width: 100%; min-width: 0; min-height: 26px; padding: 2px 4px; font-size: 12px; }
+.horse-detail-dialog .master-anc .combo { width: 100%; min-width: 0; }
+.horse-detail-dialog .master-anc .combo input { padding-right: 26px; }
+.horse-detail-dialog .master-anc .combo .list { min-width: 280px; }
 .horse-detail-dialog .master-anc .fx { font-size: 10px; }
 .horse-dialog-pedigree-actions { display: flex; gap: 8px; flex-wrap: wrap; }
 .horse-dialog-pedigree-actions button { font-size: 12px; }

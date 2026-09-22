@@ -160,8 +160,8 @@ export function GoalEditor({ goals, setGoals, multi = false, qualifier }: { goal
     if (g) setNum(g, { min: Number(v) }); else setGoals([...goals, { type: 'nitro', stat, min: Number(v) }]);
   };
   const ancestorOptions = useMemo<HorseOption[]>(() => {
-    const withFx = app.master.ancestors.filter((a) => a.effects.length).map((a) => ({ key: a.name, name: a.name, group: '因子のある祖先', sub: a.effects.join('・') }));
-    const others = app.master.ancestors.filter((a) => !a.effects.length).map((a) => ({ key: a.name, name: a.name, group: 'その他の祖先' }));
+    const withFx = app.master.ancestors.filter((a) => a.effects.length).map((a) => ({ key: a.id, name: a.name, group: '因子のある祖先', sub: a.effects.join('・') }));
+    const others = app.master.ancestors.filter((a) => !a.effects.length).map((a) => ({ key: a.id, name: a.name, group: 'その他の祖先' }));
     return [...withFx, ...others];
   }, [app]);
   const counted = (t: SearchGoal['type'], label: string, field: 'min' | 'max', init: Partial<SearchGoal>, unit: string) => {
@@ -219,8 +219,8 @@ export function GoalEditor({ goals, setGoals, multi = false, qualifier }: { goal
           ))}</div>
         </SearchSection>
         <SearchSection title="指定した祖先のクロス" icon="ancestors">
-          <HorseSelect value="" onChange={(k) => { if (k && !goals.some((g) => g.type === 'cross' && g.name === k)) setGoals([...goals, { type: 'cross', name: k }]); }} options={ancestorOptions} placeholder="祖先名で検索して追加" aria-label="指定した祖先のクロス" clearAfterSelect />
-          {goals.some((g) => g.type === 'cross') && <div className="search-selections">{goals.filter((g) => g.type === 'cross').map((g) => <SelectionChip key={g.name} name={g.name ?? ''} onRemove={() => setGoals(goals.filter((x) => x !== g))} />)}</div>}
+          <HorseSelect value="" onChange={(k) => { if (k && !goals.some((g) => g.type === 'cross' && g.ancestorId === k)) setGoals([...goals, { type: 'cross', ancestorId: k, name: app.resolver.label(k) }]); }} options={ancestorOptions} placeholder="祖先名で検索して追加" aria-label="指定した祖先のクロス" clearAfterSelect />
+          {goals.some((g) => g.type === 'cross') && <div className="search-selections">{goals.filter((g) => g.type === 'cross').map((g) => <SelectionChip key={g.ancestorId} name={app.resolver.label(g.ancestorId ?? '')} onRemove={() => setGoals(goals.filter((x) => x !== g))} />)}</div>}
         </SearchSection>
       </div>
     </>
@@ -249,8 +249,13 @@ function SearchPageBody({ params, job }: { params: URLSearchParams; job: SearchJ
   const [mareRun, setMareRun] = useMemoState<number>('one', 'run:mare', 0, params.get('mare') ? 1 : null);
   const [stallionRun, setStallionRun] = useMemoState<number>('one', 'run:stallion', 0, params.get('stallion') ? 1 : null);
   const oneSelection = origin === 'mare' ? { selected: mares, setSelected: setMares, run: mareRun, setRun: setMareRun } : { selected: stallions, setSelected: setStallions, run: stallionRun, setRun: setStallionRun };
+  const [oneFilter, setOneFilter] = useMemoState<StallionFilterState>('one', 'filter', EMPTY_FILTER);
+  const restoredFilter = job ? { ...EMPTY_FILTER, includeOverseas: app.master.stallions.some(h => h.overseas && (job.request.stallionPool.includes(h.id) || (job.kind === 'lineage' && [job.request.finalStallion, job.request.intermediateStallion].includes(h.id)))) } : null;
+  const [multiFilter, setMultiFilter] = useMemoState<StallionFilterState>('multi', 'filter', EMPTY_FILTER, job?.kind === 'lineage' ? restoredFilter : null);
+  const [loopFilter, setLoopFilter] = useMemoState<StallionFilterState>('loop', 'filter', EMPTY_FILTER, job?.kind === 'loop' ? restoredFilter : null);
+  const currentFilter = mode === 'one' ? oneFilter : mode === 'multi' ? multiFilter : loopFilter;
   const marePool = mode === 'one' && origin === 'stallion';
-  const availableCount = (marePool ? damOptions : sireOptions)(app, { onlyAvailable: true, requirePedigree: true, includePlanned: includePlannedInSearch(app) }).length;
+  const availableCount = (marePool ? damOptions : sireOptions)(app, { onlyAvailable: true, requirePedigree: true, includePlanned: includePlannedInSearch(app), includeOverseas: currentFilter.includeOverseas }).length;
   const poolLabel = marePool ? '繁殖牝馬' : '種牡馬';
   return (
     <div className="search-page">
@@ -260,12 +265,12 @@ function SearchPageBody({ params, job }: { params: URLSearchParams; job: SearchJ
         <button aria-pressed={mode === 'multi'} onClick={() => setMode('multi')}>牝系を進める数世代探索</button>
         <button aria-pressed={mode === 'loop'} onClick={() => setMode('loop')}>凝った配合ループ探索</button>
       </div>
-      {mode === 'one' ? <OneGen key={origin} origin={origin} onOriginChange={setOrigin} {...oneSelection} /> : mode === 'multi' ? <MultiGen params={params} job={job?.kind === 'lineage' ? job : null} /> : <LoopSearch job={job?.kind === 'loop' ? job : null} />}
+      {mode === 'one' ? <OneGen filter={oneFilter} setFilter={setOneFilter} key={origin} origin={origin} onOriginChange={setOrigin} {...oneSelection} /> : mode === 'multi' ? <MultiGen filter={multiFilter} setFilter={setMultiFilter} params={params} job={job?.kind === 'lineage' ? job : null} /> : <LoopSearch filter={loopFilter} setFilter={setLoopFilter} job={job?.kind === 'loop' ? job : null} />}
     </div>
   );
 }
 
-function OneGen({ origin, onOriginChange, selected, setSelected, run, setRun }: { origin: OneGenOrigin; onOriginChange: (origin: OneGenOrigin) => void; selected: string[]; setSelected: (keys: string[]) => void; run: number; setRun: (run: number) => void }) {
+function OneGen({ filter, setFilter, origin, onOriginChange, selected, setSelected, run, setRun }: { filter: StallionFilterState; setFilter: (filter: StallionFilterState) => void; origin: OneGenOrigin; onOriginChange: (origin: OneGenOrigin) => void; selected: string[]; setSelected: (keys: string[]) => void; run: number; setRun: (run: number) => void }) {
   const app = useApp();
   const mobile = useMobile();
   const fromStallion = origin === 'stallion';
@@ -274,12 +279,11 @@ function OneGen({ origin, onOriginChange, selected, setSelected, run, setRun }: 
   // 相手の候補（探索に使う集合）は設定 excludePlannedFromSearch、起点の選択リストは表示設定 hidePlanned に従う（連動しない）
   const includePool = includePlannedInSearch(app);
   const dOpts = useMemo(() => damOptions(app, { onlyAvailable: true, requirePedigree: true, includePlanned: includePool }), [app, includePool]);
-  const sOpts = useMemo(() => sireOptions(app, { onlyAvailable: true, requirePedigree: true, includePlanned: includePool }), [app, includePool]);
+  const sOpts = useMemo(() => sireOptions(app, { onlyAvailable: true, requirePedigree: true, includePlanned: includePool, includeOverseas: filter.includeOverseas }), [app, includePool, filter.includeOverseas]);
   const hidePlanned = !!app.data.settings.hidePlanned;
   const originOptions = useMemo(() => (fromStallion ? sireOptions : damOptions)(app, { onlyAvailable: true, requirePedigree: true, includePlanned: !hidePlanned }), [app, fromStallion, hidePlanned]);
   const [goals, setGoals] = useMemoState<SearchGoal[]>('one', 'goals', []);
   const [sort, setSort] = useMemoState<SortKey>('one', `sort:${origin}`, fromStallion ? 'nicks' : 'cost');
-  const [filter, setFilter] = useMemoState<StallionFilterState>('one', 'filter', EMPTY_FILTER);
   // 起点を切り替えても、相手の属性条件を固定した種牡馬へ適用しない。
   const sireKeys = useMemo(() => fromStallion ? selected : sOpts.filter((o) => { const m = app.master.stallions.find((s) => s.id === o.key); return !m || matchesStallion(m, filter); }).map((o) => o.key), [fromStallion, selected, sOpts, filter, app]);
   const damKeys = useMemo(() => fromStallion ? dOpts.map((o) => o.key) : selected, [fromStallion, dOpts, selected]);
@@ -366,17 +370,17 @@ function OneGen({ origin, onOriginChange, selected, setSelected, run, setRun }: 
   );
 }
 
-function MultiGen({ params, job }: { params: URLSearchParams; job: (SearchJob & { kind: 'lineage' }) | null }) {
+function MultiGen({ filter, setFilter, params, job }: { filter: StallionFilterState; setFilter: (filter: StallionFilterState) => void; params: URLSearchParams; job: (SearchJob & { kind: 'lineage' }) | null }) {
   const app = useApp();
   const mobile = useMobile();
   // バックグラウンドの探索を開いた時は、その条件を入力欄に戻し、結果は取り直すたびに差し替える（この画面で新しく探索を始めたら切り離す）
   const jr = job?.request ?? null;
   const [viewingJob, setViewingJob] = useState(!!job);
   // sOpts は途中・最後の種牡馬の候補（探索に使う集合）で設定 excludePlannedFromSearch に従う。選択リストは表示設定 hidePlanned に従う（連動しない）
-  const sOpts = useMemo(() => sireOptions(app, { onlyAvailable: true, requirePedigree: true, includePlanned: includePlannedInSearch(app) }), [app]);
+  const sOpts = useMemo(() => sireOptions(app, { onlyAvailable: true, requirePedigree: true, includePlanned: includePlannedInSearch(app), includeOverseas: filter.includeOverseas }), [app, filter.includeOverseas]);
   const hidePlanned = !!app.data.settings.hidePlanned;
   const damPick = useMemo(() => damOptions(app, { onlyAvailable: true, requirePedigree: true, includePlanned: !hidePlanned }), [app, hidePlanned]);
-  const sirePick = useMemo(() => sireOptions(app, { onlyAvailable: true, requirePedigree: true, includePlanned: !hidePlanned }), [app, hidePlanned]);
+  const sirePick = useMemo(() => sireOptions(app, { onlyAvailable: true, requirePedigree: true, includePlanned: !hidePlanned, includeOverseas: filter.includeOverseas }), [app, hidePlanned, filter.includeOverseas]);
   const [mare, setMare] = useMemoState<string>('multi', 'mare', '', params.get('mare') ?? jr?.startMare ?? null);
   const [intermediate, setIntermediate] = useMemoState<string>('multi', 'intermediate', '', params.get('mare') ? '' : jr ? (jr.intermediateStallion ?? '') : null);
   const [final, setFinal] = useMemoState<string>('multi', 'final', '', params.get('mare') ? (params.get('final') ?? '') : jr ? (jr.finalStallion ?? '') : null);
@@ -386,7 +390,6 @@ function MultiGen({ params, job }: { params: URLSearchParams; job: (SearchJob & 
   const [maxCost, setMaxCost] = useMemoState<string>('multi', 'maxCost', '', jr ? (jr.maxCost == null ? '' : String(jr.maxCost)) : null);
   const [maxEval, setMaxEval] = useMemoState<number>('multi', 'maxEval', 50_000_000, jr?.maxEvaluations ?? null);
   const [repeat, setRepeat] = useMemoState<boolean>('multi', 'repeat', true, jr?.allowRepeatStallion ?? null);
-  const [filter, setFilter] = useMemoState<StallionFilterState>('multi', 'filter', EMPTY_FILTER);
   const [progress, setProgress] = useState<{ evaluated: number; pruned: number; found: number } | null>(null);
   const [report, setReport] = useMemoState<SearchReport | null>('multi', 'report', null, job ? lineageReport(job) : null);
   const [err, setErr] = useState('');
@@ -458,6 +461,7 @@ function MultiGen({ params, job }: { params: URLSearchParams; job: (SearchJob & 
   const start = () => {
     if (!mare) { setErr('起点の繁殖牝馬を選んでください'); return; }
     if (intermediate && maxM < 2) { setErr('途中で使う種牡馬を指定するときは、配合回数の最大を2回以上にしてください'); return; }
+    if (!filter.includeOverseas && app.master.stallions.some(h => h.overseas && [intermediate, final].includes(h.id))) { setErr('指定した種牡馬に海外種牡馬が含まれています。「海外種牡馬を除外」のチェックを外すか、指定を解除してください'); return; }
     resultPage.setPage(0); setResultHorse(''); setResultFinal('');
     setErr(''); setReport(null); setSaved({}); setSavedMsg(null); setStarted(null); setOpen(null); setViewingJob(false); setProgress({ evaluated: 0, pruned: 0, found: 0 });
     const req = buildRequest();
@@ -481,6 +485,7 @@ function MultiGen({ params, job }: { params: URLSearchParams; job: (SearchJob & 
   const background = async () => {
     if (!mare) { setErr('起点の繁殖牝馬を選んでください'); return; }
     if (intermediate && maxM < 2) { setErr('途中で使う種牡馬を指定するときは、配合回数の最大を2回以上にしてください'); return; }
+    if (!filter.includeOverseas && app.master.stallions.some(h => h.overseas && [intermediate, final].includes(h.id))) { setErr('指定した種牡馬に海外種牡馬が含まれています。「海外種牡馬を除外」のチェックを外すか、指定を解除してください'); return; }
     setErr('');
     try { setStarted(await submitSearchJob('lineage', buildRequest())); } catch (e) { setErr((e as Error).message); }
   };

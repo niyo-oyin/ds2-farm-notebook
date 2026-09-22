@@ -63,7 +63,7 @@ export function toRecords(d: UserData): SyncRecord[] {
     ...allUserHorses(d).map((h) => ({ id: h.id, kind: 'horse' as const, data: h, updatedAt: h.updatedAt })),
     ...d.plans.map((p) => ({ id: p.id, kind: 'plan' as const, data: p, updatedAt: p.updatedAt })),
     ...d.masterEdits.map((e) => ({ id: `master:${e.id}`, kind: 'masterEdit' as const, data: e, updatedAt: e.updatedAt })),
-    ...d.ancestorEdits.map((e) => ({ id: `ancestor:${e.name}`, kind: 'ancestorEdit' as const, data: e, updatedAt: e.updatedAt })),
+    ...d.ancestorEdits.map((e) => ({ id: `ancestor:${e.id}`, kind: 'ancestorEdit' as const, data: e, updatedAt: e.updatedAt })),
     ...d.kottaEdits.map((e) => ({ id: `kotta:${pairKey(e.sire, e.dam)}`, kind: 'kottaEdit' as const, data: e, updatedAt: e.updatedAt })),
     ...d.nicksEdits.map((e) => ({ id: `nicks:${pairKey(e.sire, e.dam)}`, kind: 'nicksEdit' as const, data: e, updatedAt: e.updatedAt })),
     ...d.raceEdits.map((e) => ({ id: `race:${e.id}`, kind: 'raceEdit' as const, data: e, updatedAt: e.updatedAt })),
@@ -129,8 +129,8 @@ export function acceptRecords(local: UserData, res: RecordsResponse): UserData |
       if (r.deleted) { if (cur) { raceEdits.splice(i, 1); changed = true; } }
       else { if (i >= 0) raceEdits[i] = r.data as RaceEdit; else raceEdits.push(r.data as RaceEdit); changed = true; }
     } else if (r.kind === 'ancestorEdit') {
-      const name = r.id.replace(/^ancestor:/, '');
-      const i = ancestorEdits.findIndex((e) => e.name === name);
+      const id = r.id.replace(/^ancestor:/, '');
+      const i = ancestorEdits.findIndex((e) => e.id === id);
       const cur = i >= 0 ? ancestorEdits[i] : null;
       if (cur && cur.updatedAt >= r.updatedAt) continue;
       if (r.deleted) { if (cur) { ancestorEdits.splice(i, 1); changed = true; } }

@@ -15,9 +15,10 @@ export interface MasterHorse {
   smallSystem: string | null;
   omoshiro: string | null; // 面白用4系統 (a-o)
   migoto: string | null;   // 見事用4系統 (a-o) 種牡馬のみ
-  ancestors: string[];     // 30頭: 父,母,父父,父母,母父,母母,(3代8頭),(4代16頭)
+  ancestors: string[];     // 祖先ID 30頭（空文字は不明）: 父,母,父父,父母,母父,母母,(3代8頭),(4代16頭)
   unlock?: string | null;        // 解禁条件（例: 皐月賞に勝利）
   breedingRightPrice?: number | null; // 種牡馬の種付け権購入額（万円）。未設定なら権利条件なし
+  overseas?: boolean; // ゲーム内の海外種牡馬。産地とは区別する
   purchasePrice?: number | null; // 繁殖牝馬の購入価格（万）。null は初期から利用可
   /** 種付料（種牡馬）または購入価格（繁殖牝馬）が未確認。price は 0、purchasePrice は null のまま */
   priceUnknown?: boolean;
@@ -25,10 +26,12 @@ export interface MasterHorse {
 }
 
 export interface AncestorInfo {
+  id: string;
   name: string;
   system: number | null;   // 1..15
   sex: Sex | null;
   effects: string[];       // クロス効果名
+  effectsKnown?: boolean; // false は馬名だけの登録で、因子は未確認
 }
 
 export interface MasterData {
@@ -39,7 +42,7 @@ export interface MasterData {
   stallions: MasterHorse[];
   broodmares: MasterHorse[];
   ancestors: AncestorInfo[];
-  kotta: [string, string][];
+  kotta: [string, string][]; // [父側の馬ID, 母側の馬ID]
   nicks: { sire: string; dam: string; level: number }[];
 }
 
@@ -131,7 +134,7 @@ export type UserHorse = OwnedHorse | PlannedHorse;
 /**
  * 馬を一意に参照するキー。
  * マスターの馬は "st:ID" / "bm:ID"、ユーザー馬は "u:..." / "p:..." を使う。
- * 血統表にだけ現れる祖先は、名前を識別子とする "n:<名前>" を使う。
+ * 血統表にだけ現れる祖先は "a:ID"。本馬としてのIDと祖先としてのIDは共通。
  */
 export type HorseKey = string;
 

@@ -7,11 +7,13 @@ export function horseColumns(kind: MasterHorse['kind']): HorseColumn[] {
     { key: 'name', label: '馬名' }, { key: 'price', label: kind === 'stallion' ? '種付料' : '購入価格', numeric: true },
     ...(kind === 'stallion' ? [
       { key: 'dist', label: '距離（m）' }, { key: 'grown', label: '成長' }, { key: 'dirt', label: 'ダート' },
-      { key: 'jisseki', label: '実績' }, { key: 'antei', label: '安定' }, { key: 'konjo', label: '底力' },
+      { key: 'kenko', label: '体質' }, { key: 'kisyo', label: '気性' },
+      { key: 'jisseki', label: '実績' }, { key: 'konjo', label: '底力' }, { key: 'antei', label: '安定' },
     ] : [
       { key: 'speed', label: 'スピード', numeric: true }, { key: 'stamina', label: 'スタミナ', numeric: true },
       { key: 'power', label: 'パワー', numeric: true }, { key: 'dirt', label: 'ダート' },
-    ]), { key: 'kenko', label: '体質' }, { key: 'kisyo', label: '気性' },
+      { key: 'kenko', label: '体質' }, { key: 'kisyo', label: '気性' },
+    ]),
   ];
 }
 

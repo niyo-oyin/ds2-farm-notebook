@@ -5,7 +5,7 @@ import { HORSE_CATEGORIES, horseAge, isUnnamedHorse, pedigreeEffectCounts, pedig
 import { canReadHorseStory } from '../core/horse-story';
 import { HorseNameSuggestions } from './HorseNameSuggestions';
 import { PORTRAIT_MAX_SIDE, deleteImage, imageToBase64, imageUrl, uploadImage } from '../api';
-import { foalNodes, makeFoalRecord, nameOfKey, nodePath, unknownRecord } from '../core/pedigree';
+import { foalNodes, makeFoalRecord, nodePath, unknownRecord } from '../core/pedigree';
 import { allUserHorses, horsePlanLinks, store } from '../store/userdata';
 import { requestCapture } from '../store/jobs';
 import { useApp, sireOptions, damOptions, type HorseOption } from './app-context';
@@ -112,7 +112,7 @@ export const HorseSheet = forwardRef<HorseSheetHandle, {
   const bigSystem = bigSystems.length === 1 ? bigSystems[0] : null;
   const factorContext = useMemo(() => ({
     ancestors: app.ctx.ancestors,
-    userAncestors: new Map(allUserHorses(app.data).filter((h) => h.effects !== undefined).map((h) => [h.id, { name: h.name, sex: h.sex, system: null, effects: h.effects! }])),
+    userAncestors: new Map(allUserHorses(app.data).filter((h) => h.effects !== undefined).map((h) => [h.id, { id: h.id, name: h.name, sex: h.sex, system: null, effects: h.effects! }])),
   }), [app]);
   const ancestors = pedigreeEffectCounts(bloodline.nodes, factorContext);
   const links = form.plannedIds.flatMap((id) => {
@@ -329,8 +329,8 @@ function HorseBloodline({ nodes, record, sireKey, damKey, sireOpts, damOpts, onS
   const parentInput = useRef<HorseSelectHandle>(null);
   useEffect(() => { if (editing) parentInput.current?.focus(); }, [editing]);
   const infoOf = (key: string) => {
-    const name = nameOfKey(key), user = app.resolver.user(key);
-    return name ? app.ctx.ancestors.get(name) : user ? { name: user.name, sex: user.sex, effects: user.effects, system: null } : undefined;
+    const user = app.resolver.user(key);
+    return app.ctx.ancestors.get(key) ?? (user ? { id: user.id, name: user.name, sex: user.sex, effects: user.effects, effectsKnown: user.effects !== undefined, system: null } : undefined);
   };
   const cells = [];
   for (let generation = 1; generation <= gens; generation++) {
@@ -361,7 +361,7 @@ function HorseBloodline({ nodes, record, sireKey, damKey, sireOpts, damOpts, onS
       <div className="sheet-generation-headings" style={{ gridTemplateColumns: `repeat(${gens}, minmax(164px, 1fr)) 52px` }}>{Array.from({ length: gens }, (_, i) => <span key={i}>{i + 1}代</span>)}<span>系統</span></div>
       <div className="sheet-pedigree" style={{ gridTemplateColumns: `repeat(${gens}, minmax(164px, 1fr)) 52px`, gridTemplateRows: `repeat(${1 << gens}, minmax(30px, auto))` }}>{cells}</div>
     </div>
-    {selected && selectedKey && <div className="sheet-ancestor-detail"><div><b>{selectedName}</b><span>{nodePath(selected)}</span>{selectedInfo?.system && <span>{app.master.meta.bigSystems[selectedInfo.system - 1]}系</span>}</div><div>因子 {selectedInfo?.effects ? selectedInfo.effects.length ? <EffectChips effects={selectedInfo.effects} /> : 'なし' : '未確認'}</div><button type="button" onClick={() => setSelected(null)}>閉じる</button></div>}
+    {selected && selectedKey && <div className="sheet-ancestor-detail"><div><b>{selectedName}</b><span>{nodePath(selected)}</span>{selectedInfo?.system && <span>{app.master.meta.bigSystems[selectedInfo.system - 1]}系</span>}</div><div>因子 {selectedInfo?.effects && selectedInfo.effectsKnown !== false ? selectedInfo.effects.length ? <EffectChips effects={selectedInfo.effects} /> : 'なし' : '未確認'}</div><button type="button" onClick={() => setSelected(null)}>閉じる</button></div>}
   </>;
 }
 

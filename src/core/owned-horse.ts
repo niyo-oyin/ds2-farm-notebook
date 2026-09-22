@@ -1,5 +1,4 @@
 import type { AncestorInfo, HorseCategory, Observation, OwnedHorse, RaceAbilities, RaceAbilityKey, RaceEntry, RaceTraitKey } from './types';
-import { nameOfKey } from './pedigree';
 
 export const HORSE_CATEGORIES: HorseCategory[] = ['繁殖牝馬', '種牡馬', '現役', '引退', '未分類'];
 export const ABILITY_RANKS = ['A', 'B', 'C'] as const;
@@ -221,9 +220,8 @@ export function pedigreeEffectCounts(nodes: string[], context: { ancestors: Map<
   let unknown = 0;
   for (let n = 2; n < 32; n++) {
     const key = nodes[n];
-    const name = nameOfKey(key ?? '');
-    const info = key ? (name ? context.ancestors.get(name) : context.userAncestors.get(key)) : undefined;
-    if (!info) { unknown++; continue; }
+    const info = key ? context.ancestors.get(key) ?? context.userAncestors.get(key) : undefined;
+    if (!info || info.effectsKnown === false) { unknown++; continue; }
     for (const effect of new Set(info.effects)) counts[effect] = (counts[effect] ?? 0) + 1;
   }
   return { counts, unknown };

@@ -10,7 +10,8 @@ export type NitroStat = 'speed' | 'stamina' | 'power';
 export const NITRO_LABEL: Record<NitroStat, string> = { speed: 'スピード', stamina: 'スタミナ', power: 'パワー' };
 export interface SearchGoal {
   type: GoalType;
-  name?: string;    // cross: 祖先名
+  name?: string;    // cross: 表示用の祖先名
+  ancestorId?: string; // cross: 対象の個体ID
   effect?: string;  // crossEffect: 効果名
   min?: number;     // nicks / crossEffect の最小値
   max?: number;     // maxCrosses の最大本数
@@ -57,7 +58,7 @@ export function goalVerdict(j: Judgement, g: SearchGoal): Verdict {
       return j.dangerous.verdict === '不成立' ? '成立' : '未確定';
     }
     case 'cross': {
-      const hit = j.crosses.some((c) => c.name === g.name || c.key === g.name);
+      const hit = j.crosses.some((c) => c.key === g.ancestorId);
       return hit ? '成立' : j.hasUnknownSlots ? '未確定' : '不成立';
     }
     case 'crossEffect': {
