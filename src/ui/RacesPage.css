@@ -1,0 +1,25 @@
+.race-tools { display: flex; align-items: center; gap: 16px; flex-wrap: wrap; margin-bottom: 16px; }
+.race-tools > input { width: min(340px, 100%); }
+.race-tools > select { max-width: 100%; }
+.race-tools > button { margin-left: auto; }
+.race-table { width: 100%; }
+.race-table th button { padding: 0; border: 0; background: none; color: inherit; font: inherit; min-height: 32px; }
+.race-table .name .tag { margin-left: 8px; }
+.race-table td { height: 38px; }
+.race-dialog.wide { width: min(800px, calc(100vw - 32px)); }
+.race-dialog .action-dialog-heading { position: sticky; top: -24px; margin-top: -24px; padding: 24px 0 16px; background: var(--paper-raised); z-index: 1; border-bottom: 1px solid var(--rule); }
+.race-dialog .action-dialog-heading h3 { flex: 1; overflow-wrap: anywhere; }
+.race-dialog-actions { display: flex; flex-wrap: wrap; justify-content: flex-end; gap: 8px; }
+.race-fields { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 18px 16px; }
+.race-fields .field { min-width: 0; }
+.race-fields textarea { width: 100%; }
+.race-full { grid-column: 1 / -1; }
+@media (max-width: 720px) {
+  .race-tools { gap: 12px; }
+  .race-tools > input { width: 100%; }
+  .race-dialog .action-dialog-heading { top: -20px; margin-top: -20px; padding-top: 20px; flex-wrap: wrap; gap: 8px; }
+  .race-dialog .action-dialog-heading h3 { flex-basis: calc(100% - 44px); }
+  .race-dialog .action-dialog-close { order: 1; }
+  .race-dialog-actions { order: 2; width: 100%; }
+  .race-fields { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+}

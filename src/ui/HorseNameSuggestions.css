@@ -1,0 +1,10 @@
+.horse-sheet .sheet-name-suggest { justify-self: start; font-size: 12px; min-height: 30px; padding: 4px 10px; }
+.horse-name-dialog { width: min(600px, calc(100vw - 32px)); }
+.horse-name-candidates { list-style: none; padding: 0; margin: 12px 0; }
+.horse-name-candidates li { display: flex; align-items: center; gap: 20px; padding: 14px 0; border-bottom: 1px solid var(--rule); }
+.horse-name-candidates li > div { flex: 1; min-width: 0; }
+.horse-name-candidates b { font-size: 18px; color: var(--accent); overflow-wrap: anywhere; }
+.horse-name-candidates p { margin: 5px 0 0; font-size: 13px; color: var(--ink-muted); }
+.horse-name-candidates button { flex-shrink: 0; }
+.horse-name-actions { display: flex; justify-content: flex-end; gap: 8px; margin-top: 16px; }
+@media (max-width: 480px) { .horse-name-candidates li { align-items: flex-start; flex-direction: column; gap: 8px; } }

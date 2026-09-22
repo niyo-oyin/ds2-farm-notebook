@@ -1,0 +1,110 @@
+.story-page { max-width: 1240px; margin: 0 auto; }
+.story-toolbar { display: flex; align-items: center; gap: 14px; margin-bottom: 18px; flex-wrap: wrap; }
+.story-toolbar > span { color: var(--ink-muted); flex: 1; }
+.story-toolbar > div { display: flex; flex-wrap: wrap; gap: 7px; }
+.horse-story { --story-color: #244b63; --story-soft: #edf1f2; --story-gold: #a3834c; background: #fcfaf5; color: #252a28; max-width: 1200px; margin: 0 auto; border: 1px solid #d8d3c7; font-family: "Hiragino Sans", "Yu Gothic", sans-serif; font-size: 14px; line-height: 1.6; overflow: hidden; }
+.horse-story.story-forest { --story-color: #294d40; --story-soft: #eef1e9; --story-gold: #a0834b; }
+.horse-story.story-burgundy { --story-color: #65353e; --story-soft: #f4ecea; --story-gold: #ac885c; }
+.horse-story h1, .horse-story h2, .horse-story h3, .horse-story p { margin: 0; padding: 0; border: 0; }
+.story-masthead { display: flex; justify-content: space-between; align-items: center; gap: 16px; padding: 17px 36px; border-bottom: 1px solid #d8d3c7; font-size: 10px; font-weight: 600; letter-spacing: .2em; color: var(--story-color); }
+.story-masthead > span:nth-child(2) { font-family: "Hiragino Mincho ProN", "Yu Mincho", serif; font-size: 17px; letter-spacing: .3em; }
+.story-cover { display: grid; grid-template-columns: 1.35fr 1fr; min-height: 440px; }
+.story-cover-copy { padding: 48px 40px 44px; display: flex; flex-direction: column; align-items: flex-start; justify-content: center; }
+.story-kicker { color: var(--story-color); font-size: 11px; letter-spacing: .12em; margin-bottom: 20px; }
+.story-horse-name { font-size: clamp(20px, 2.6vw, 34px); font-family: "Hiragino Mincho ProN", "Yu Mincho", serif; letter-spacing: .06em; margin-bottom: 14px; }
+.horse-story .story-cover h1 { font-size: clamp(28px, 3.4vw, 46px); font-family: "Hiragino Mincho ProN", "Yu Mincho", serif; letter-spacing: .06em; line-height: 1.6; color: var(--story-color); text-wrap: balance; overflow-wrap: anywhere; }
+.horse-story .story-subtitle { font-size: 13px; color: #62665e; line-height: 1.9; margin-top: 19px; }
+.story-parent-line { display: flex; flex-wrap: wrap; gap: 6px 20px; border-top: 1px solid #d8d3c7; padding-top: 19px; margin-top: 25px; font-size: 10px; color: #62665e; }
+.story-parent-line b { font-size: 12px; font-weight: 500; color: #252a28; margin-left: 6px; }
+.story-cover-art { position: relative; background: var(--story-color); display: flex; flex-direction: column; align-items: center; justify-content: center; min-height: 340px; overflow: hidden; color: #fbf6ea; }
+.story-cover-art.has-photo > img { width: 100%; height: 100%; position: absolute; inset: 0; object-fit: cover; }
+.story-track { position: absolute; width: 80%; height: 74%; border: 1px solid #ffffff30; border-radius: 50%; transform: rotate(-28deg); box-shadow: 0 0 0 18px #ffffff08, 0 0 0 19px #ffffff20, 0 0 0 43px #ffffff08, 0 0 0 44px #ffffff15; }
+.story-emblem { width: 110px; height: 110px; z-index: 1; border-radius: 24px; box-shadow: 0 8px 40px #0002; }
+.story-art-name { margin-top: 26px; font-family: "Hiragino Mincho ProN", serif; font-size: 18px; letter-spacing: .16em; z-index: 1; }
+.story-art-caption { position: absolute; bottom: 0; left: 0; right: 0; text-align: center; padding: 16px; font-size: 8px; letter-spacing: .22em; background: linear-gradient(transparent, #0005); }
+.story-statbar { display: grid; grid-template-columns: .9fr 1fr 1.4fr; border-top: 3px solid var(--story-color); border-bottom: 1px solid #d8d3c7; padding: 24px 40px; gap: 24px; background: var(--story-soft); }
+.story-statbar > div + div { border-left: 1px solid #ccd0c8; padding-left: 24px; }
+.story-statbar span { display: block; color: #666a61; font-size: 10px; margin-bottom: 7px; letter-spacing: .14em; }
+.story-statbar strong { font-weight: 500; font-family: "Hiragino Mincho ProN", serif; font-size: 18px; line-height: 1.7; }
+.story-reading-layout { display: grid; grid-template-columns: minmax(0, 1fr) 230px; gap: 50px; padding: 50px 44px; }
+.story-prose { min-width: 0; font-family: "Hiragino Mincho ProN", "Yu Mincho", serif; }
+.horse-story .story-prose p { font-size: 15px; line-height: 2.2; letter-spacing: .035em; margin-bottom: 20px; overflow-wrap: anywhere; }
+.story-signature { border-left: 3px solid var(--story-gold); padding: 12px 16px; margin: 0; background: var(--story-soft); color: var(--story-color); font-family: "Hiragino Mincho ProN", "Yu Mincho", serif; font-size: 18px; line-height: 1.9; }
+.story-sidebar { border-left: 1px solid #d8d3c7; padding-left: 25px; font-size: 12px; }
+.story-sidebar section { margin-bottom: 34px; }
+.horse-story .story-sidebar h2 { font-family: "Hiragino Mincho ProN", serif; font-size: 16px; color: var(--story-color); margin-bottom: 18px; padding-bottom: 10px; border-bottom: 1px solid #d8d3c7; }
+.horse-story .story-sidebar p { font-size: 11px; line-height: 1.9; color: #65685f; overflow-wrap: anywhere; }
+.story-parent { margin-bottom: 20px; }
+.story-parent > span { font-size: 10px; color: #7d715a; }
+.horse-story .story-parent h3 { font-size: 16px; font-family: "Hiragino Mincho ProN", serif; margin: 2px 0 8px; }
+.story-pedigree { margin: 16px 0; }
+.story-pedigree > div { margin: 9px 0; }
+.story-pedigree dt { font-size: 9px; color: #7d715a; }
+.story-pedigree dd { margin: 0; font-size: 11px; }
+.story-records { margin: 0 44px 38px; }
+.story-section-title { border-top: 2px solid var(--story-color); padding: 18px 0; display: flex; align-items: baseline; gap: 16px; }
+.story-section-title > span { font-size: 9px; letter-spacing: .17em; color: var(--story-gold); }
+.horse-story .story-section-title h2 { font-size: 24px; color: var(--story-color); }
+.story-section-title small { margin-left: auto; color: #62665e; font-size: 10px; }
+.story-record-scroll { overflow-x: auto; }
+.horse-story table { border-collapse: collapse; width: 100%; font-size: 11px; text-align: left; color: #252a28; }
+.horse-story th, .horse-story td { position: static; background: transparent; padding: 10px 8px; border-bottom: 1px solid #e3dfd5; white-space: nowrap; }
+.horse-story th { color: #62665e; font-size: 10px; font-weight: 500; background: var(--story-soft); }
+.horse-story tr:hover { background: transparent; }
+.horse-story .story-win { color: var(--story-color); font-weight: 600; }
+.story-grade { display: inline-block; border: 1px solid #b9b4a6; padding: 0 4px; margin-right: 8px; font-size: 9px; }
+.story-colophon { display: flex; justify-content: space-between; gap: 12px; padding: 22px 36px; border-top: 1px solid #d8d3c7; font-size: 9px; letter-spacing: .08em; color: #6c6f66; }
+.story-composer { background: var(--paper-raised); border: 1px solid var(--rule); padding: 42px; }
+.story-composer-heading { margin-bottom: 32px; }
+.story-composer-heading > span { color: var(--accent); font-size: 10px; letter-spacing: .25em; }
+.story-composer-heading h2 { font-size: 28px; border: 0; margin: 10px 0; }
+.story-composer-heading p { color: var(--ink-muted); }
+.story-compose-grid { display: grid; grid-template-columns: 260px 1fr; gap: 40px; }
+.story-source-card { padding: 24px; background: var(--paper); border: 1px solid var(--rule); align-self: start; }
+.story-source-card > img { width: 100%; aspect-ratio: 1; object-fit: cover; }
+.story-source-card > img.story-source-emblem { width: 76px; }
+.story-source-card h3 { font-size: 20px; margin: 16px 0 8px; overflow-wrap: anywhere; }
+.story-source-card p, .story-source-card small { color: var(--ink-muted); font-size: 12px; }
+.story-source-card dl > div { display: flex; gap: 12px; margin: 8px 0; font-size: 12px; }
+.story-source-card dt { color: var(--ink-muted); }.story-source-card dd { margin: 0; }
+.story-compose-options fieldset { border: 0; padding: 0; margin: 0; min-width: 0; }
+.story-compose-options legend { font-size: 13px; margin-bottom: 10px; }
+.story-tone-options { display: grid; gap: 8px; margin-bottom: 24px; }
+.story-tone-options label { display: flex; align-items: center; gap: 14px; padding: 13px 16px; border: 1px solid var(--rule); cursor: pointer; }
+.story-tone-options label.selected { border-color: var(--accent); background: var(--hover); }
+.story-tone-options input { accent-color: var(--accent); min-height: 0; }
+.story-tone-options b { display: block; font-size: 14px; font-weight: 500; }.story-tone-options small { color: var(--ink-muted); }
+.story-compose-options textarea { resize: vertical; width: 100%; }
+.story-generation-note { font-size: 11px; color: var(--ink-muted); margin: 18px 0; }
+.story-generate-actions { display: flex; align-items: center; gap: 16px; flex-wrap: wrap; }
+.story-generate-actions .primary { padding: 11px 24px; }
+.story-writing { display: flex; align-items: center; gap: 9px; font-size: 13px; }
+.story-writing > span { width: 15px; height: 15px; border: 2px solid var(--rule); border-top-color: var(--accent); border-radius: 50%; animation: story-spin 1.3s linear infinite; }
+@keyframes story-spin { to { transform: rotate(360deg); } }
+.story-editor { max-width: 840px; margin: auto; }
+.story-editor-actions { position: sticky; top: 50px; z-index: 3; display: flex; gap: 10px; align-items: center; background: var(--paper-raised); padding: 8px 0; }
+.story-editor-actions h2 { flex: 1; border: 0; margin: 0; }
+.story-editor .field { margin: 15px 0; }.story-editor textarea { width: 100%; resize: vertical; line-height: 1.8; }
+@media (max-width: 760px) {
+ .story-masthead { padding: 15px 20px; }.story-masthead > span:last-child { display: none; }
+ .story-cover { grid-template-columns: 1fr; }.story-cover-copy { padding: 30px 24px; }.story-cover-art { min-height: 280px; }
+ .story-statbar { padding: 20px; gap: 14px; grid-template-columns: 1fr 1fr; }.story-statbar > div:nth-child(3) { grid-column: 1/-1; padding: 12px 0 0; border: 0; border-top: 1px solid #ccd0c8; }.story-statbar strong { font-size: 16px; }
+ .story-reading-layout { grid-template-columns: 1fr; padding: 32px 24px; gap: 20px; }.story-sidebar { border-left: 0; border-top: 1px solid #d8d3c7; padding: 24px 0 0; display: grid; grid-template-columns: 1fr 1fr; gap: 22px; }.story-sidebar section { margin: 0; }
+ .story-records { margin: 0 24px 28px; }.story-section-title { gap: 12px; }.story-section-title > span { display: none; }.story-colophon { padding: 20px 24px; flex-wrap: wrap; }
+ .story-composer { padding: 26px 20px; }.story-compose-grid { grid-template-columns: 1fr; gap: 24px; }.story-source-card { display: none; }.story-composer-heading h2 { font-size: 23px; }
+ .story-toolbar > span { display: none; }.story-toolbar > div { gap: 5px; }.story-toolbar button { font-size: 12px; padding: 6px 9px; }
+}
+@media print {
+ @page { size: A4; margin: 13mm; }
+ body:has(.horse-story) { background: white; }
+ body:has(.horse-story) #root > header, body:has(.horse-story) header, .story-toolbar, .story-composer, .story-editor, .story-page > .error { display: none !important; }
+ body:has(.horse-story) main { max-width: none; padding: 0; }
+ .horse-story { border: 0; width: 100%; max-width: none; print-color-adjust: exact; -webkit-print-color-adjust: exact; overflow: visible; }
+ .story-cover { min-height: 0; grid-template-columns: 1.35fr 1fr; break-inside: avoid; }.story-cover-copy { padding: 22px; }.horse-story .story-cover h1 { font-size: 27px; }.story-horse-name { font-size: 21px; }.story-cover-art { min-height: 260px; }
+ .story-masthead { padding: 10px 20px; }.story-masthead > span:last-child { display: inline; }
+ .story-statbar { display: grid; grid-template-columns: 1fr 1fr 1.3fr; padding: 14px 20px; break-inside: avoid; }.story-statbar > div:nth-child(3) { grid-column: auto; padding: 0 0 0 14px; border: 0; border-left: 1px solid #ccd0c8; }.story-statbar strong { font-size: 12px; }
+ .story-reading-layout { display: block; padding: 24px 20px; }.horse-story .story-prose p { font-size: 11pt; line-height: 1.9; orphans: 3; widows: 3; }.story-signature { break-inside: avoid; font-size: 15pt; }
+ .story-sidebar { display: flex; gap: 24px; flex-wrap: wrap; border-left: 0; border-top: 1px solid #d8d3c7; padding: 22px 0 0; break-inside: avoid; }.story-sidebar section { flex: 1; min-width: 100px; }
+ .story-records { margin: 0 20px; }.story-record-scroll { overflow: visible; }.horse-story th, .horse-story td { padding: 7px 5px; white-space: normal; }.horse-story thead { display: table-header-group; }.horse-story tr { break-inside: avoid; }
+ .story-colophon { padding: 18px 20px; }
+}

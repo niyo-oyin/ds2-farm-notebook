@@ -1,0 +1,211 @@
+/* 個体の概要と、詳細の表示・編集タブ。 */
+.horse-sheet { min-width: 0; container-type: inline-size; background: var(--paper-raised); border: 1px solid var(--rule); border-radius: var(--r-md); padding: 0 20px 20px; }
+.horse-sheet .field { min-width: 0; gap: 5px; }
+.horse-sheet .field input, .horse-sheet .field select, .horse-sheet .field textarea { width: 100%; }
+/* 上部の操作列。既存の馬は自動保存なので、保存の状態と動線だけを置く */
+.sheet-toolbar { position: sticky; top: 50px; z-index: 21; display: flex; align-items: center; justify-content: space-between; gap: 12px; min-height: 56px; padding: 8px 0; border-bottom: 1px solid var(--rule); background: var(--paper-raised); }
+.sheet-toolbar-actions { display: flex; align-items: center; gap: 6px; margin-left: auto; }
+.sheet-toolbar-actions > button, .sheet-action-wrap > button { font-size: 12px; min-height: 34px; color: var(--accent); border-color: var(--rule-strong); }
+/* 無効なボタンは span で包み、理由をツールチップで出す（無効な button はマウスイベントを受けない） */
+.sheet-action-wrap { display: inline-flex; }
+.sheet-action-wrap > button:disabled { color: var(--ink-muted); border-color: var(--rule); background: var(--paper); opacity: 1; cursor: not-allowed; }
+.sheet-toolbar-actions > button.primary { color: var(--accent-ink); }
+.sheet-save-status, .sheet-error { font-size: 12px; min-width: 0; }
+.sheet-save-status { color: var(--ink-muted); }
+.sheet-error { color: var(--danger); }
+.sheet-more { position: relative; }
+.sheet-more > summary { list-style: none; display: grid; place-items: center; width: 34px; height: 34px; border: 1px solid var(--rule-strong); border-radius: var(--r-sm); background: var(--paper-raised); font-size: 16px; line-height: 1; letter-spacing: .05em; cursor: pointer; color: var(--ink); }
+.sheet-more > summary::-webkit-details-marker { display: none; }
+.sheet-more[open] > summary { background: var(--hover); }
+.sheet-more-menu { position: absolute; right: 0; top: calc(100% + 4px); min-width: 160px; padding: 4px; border: 1px solid var(--rule-strong); border-radius: var(--r-sm); background: var(--paper-raised); box-shadow: 0 4px 14px rgba(28, 26, 23, .12); z-index: 30; }
+.sheet-more-menu > button { display: block; width: 100%; text-align: left; border: 0; background: transparent; font-size: 13px; padding: 8px 10px; }
+.sheet-more-menu > button:hover { background: var(--hover); }
+/* 上段の3列は名前側の実測高さ（--band-height）に揃え、最小 200px とする。 */
+.sheet-overview { display: grid; grid-template-columns: auto minmax(0, 1fr) minmax(260px, 38%); gap: 20px; padding: 20px 0; align-items: stretch; }
+.sheet-identity { min-width: 0; }
+.sheet-identity-main { display: grid; gap: 10px; align-content: start; }
+.sheet-portrait .portrait { position: relative; width: var(--band-height, 200px); height: var(--band-height, 200px); }
+.sheet-portrait-bar { position: absolute; inset: auto 0 0 0; display: flex; min-height: 32px; background: rgba(28, 26, 23, .62); }
+.sheet-portrait-bar > * { flex: 1; display: grid; place-items: center; min-height: 32px; padding: 0 6px; border: 0; border-radius: 0; background: transparent; font-size: 12px; font-weight: 600; color: #fff; cursor: pointer; }
+.sheet-portrait-bar > * + * { border-left: 1px solid rgba(255, 255, 255, .3); }
+.sheet-portrait-bar > *:hover { background: rgba(28, 26, 23, .5); }
+.sheet-portrait-bar input { display: none; }
+/* ページ共通の button の最小高さ（40/44px）に負けないよう、詳細の中で寸法を固定する */
+.horse-sheet .sheet-portrait-remove { position: absolute; top: 6px; right: 6px; display: grid; place-items: center; width: 24px; height: 24px; min-height: 24px; padding: 0; border: 0; border-radius: 50%; background: rgba(28, 26, 23, .55); color: #fff; line-height: 1; opacity: 0; transition: opacity .12s; }
+.sheet-portrait:hover .sheet-portrait-remove, .horse-sheet .sheet-portrait-remove:focus-visible { opacity: 1; }
+.horse-sheet .sheet-portrait-remove:hover { background: var(--danger); }
+@media (hover: none) { .horse-sheet .sheet-portrait-remove { opacity: 1; } }
+.sheet-identity-badges { display: flex; align-items: center; gap: 8px; }
+.sheet-name { display: flex; align-items: center; gap: 8px; min-width: 0; max-width: 640px; min-height: 40px; }
+.sheet-name h2 { margin: 0; padding: 2px 0; border: 0; font-family: var(--font-display); font-size: 27px; font-weight: 600; line-height: 1.3; overflow-wrap: anywhere; }
+.horse-sheet .sheet-name input { flex: 1; width: auto; min-height: 40px; padding: 2px 6px; font-family: var(--font-display); font-size: 27px; font-weight: 600; border-color: var(--accent); background: var(--paper-raised); border-radius: var(--r-sm); }
+.sheet-name-edit { flex: 0 0 auto; display: grid; place-items: center; width: 30px; height: 30px; min-height: 0; padding: 0; border: 0; border-radius: 50%; background: transparent; font-size: 15px; color: var(--ink-muted); }
+.sheet-name-edit:hover { background: var(--hover); color: var(--accent); }
+.sheet-identity-meta { display: flex; align-items: center; flex-wrap: wrap; gap: 6px; }
+.sheet-parents-summary { display: grid; gap: 6px; margin: 4px 0 0; }
+.sheet-parents-summary > div { display: flex; align-items: center; gap: 10px; min-width: 0; min-height: 36px; padding: 0 12px 0 4px; border-radius: 8px; background: var(--paper); }
+.sheet-parents-summary dt { display: grid; place-items: center; flex: 0 0 28px; height: 28px; border-radius: 50%; font-size: 12px; font-weight: 600; }
+.sheet-parents-summary .sire dt { background: var(--sire); }
+.sheet-parents-summary .dam dt { background: var(--dam); }
+.sheet-parents-summary dd { margin: 0; overflow-wrap: anywhere; font-weight: 600; font-size: 15px; }
+/* 要約列。上に賞金と勝ち鞍、残りをメモが埋める。帯より高くならないよう本文は枠内で省略・スクロールする */
+.sheet-context { min-width: 0; height: var(--band-height, 200px); display: grid; grid-template-rows: auto minmax(0, 1fr); gap: 8px; }
+.sheet-card { min-width: 0; padding: 8px 12px; border: 1px solid var(--rule); border-radius: 8px; background: var(--paper); }
+.sheet-card-heading { display: flex; align-items: center; gap: 8px; margin-bottom: 4px; }
+.sheet-card-heading h3 { margin: 0; font: 600 11px var(--font-body); color: var(--ink-muted); }
+.sheet-card-value { margin: 0; font-size: 14px; font-weight: 600; overflow-wrap: anywhere; }
+.sheet-card-value.muted { font-weight: 400; }
+.sheet-card-clamp { display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical; overflow: hidden; }
+.sheet-card-empty { margin: 0; font-size: 13px; color: var(--ink-muted); }
+.sheet-card-row { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 8px; }
+.sheet-memo { display: grid; grid-template-rows: auto minmax(0, 1fr); min-height: 0; }
+.horse-sheet .sheet-memo textarea { width: 100%; height: 100%; min-height: 0; padding: 0; border: 0; background: transparent; font-size: 13px; line-height: 1.6; resize: none; border-radius: 0; }
+.horse-sheet .sheet-memo textarea:focus-visible { outline: none; box-shadow: none; }
+.sheet-memo:focus-within { border-color: var(--accent); }
+/* 計画タブ */
+.sheet-plan-list { margin: 0; padding: 0; list-style: none; display: grid; gap: 6px; }
+.sheet-plan-list li { display: grid; grid-template-columns: minmax(0, 1fr) auto; column-gap: 8px; align-items: center; padding: 8px 10px; border: 1px solid var(--rule); border-radius: var(--r-sm); font-size: 13px; line-height: 1.4; }
+.sheet-plan-list a { font-weight: 600; text-decoration: none; overflow-wrap: anywhere; }
+.sheet-plan-list a:hover { text-decoration: underline; }
+.sheet-plan-list li > span { grid-column: 1; font-size: 11px; color: var(--ink-muted); }
+.sheet-plan-list li > button { grid-column: 2; grid-row: 1 / span 2; min-height: 28px; padding: 0 8px; border: 0; background: transparent; font-size: 12px; color: var(--ink-muted); }
+.sheet-plans .horse-plan-picker { margin-top: 10px; }
+.sheet-plan-usage { margin-top: 14px; padding-top: 10px; border-top: 1px dashed var(--rule); }
+.sheet-plan-usage h4 { margin: 0 0 4px; font: 400 12px var(--font-body); color: var(--ink-muted); }
+.sheet-plan-usage a { display: inline-block; margin: 0 12px 4px 0; font-size: 13px; }
+.warn-mark { display: inline-block; vertical-align: -2px; margin-left: 5px; }
+.sheet-pedigree-notice { display: flex; align-items: center; gap: 6px; margin: 0 0 12px; padding: 8px 10px; border: 1px solid color-mix(in srgb, var(--danger) 40%, var(--rule)); border-left: 3px solid var(--danger); border-radius: var(--r-sm); font-size: 13px; }
+.sheet-pedigree-notice .warn-mark { margin-left: 0; flex: 0 0 auto; }
+.sheet-pedigree-notice > span { flex: 1; }
+.sheet-pedigree-notice > button { flex: 0 0 auto; font-size: 12px; min-height: 32px; }
+.sheet-tab-count { margin-left: 5px; padding: 0 6px; border-radius: 999px; background: var(--hover); font-size: 11px; }
+.sheet-tabs { display: flex; gap: 16px; border-bottom: 1px solid var(--rule-strong); }
+.sheet-tabs > button { padding: 12px 18px; margin-bottom: -1px; border: 0; border-bottom: 3px solid transparent; border-radius: 0; background: transparent; color: var(--ink-muted); }
+.sheet-tabs > button[aria-selected="true"] { color: var(--accent); border-bottom-color: var(--accent); font-weight: 600; }
+.sheet-tab-panel { padding-top: 16px; }
+.sheet-tab-panel[hidden] { display: none; }
+.sheet-basic-layout { display: grid; grid-template-columns: minmax(0, .9fr) minmax(0, 1.3fr); grid-template-areas: "details abilities" "factors abilities"; align-items: stretch; gap: 16px; }
+.sheet-details { grid-area: details; }
+.sheet-abilities { grid-area: abilities; }
+.sheet-factors { grid-area: factors; }
+.sheet-section { min-width: 0; padding: 16px; border: 1px solid var(--rule); border-radius: var(--r-sm); }
+.sheet-section-heading { display: flex; align-items: center; justify-content: space-between; gap: 10px; margin-bottom: 12px; }
+.sheet-section-heading h3, .sheet-section-heading h4 { margin: 0; font-family: var(--font-display); font-size: 16px; }
+.sheet-section-heading h3 > span { margin-left: 8px; font: 400 12px var(--font-body); color: var(--ink-muted); }
+.sheet-section-heading button, .sheet-section-heading select { font-size: 12px; min-height: 34px; }
+.sheet-section-heading .segmented button { min-height: 32px; padding: 4px 12px; }
+.sheet-info-table { margin: 0; }
+.sheet-info-table > div { display: grid; grid-template-columns: 62px minmax(0, 1fr); align-items: center; gap: 10px; min-height: 44px; padding: 5px 0; border-bottom: 1px solid var(--rule); }
+.sheet-info-table > div:last-child { border-bottom: 0; }
+.sheet-info-table dt { color: var(--ink-muted); font-size: 12px; }
+.sheet-info-table dd { min-width: 0; margin: 0; padding-left: 7px; font-size: 13px; overflow-wrap: anywhere; }
+.sheet-info-table dd:has(> input, > select) { padding-left: 0; }
+.horse-sheet .sheet-info-table input:not([type="checkbox"]), .horse-sheet .sheet-info-table select { width: 100%; min-height: 34px; padding: 5px 6px; font-size: 13px; border-color: transparent; background-color: transparent; }
+.horse-sheet .sheet-info-table input:not([type="checkbox"]):hover, .horse-sheet .sheet-info-table select:hover { border-color: var(--rule); background-color: var(--hover); }
+.horse-sheet .sheet-info-table input:focus-visible, .horse-sheet .sheet-info-table select:focus-visible { background-color: var(--paper-raised); border-color: var(--accent); }
+.sheet-info-source { display: block; margin: 1px 0 3px 7px; font-size: 10px; color: var(--ink-muted); }
+.sheet-system-code { font-weight: 500; }
+.sheet-bloodline-tools { display: flex; gap: 8px; align-items: center; flex-wrap: wrap; }
+.sheet-pedigree-scroll { overflow: auto; padding-bottom: 4px; }
+.sheet-generation-headings, .sheet-pedigree { display: grid; column-gap: 4px; }
+.sheet-generation-headings > span { padding: 0 0 6px; text-align: center; color: var(--ink-muted); font-size: 11px; }
+.sheet-pedigree { row-gap: 3px; }
+.horse-sheet .sheet-ancestor { display: flex; align-items: center; flex-wrap: wrap; align-content: center; gap: 3px; min-height: 30px; padding: 4px 8px; border: 1px solid var(--rule); border-left-width: 2px; text-align: left; border-radius: 2px; font-size: 12px; white-space: nowrap; }
+.sheet-ancestor.sire { background: color-mix(in srgb, var(--sire) 45%, var(--paper-raised)); border-left-color: color-mix(in srgb, var(--accent) 65%, var(--rule)); }
+.sheet-ancestor.dam { background: color-mix(in srgb, var(--dam) 45%, var(--paper-raised)); border-left-color: color-mix(in srgb, #b3697a 65%, var(--rule)); }
+.sheet-ancestor.unknown { background: var(--paper); color: var(--ink-muted); opacity: 1; }
+.sheet-ancestor.selected { outline: 2px solid var(--accent); outline-offset: -2px; }
+.sheet-ancestor-name { white-space: nowrap; }
+.sheet-ancestor .fx-group { margin-left: 0; }
+.horse-sheet .sheet-parent { display: flex; flex-direction: column; flex-wrap: nowrap; align-content: normal; align-items: stretch; justify-content: center; gap: 10px; padding: 12px; }
+.sheet-parent-label { display: flex; align-items: center; justify-content: space-between; gap: 8px; color: var(--ink-muted); font-size: 12px; }
+.sheet-parent b { font-size: 13px; white-space: nowrap; }
+.sheet-parent-editor { display: flex; align-items: flex-end; gap: 8px; margin-bottom: 12px; padding: 12px; background: var(--paper); border: 1px solid var(--rule); }
+.sheet-parent-editor .field { flex: 1; }
+.sheet-parent-editor .combo .list { z-index: 25; }
+.sheet-parent > .fx-group { align-self: flex-start; }
+.sheet-ancestor-detail { display: flex; align-items: center; gap: 12px; flex-wrap: wrap; margin-top: 8px; border: 1px solid var(--rule); border-left: 3px solid var(--accent); padding: 10px; font-size: 12px; }
+.sheet-ancestor-detail > div:first-child { display: flex; align-items: center; gap: 8px; flex-wrap: wrap; }
+.sheet-ancestor-detail > div:first-child > span { font-size: 11px; color: var(--ink-muted); }
+.sheet-ancestor-detail > button { margin-left: auto; padding: 2px 8px; font-size: 12px; }
+/* 現役馬のカード。ゲーム画面と同じ並び（能力7欄、特性12欄）で印を選ぶ */
+.race-card { display: grid; gap: 10px; max-width: 560px; }
+.race-distance { display: flex; align-items: center; gap: 10px; font-size: 12px; color: var(--ink-muted); }
+.race-distance span { flex: 0 0 auto; }
+.horse-sheet .race-distance input { max-width: 180px; min-height: 34px; font-size: 13px; }
+.race-abilities { display: grid; grid-template-columns: repeat(7, minmax(0, 1fr)); gap: 4px; }
+.race-traits { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 4px; }
+.race-mark { display: grid; gap: 2px; padding: 4px; border: 1px solid var(--rule); border-radius: 2px; background: var(--paper); }
+.race-mark.known { background: var(--paper-raised); border-color: var(--rule-strong); }
+.race-mark > span { font-size: 10px; color: var(--ink-muted); text-align: center; white-space: nowrap; }
+.race-traits .race-mark { grid-template-columns: minmax(0, 1fr) 64px; align-items: center; }
+.race-traits .race-mark > span { text-align: left; font-size: 11px; }
+.horse-sheet .race-mark select, .horse-sheet .race-mark input { min-height: 32px; padding: 2px 4px; font-size: 15px; text-align: center; border-color: transparent; background-color: transparent; }
+.horse-sheet .race-mark select:hover, .horse-sheet .race-mark input:hover { border-color: var(--rule); background-color: var(--hover); }
+.horse-sheet .race-mark.known select, .horse-sheet .race-mark.known input { font-weight: 600; }
+.sheet-ability-fields { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 12px; max-width: 480px; }
+.sheet-ability-fields input[type="number"] { font-variant-numeric: tabular-nums; text-align: right; }
+.sheet-ability-hint { margin: 10px 0 0; font-size: 12px; color: var(--ink-muted); }
+.sheet-ability-hint a { margin-left: 6px; white-space: nowrap; }
+.sheet-past-abilities { margin-top: 12px; font-size: 12px; }
+.sheet-past-abilities > summary { color: var(--ink-muted); margin-bottom: 8px; }
+.sheet-search-exclude { display: flex; align-items: center; gap: 6px; font-size: 12px; }
+.sheet-ancestor-factors { margin-top: 18px; padding-top: 14px; border-top: 1px dashed var(--rule); }
+.sheet-ancestor-factors h4 { font-size: 13px; }
+.sheet-effect-counts { display: grid; grid-template-columns: repeat(6, minmax(0, 1fr)); gap: 10px 4px; }
+.sheet-effect-counts > div { display: flex; align-items: center; flex-direction: column; gap: 3px; }
+.sheet-effect-counts > div > span:not(.fx) { font-size: 9px; color: var(--ink-muted); white-space: nowrap; }
+.sheet-effect-counts b { font-weight: 500; font-size: 13px; }
+.sheet-ancestor-factors > p { font-size: 11px; margin: 10px 0 0; }
+.sheet-record-fields { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 12px; max-width: 640px; }
+.sheet-record-fields .sheet-wins { grid-column: 1 / -1; }
+.sheet-observations { margin-top: 20px; padding-top: 12px; border-top: 1px dashed var(--rule); }
+.sheet-observations h4 { margin: 0 0 6px; font-size: 12px; color: var(--ink-muted); font-weight: 400; }
+.sheet-observations ul { margin: 0; padding-left: 18px; font-size: 12px; }
+.sheet-observations li { margin: 2px 0; }
+
+@container (min-width: 1000px) {
+  .sheet-basic-layout { grid-template-columns: minmax(0, .95fr) minmax(0, 1.45fr) minmax(0, 1fr); grid-template-areas: "details abilities factors"; }
+  .sheet-ability-fields { grid-template-columns: repeat(3, minmax(0, 1fr)); }
+}
+/* 詳細の幅が足りないときは要約列を下段に回す（名前の列を 300px 以上確保する） */
+@container (max-width: 1000px) {
+  .sheet-overview { grid-template-columns: auto minmax(0, 1fr); }
+  .sheet-context { grid-column: 1 / -1; height: auto; grid-template-rows: auto auto; }
+  .horse-sheet .sheet-memo textarea { min-height: 72px; resize: vertical; }
+}
+@container (max-width: 700px) {
+  .sheet-overview { grid-template-columns: 120px minmax(0, 1fr); gap: 16px; align-items: start; }
+  .sheet-portrait .portrait { width: 120px; height: 120px; }
+  .sheet-basic-layout { grid-template-columns: minmax(0, 1fr); grid-template-areas: "details" "abilities" "factors"; }
+  .sheet-ability-fields { max-width: none; }
+  .sheet-effect-counts { grid-template-columns: repeat(6, minmax(0, 1fr)); }
+  .sheet-section-heading { flex-wrap: wrap; }
+}
+@media (max-width: 720px) {
+  .horse-sheet { padding: 0 14px 14px; }
+  .sheet-toolbar { top: 46px; flex-wrap: wrap; }
+  .sheet-toolbar-actions { width: 100%; }
+  .sheet-toolbar-actions > button { flex: 1; min-height: 40px; font-size: 13px; }
+  .sheet-more > summary { width: 40px; height: 40px; }
+  .horse-sheet .field input, .horse-sheet .field select { min-height: 44px; font-size: 16px; }
+  .sheet-name h2, .horse-sheet .sheet-name input { font-size: 22px; }
+  .horse-sheet .sheet-info-table input:not([type="checkbox"]), .horse-sheet .sheet-info-table select { min-height: 44px; font-size: 16px; }
+  .sheet-info-table > div { grid-template-columns: 64px minmax(0, 1fr); }
+  .sheet-info-table dt { font-size: 13px; }
+  .sheet-search-exclude { min-height: 44px; }
+  .sheet-tabs { gap: 0; }
+  .sheet-tabs > button { flex: 1; padding-inline: 8px; }
+  .sheet-section { padding: 12px; }
+  .sheet-bloodline-tools { width: 100%; justify-content: space-between; }
+  .sheet-parent-editor { flex-wrap: wrap; }
+  .sheet-parent-editor .field { flex-basis: 100%; }
+  .sheet-effect-options > label { min-height: 44px; font-size: 12px; }
+  .sheet-effect-counts > div > span:not(.fx) { font-size: 10px; }
+  .horse-sheet .sheet-ancestor { min-height: 44px; }
+  .sheet-record-fields { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+  .sheet-portrait-bar > * { font-size: 11px; padding: 0 3px; }
+  .race-abilities { grid-template-columns: repeat(4, minmax(0, 1fr)); }
+  .race-traits { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+  .horse-sheet .race-mark select, .horse-sheet .race-mark input { min-height: 40px; font-size: 16px; }
+}

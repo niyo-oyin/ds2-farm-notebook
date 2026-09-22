@@ -1,0 +1,11 @@
+.action-dialog { width: min(480px, calc(100vw - 32px)); max-height: calc(100dvh - 32px); overflow: auto; padding: 24px; color: var(--ink); background: var(--paper-raised); border: 1px solid var(--rule-strong); border-radius: var(--r-md); }
+.action-dialog.wide { width: min(1000px, calc(100vw - 32px)); }
+.action-dialog::backdrop { background: rgb(0 0 0 / .35); }
+.action-dialog-heading { display: flex; align-items: center; justify-content: space-between; gap: 16px; margin-bottom: 20px; }
+.action-dialog-heading h3 { margin: 0; font-size: 19px; }
+.action-dialog-heading .action-dialog-close { border: 0; font-size: 22px; background: transparent; }
+.action-dialog form { display: grid; gap: 20px; }
+.action-dialog .field input, .action-dialog .field select { width: 100%; min-height: 40px; }
+.action-dialog-actions { display: flex; justify-content: flex-end; flex-wrap: wrap; gap: 10px; margin-top: 20px; }
+.action-dialog p { overflow-wrap: anywhere; }
+@media (max-width: 720px) { .action-dialog { padding: 20px; } .action-dialog button, .action-dialog .field input, .action-dialog .field select { min-height: 44px; } }

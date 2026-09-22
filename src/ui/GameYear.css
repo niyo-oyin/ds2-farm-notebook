@@ -1,0 +1,13 @@
+/* ヘッダーのゲーム内の年。取り込みトレイの隣に置く */
+.game-year { position: relative; display: flex; align-items: center; margin-left: auto; }
+.game-year + .import-tray { margin-left: 8px; }
+.game-year-button { min-height: 32px; padding: 0 10px; border: 1px solid var(--rule-strong); border-radius: var(--r-pill, 999px); background: var(--paper-raised); font-size: 12px; font-weight: 600; color: var(--ink); font-variant-numeric: tabular-nums; }
+.game-year-button.unset { color: var(--unk); border-color: var(--unk); font-weight: 400; }
+.game-year-panel { position: absolute; right: 0; top: calc(100% + 6px); width: 280px; padding: 10px 12px; border: 1px solid var(--rule-strong); border-radius: var(--r-md); background: var(--paper-raised); box-shadow: 0 6px 20px rgba(28, 26, 23, .14); z-index: 40; white-space: normal; text-align: left; }
+.game-year-row { display: flex; align-items: center; gap: 6px; }
+.game-year-row > button { width: 36px; min-height: 36px; padding: 0; font-size: 16px; }
+.game-year-row > input { flex: 1; width: 0; min-height: 36px; text-align: right; font-size: 16px; font-variant-numeric: tabular-nums; }
+.game-year-panel p { margin: 8px 0; }
+.game-year-actions { display: flex; justify-content: flex-end; }
+.game-year-actions button { font-size: 12px; min-height: 32px; }
+@media (max-width: 720px) { .game-year-button { min-height: 36px; } }

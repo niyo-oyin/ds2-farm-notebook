@@ -1,0 +1,47 @@
+/* データ・探索で共通の馬詳細。ヘッダーの保存・取消はスクロール中も残す。 */
+.horse-detail-dialog { padding: 0; }
+.horse-detail-dialog .action-dialog-heading { position: sticky; top: 0; z-index: 5; margin: 0; padding: 14px 20px; border-bottom: 1px solid var(--rule); background: var(--paper-raised); gap: 10px; flex-wrap: wrap; }
+.horse-detail-dialog .action-dialog-heading h3 { flex: 1; min-width: 160px; }
+.horse-dialog-header-actions { display: flex; gap: 8px; align-items: center; flex-wrap: wrap; }
+.horse-dialog-header-actions button { font-size: 13px; }
+.horse-dialog-toolbar { display: flex; align-items: center; justify-content: space-between; gap: 12px; padding: 12px 20px 0; }
+.horse-dialog-stepper { display: flex; align-items: center; gap: 10px; font-size: 12px; }
+.horse-dialog-stepper button { font-size: 12px; }
+.horse-detail-dialog .horse-dialog-form { display: block; padding: 16px 20px 20px; }
+.horse-dialog-meta { display: flex; align-items: center; gap: 10px; flex-wrap: wrap; margin-bottom: 14px; font-size: 13px; }
+.horse-dialog-attrs { display: grid; grid-template-columns: repeat(auto-fit, minmax(90px, 1fr)); gap: 10px 12px; margin: 0; padding: 14px 0; border-block: 1px solid var(--rule); }
+.horse-dialog-attrs > div { display: flex; flex-direction: column; gap: 4px; }
+.horse-dialog-attrs dt { font-size: 11px; color: var(--ink-muted); }
+.horse-dialog-attrs dd { margin: 0; font-size: 14px; font-variant-numeric: tabular-nums; }
+.horse-detail-dialog .master-sections { gap: 14px; padding-top: 12px; }
+.horse-detail-dialog .sheet-section { border: 0; border-radius: 0; padding: 0; background: transparent; }
+.horse-detail-dialog .sheet-section-heading { margin-bottom: 10px; }
+.horse-detail-dialog .sheet-section-heading h3 { font-size: 13px; }
+.horse-detail-dialog .master-fields { grid-template-columns: repeat(4, minmax(0, 1fr)); }
+.horse-detail-dialog .master-fields .master-hidden { grid-column: span 2; }
+.horse-detail-dialog .master-hidden input { width: 16px; min-height: 16px; height: 16px; }
+.horse-detail-dialog .master-anc { font-size: 12px; overflow-wrap: anywhere; }
+.horse-detail-dialog .master-anc input { width: 100%; min-width: 0; min-height: 26px; padding: 2px 4px; font-size: 12px; }
+.horse-detail-dialog .master-anc .fx { font-size: 10px; }
+.horse-dialog-pedigree-actions { display: flex; gap: 8px; flex-wrap: wrap; }
+.horse-dialog-pedigree-actions button { font-size: 12px; }
+.horse-dialog-tabs { display: flex; gap: 20px; border-bottom: 1px solid var(--rule); }
+.horse-dialog-tabs button { border: 0; border-radius: 0; border-bottom: 2px solid transparent; background: transparent; color: var(--ink-muted); padding: 8px 0; }
+.horse-dialog-tabs button[aria-selected="true"] { border-bottom-color: var(--accent); color: var(--accent); }
+.horse-detail-dialog .action-dialog-actions { margin: 0; padding: 0 20px 18px; }
+.horse-detail-dialog .error { margin: 12px 20px 0; }
+.horse-dialog-confirm { position: sticky; top: 0; z-index: 6; padding: 14px 20px; display: flex; align-items: center; flex-wrap: wrap; gap: 10px; background: var(--paper-raised); border-bottom: 2px solid var(--danger); }
+.horse-dialog-confirm span { flex: 1; min-width: 200px; }
+.horse-detail-dialog details.sheet-section { padding-top: 10px; border-top: 1px solid var(--rule); }
+.horse-detail-dialog summary { font-size: 12px; color: var(--ink-muted); }
+@media (max-width: 720px) {
+  .horse-detail-dialog { width: calc(100vw - 16px); max-height: calc(100dvh - 16px); }
+  .horse-detail-dialog .action-dialog-heading { padding: 10px 12px; }
+  .horse-detail-dialog .action-dialog-heading h3 { flex-basis: calc(100% - 50px); }
+  .horse-dialog-header-actions { order: 2; width: 100%; justify-content: flex-end; }
+  .horse-dialog-toolbar { padding: 10px 12px 0; flex-wrap: wrap; }
+  .horse-detail-dialog .horse-dialog-form { padding: 12px; }
+  .horse-detail-dialog .master-fields { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+  .horse-dialog-attrs { grid-template-columns: repeat(4, minmax(0, 1fr)); }
+  .horse-dialog-confirm { padding: 12px; }
+}

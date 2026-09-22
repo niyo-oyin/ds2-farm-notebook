@@ -1,0 +1,28 @@
+/* ヘッダー右上のトレイ（写真の取り込み・探索で共通）。一覧はドロップダウンで開く */
+.tray { position: relative; display: flex; align-items: center; }
+.tray-button { position: relative; display: inline-flex; align-items: center; gap: 6px; min-height: 32px; padding: 0 10px; border: 1px solid var(--rule-strong); border-radius: var(--r-pill, 999px); background: var(--paper-raised); font-size: 12px; color: var(--ink); }
+.tray-button.waiting { border-color: var(--ok); color: var(--ok); }
+.tray-badge { display: inline-grid; place-items: center; min-width: 18px; height: 18px; padding: 0 5px; border-radius: 999px; background: var(--ok); color: #fff; font-size: 11px; font-weight: 600; line-height: 1; }
+.tray-badge.active { background: var(--unk); }
+.tray-panel { position: absolute; right: 0; top: calc(100% + 6px); width: min(420px, calc(100vw - 24px)); max-height: min(70vh, 560px); overflow: auto; padding: 10px 12px; border: 1px solid var(--rule-strong); border-radius: var(--r-md); background: var(--paper-raised); box-shadow: 0 6px 20px rgba(28, 26, 23, .14); z-index: 40; white-space: normal; text-align: left; }
+.tray-heading { display: flex; align-items: baseline; gap: 10px; margin-bottom: 8px; font-size: 13px; }
+.tray-list { list-style: none; margin: 0; padding: 0; display: grid; gap: 6px; }
+.tray-list li { display: grid; grid-template-columns: minmax(0, 1fr) auto; align-items: center; gap: 10px; padding: 6px 8px; border: 1px solid var(--rule); border-left-width: 3px; border-radius: var(--r-sm); }
+.tray-list li.status-done { border-left-color: var(--ok); }
+.tray-list li.status-failed { border-left-color: var(--danger); }
+.tray-list li.status-running { border-left-color: var(--unk); }
+.tray-body { display: grid; gap: 2px; min-width: 0; font-size: 13px; }
+.tray-body b { overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.tray-actions { display: flex; gap: 4px; }
+.tray-actions button { min-height: 30px; padding: 0 10px; font-size: 12px; }
+.tray-done { margin-top: 8px; color: var(--ok); }
+.tray-foot { margin-top: 8px; padding-top: 8px; border-top: 1px solid var(--rule); }
+.tray-foot button { width: 100%; font-size: 13px; }
+@media (max-width: 720px) {
+  .tray-label { display: none; }
+  .tray-button { padding: 0 8px; min-height: 36px; }
+  /* ボタンが右端でなくても画面からはみ出さないよう、幅いっぱいに固定する */
+  .tray-panel { position: fixed; left: 12px; right: 12px; top: 52px; width: auto; }
+  .tray-list li { grid-template-columns: minmax(0, 1fr); }
+  .tray-actions { grid-column: 1 / -1; justify-content: flex-end; }
+}

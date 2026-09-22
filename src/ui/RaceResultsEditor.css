@@ -1,0 +1,36 @@
+.sheet-races-heading { margin-top: 20px; }
+.sheet-races-heading h4 { font-size: 13px; }
+.sheet-races { width: 100%; border-collapse: collapse; font-size: 13px; }
+.sheet-races th { position: static; background: transparent; text-align: left; font-weight: 500; font-size: 11px; color: var(--ink-muted); padding: 6px 8px; border-bottom: 1px solid var(--rule-strong); }
+.sheet-races td { padding: 9px 8px; border-bottom: 1px solid var(--rule); white-space: nowrap; }
+.sheet-races .sheet-race-name { min-width: 150px; white-space: normal; }
+.sheet-race-name > .race-grade { margin-left: 6px; }
+.sheet-races td:last-child { white-space: nowrap; }
+.sheet-races button { min-height: 28px; padding: 2px 6px; font-size: 12px; border: 0; background: transparent; color: var(--ink-muted); }
+.sheet-races .sheet-race-name button { padding-left: 0; color: var(--accent); font-size: 13px; text-align: left; white-space: normal; }
+.sheet-races button:hover { text-decoration: underline; }
+.race-result-dialog { width: min(640px, calc(100vw - 32px)); }
+.race-picker-common { min-width: 0; margin: 0 0 20px; padding: 0; border: 0; }
+.race-picker-common legend { padding: 0; margin-bottom: 8px; font-size: 12px; color: var(--ink-muted); }
+.race-picker-common > div { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 6px; }
+.race-picker-common button { min-width: 0; padding: 8px 4px; font-size: 13px; }
+.race-picker-tools { display: flex; align-items: end; gap: 12px; }
+.race-picker-search { flex: 1; min-width: 0; }
+.race-picker-heading { display: flex; align-items: center; justify-content: space-between; gap: 12px; margin: 12px 0; }
+.race-picker-heading button, .race-result-selection button { font-size: 12px; }
+.race-picker-list { list-style: none; margin: 0; padding: 0; max-height: min(440px, 50dvh); overflow: auto; border-top: 1px solid var(--rule); }
+.race-picker-list li { border-bottom: 1px solid var(--rule); }
+.race-picker-list button { display: grid; gap: 5px; width: 100%; padding: 12px 8px; border: 0; border-radius: 0; text-align: left; background: transparent; white-space: normal; }
+.race-picker-list button:hover, .race-picker-list button:focus-visible { background: var(--hover); }
+.race-picker-list button:focus-visible { outline-offset: -2px; }
+.race-picker-name { display: flex; align-items: center; flex-wrap: wrap; gap: 8px; }
+.race-picker-details { font-size: 12px; color: var(--ink-muted); }
+.race-result-selection p { margin: 12px 0 0; }
+.race-result-fields { display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 16px; }
+.race-result-race { grid-column: 1 / -1; grid-row: 1; }
+.race-result-fields .field { min-width: 0; }
+.race-result-dialog form > .action-dialog-actions { margin-top: 0; }
+@media (max-width: 480px) {
+  .race-result-fields { grid-template-columns: 1fr 1fr; }
+  .sheet-races button { min-height: 44px; }
+}

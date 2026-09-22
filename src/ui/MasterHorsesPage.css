@@ -1,0 +1,108 @@
+/* マスターデータの一覧・編集レイアウト。 */
+.master-workspace { display: grid; grid-template-columns: clamp(300px, 26vw, 400px) minmax(0, 1fr); gap: 16px; align-items: start; }
+.master-list-panel { display: flex; flex-direction: column; max-height: calc(100dvh - 200px); background: var(--paper-raised); border: 1px solid var(--rule); border-radius: var(--r-md); min-width: 0; }
+.master-list { min-height: 0; overflow: auto; overscroll-behavior: contain; }
+.master-list-item { display: grid; gap: 3px; width: 100%; padding: 8px 12px; border: 0; border-bottom: 1px solid var(--rule); border-left: 3px solid transparent; border-radius: 0; background: transparent; text-align: left; white-space: normal; }
+.master-list-item.selected { background: var(--hover); border-left-color: var(--accent); }
+.master-list-title { display: flex; align-items: center; gap: 6px; flex-wrap: wrap; }
+.master-list-title b { font-size: 14px; }
+.master-list-title .pill { height: 18px; padding: 0 7px; font-size: 10px; }
+.master-list-sub { font-size: 11px; color: var(--ink-muted); }
+.master-detail-panel { min-width: 0; }
+.master-sheet { background: var(--paper-raised); border: 1px solid var(--rule); border-radius: var(--r-md); padding: 0 20px 20px; }
+.master-sheet-head { position: sticky; top: 50px; z-index: 21; display: flex; align-items: center; justify-content: space-between; gap: 12px; flex-wrap: wrap; padding: 12px 0; border-bottom: 1px solid var(--rule); background: var(--paper-raised); }
+.master-sheet-head h2 { margin: 0; padding: 0; border: 0; font-size: 22px; }
+.master-sheet-actions { display: flex; gap: 6px; margin-left: auto; }
+.master-sheet-actions button { font-size: 12px; }
+.master-sheet-head .sheet-error, .master-sheet-head .sheet-save-status { flex-basis: 100%; font-size: 12px; }
+.master-sheet-head .sheet-error { color: var(--danger); }
+.master-sections { display: grid; gap: 16px; padding-top: 16px; }
+.master-fields { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 12px; }
+.master-fields .field input, .master-fields .field select { width: 100%; }
+.master-hidden { grid-column: 1 / -1; display: flex; align-items: center; gap: 8px; font-size: 13px; }
+.master-sheet .master-hidden input { width: 16px; height: 16px; margin: 0; }
+.master-pedigree { display: grid; column-gap: 4px; row-gap: 3px; }
+.master-anc { display: flex; align-items: center; flex-wrap: wrap; gap: 4px; min-height: 30px; padding: 2px 4px; border: 1px solid var(--rule); border-left-width: 2px; border-radius: 2px; }
+.master-sheet .master-anc input { flex: 1; min-width: 90px; min-height: 26px; padding: 2px 4px; border-color: transparent; background: transparent; font-size: 12px; }
+.master-sheet .master-anc input:hover, .master-sheet .master-anc input:focus-visible { border-color: var(--rule-strong); background: var(--paper-raised); }
+.master-anc .fx-group { margin: 0; }
+.master-anc-sys { display: grid; place-items: center; }
+.master-anc.sire { background: color-mix(in srgb, var(--sire) 45%, var(--paper-raised)); border-left-color: color-mix(in srgb, var(--accent) 65%, var(--rule)); }
+.master-anc.dam { background: color-mix(in srgb, var(--dam) 45%, var(--paper-raised)); border-left-color: color-mix(in srgb, #b3697a 65%, var(--rule)); }
+.master-codes { display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); gap: 10px; }
+.master-codes .field > span { display: flex; justify-content: space-between; gap: 6px; }
+.master-derived { font-style: normal; color: var(--unk); font-size: 11px; }
+.master-code-title { margin: 12px 0 6px; font: 600 12px var(--font-body); color: var(--ink-muted); }
+.hints-table th, .hints-table td:not(.wrap) { position: static; white-space: nowrap; width: 1%; }
+.hints-table td.wrap { white-space: normal; }
+/* 凝ったペア表・ニックス相性表: 父側ごとの行に、母側をチップで並べる */
+.pairs-tools { display: flex; align-items: center; gap: 12px; flex-wrap: wrap; margin-bottom: 12px; }
+.pairs-tools > input { width: min(340px, 100%); }
+.pairs-tools > select { max-width: 100%; }
+.pairs-tools .primary { margin-left: auto; }
+.pairs-actions { display: flex; flex-wrap: wrap; gap: 8px; margin-left: auto; }
+.pairs-groups { display: grid; gap: 10px; }
+.pairs-group { padding: 12px 16px; }
+.pairs-group h3 { display: flex; align-items: baseline; gap: 10px; margin: 0 0 8px; font-size: 15px; }
+.pairs-chips { display: flex; flex-wrap: wrap; gap: 6px; }
+.pairs-chip { display: inline-flex; align-items: center; gap: 8px; min-height: 30px; padding: 0 10px; border: 1px solid var(--rule-strong); border-radius: 999px; background: var(--paper-raised); font-size: 13px; }
+.pairs-chip.added { background: color-mix(in srgb, var(--sire) 55%, var(--paper-raised)); border-color: transparent; }
+.pairs-chip.edited { background: color-mix(in srgb, var(--dam) 65%, var(--paper-raised)); border-color: transparent; }
+.pairs-chip.confirmed { border-color: var(--ok); }
+.pairs-chip.disabled { text-decoration: line-through; color: var(--ink-muted); }
+.pairs-chip.faint { color: var(--ink-muted); }
+.pairs-chip.zero { color: var(--ink-muted); border-style: dashed; }
+.pairs-chip.selected { outline: 2px solid var(--accent); outline-offset: 1px; }
+.pairs-chip.add { padding: 0 12px; color: var(--ink-muted); border-style: dashed; background: transparent; }
+.pairs-chip-name { font-weight: 600; }
+.pairs-chip-level { font-size: 12px; letter-spacing: -1px; color: var(--accent); }
+.pairs-chip.zero .pairs-chip-level { color: inherit; letter-spacing: 0; }
+.pairs-sheet { margin-bottom: 12px; }
+.pairs-sheet-head { display: flex; align-items: center; justify-content: space-between; gap: 12px; flex-wrap: wrap; margin-bottom: 12px; }
+.pairs-sheet-head h3 { margin: 0; }
+.pairs-fields { grid-template-columns: repeat(4, minmax(0, 1fr)); align-items: end; }
+.pairs-fields .pairs-note { grid-column: 1 / -1; }
+.pairs-fields .master-hidden { grid-column: auto; }
+.pairs-sheet .sheet-error { color: var(--danger); font-size: 12px; margin-top: 8px; }
+.nicks-levels button { min-height: 32px; font-size: 12px; }
+@media (max-width: 900px) {
+  .master-workspace { grid-template-columns: minmax(0, 1fr); }
+  .master-list-panel { max-height: none; }
+  .master-workspace.has-detail > .master-list-panel { display: none; }
+  .master-workspace:not(.has-detail) > .master-detail-panel { display: none; }
+  .master-fields { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+  .master-codes { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+  .pairs-fields { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+  .master-sheet { padding: 0 14px 14px; }
+}
+
+/* 種牡馬・繁殖牝馬は全幅の比較表で表示する。 */
+.master-catalog-tools { display: flex; align-items: center; flex-wrap: wrap; gap: 10px; margin-bottom: 10px; }
+.master-catalog-tools > input { width: min(340px, 100%); }
+.master-catalog-tools > select { max-width: 100%; }
+.master-catalog-actions { display: flex; gap: 8px; margin-left: auto; }
+.master-catalog-caption { display: flex; justify-content: space-between; gap: 12px; margin-bottom: 8px; }
+.master-catalog-scroll { max-height: max(300px, calc(100dvh - 250px)); }
+.master-catalog th { text-align: center; padding: 0; }
+.master-catalog th:first-child { text-align: left; }
+.master-catalog th button { border: 0; border-radius: 0; background: transparent; width: 100%; padding: 10px 8px; text-align: inherit; font-size: 12px; }
+.master-catalog th[aria-sort="ascending"], .master-catalog th[aria-sort="descending"] { color: var(--accent); }
+.master-catalog th button span { opacity: .6; }
+.master-catalog td { text-align: center; font-variant-numeric: tabular-nums; padding: 7px 10px; }
+.master-catalog td.num, .master-catalog th.num { text-align: right; }
+.master-catalog td:first-child { text-align: left; min-width: 230px; }
+.master-catalog tbody tr { cursor: pointer; }
+.master-catalog tbody tr:hover td, .master-catalog tbody tr.selected td { background: var(--hover); }
+.master-catalog-name { display: flex; gap: 6px; align-items: center; }
+.master-catalog-name button { border: 0; padding: 0; background: transparent; color: var(--accent); text-align: left; font-size: 14px; font-weight: 600; min-height: 0; }
+.master-catalog-name button:hover { text-decoration: underline; }
+.master-catalog-name .pill { font-size: 10px; min-height: 18px; padding: 0 5px; }
+.master-rating-a { display: inline-block; padding: 0 5px; border-radius: 3px; background: color-mix(in srgb, var(--ok) 12%, var(--paper-raised)); color: var(--ok); }
+@media (max-width: 720px) {
+  .master-catalog-tools > input { flex: 1; min-width: 180px; }
+  .master-catalog-actions { width: 100%; justify-content: flex-end; }
+  .master-catalog td:first-child { min-width: 180px; max-width: 230px; }
+  .master-catalog-name { flex-wrap: wrap; }
+  .master-catalog-name button { white-space: normal; }
+  .master-catalog th button { min-height: 44px; }
+}

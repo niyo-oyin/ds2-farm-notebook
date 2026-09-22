@@ -1,0 +1,49 @@
+.mating-page { max-width: 1440px; margin-inline: auto; }
+.mating-pair { display: grid; grid-template-columns: minmax(0, 1fr) 48px minmax(0, 1fr); align-items: center; border: 1px solid var(--rule); background: var(--paper-raised); border-radius: var(--r-md); padding: 20px 24px; }
+.mating-parent { min-width: 0; }
+.mating-parent-heading { display: flex; align-items: center; gap: 8px; margin-bottom: 10px; }
+.mating-parent-label { display: grid; place-items: center; width: 30px; height: 30px; background: var(--sire); border-radius: 50%; }
+.dam .mating-parent-label { background: var(--dam); }
+.mating-browse { display: flex; gap: 4px; margin-left: auto; }
+.mating-browse button { padding: 0; width: 34px; font-size: 22px; line-height: 1; }
+.mating-parent .combo input { min-height: 44px; font-weight: 600; font-size: 16px; }
+.mating-parent-meta { display: flex; flex-wrap: wrap; gap: 6px 12px; min-height: 20px; margin-top: 8px; color: var(--ink-muted); font-size: 12px; }
+.mating-pair-cross { color: var(--ink-muted); font-size: 24px; text-align: center; }
+.mating-actions { display: flex; flex-wrap: wrap; justify-content: space-between; gap: 12px; margin: 14px 0 24px; }
+.mating-actions > div { display: flex; flex-wrap: wrap; gap: 8px; }
+.mating-actions button { min-height: 40px; }
+.mating-result-heading { display: flex; align-items: center; justify-content: space-between; margin-bottom: 10px; }
+.mating-result-heading h3 { margin: 0; font-size: 18px; }
+.mating-page > .summary-strip { padding: 18px 20px; gap: 10px; }
+.mating-page .summary-strip .lead { font-size: 20px; }
+.mating-inspection { min-width: 0; border: 1px solid var(--rule); border-radius: var(--r-md); background: var(--paper-raised); }
+.mating-tabs { display: flex; gap: 20px; padding: 0 20px; border-bottom: 1px solid var(--rule); }
+.mating-tabs button { padding: 14px 4px; border: 0; border-radius: 0; border-bottom: 3px solid transparent; background: transparent; color: var(--ink-muted); }
+.mating-tabs button[aria-pressed="true"] { color: var(--accent); border-bottom-color: var(--accent); font-weight: 600; }
+.mating-inspection-body { padding: 20px; }
+.mating-inspection .cards { grid-template-columns: repeat(auto-fit, minmax(min(100%, 300px), 1fr)); gap: 16px; }
+.mating-inspection .card { padding: 14px 16px; }
+.mating-inspection .card h3 { margin-bottom: 10px; }
+.mating-inspection .card li { margin-block: 6px; }
+.mating-empty { display: grid; justify-items: center; padding: 56px 20px; border: 1px dashed var(--rule-strong); border-radius: var(--r-md); color: var(--ink-muted); text-align: center; }
+.mating-empty svg { width: 36px; height: 36px; }
+.mating-empty h3 { color: var(--ink); font-size: 18px; margin-top: 16px; }
+.mating-empty p { font-size: 13px; margin: 4px 0 0; }
+.mating-feedback { color: var(--ok); font-size: 13px; }
+.mating-save-pair { margin: 0; font-size: 13px; overflow-wrap: anywhere; }
+.mating-save-pair span { margin-inline: 8px; color: var(--ink-muted); }
+@media (max-width: 720px) {
+  .mating-pair { grid-template-columns: minmax(0, 1fr); padding: 16px; gap: 4px; }
+  .mating-pair-cross { font-size: 20px; line-height: 1; }
+  .mating-browse button { width: 44px; height: 44px; }
+  .mating-actions { gap: 8px; margin-block: 12px 20px; }
+  .mating-actions > div { display: grid; grid-template-columns: 1fr 1fr; width: 100%; }
+  .mating-actions > div:first-child > button:last-child { grid-column: 1 / -1; }
+  .mating-actions button { min-height: 44px; font-size: 12px; padding-inline: 6px; }
+  .mating-page > .summary-strip { padding: 14px; }
+  .mating-tabs { gap: 12px; padding-inline: 12px; }
+  .mating-tabs button { font-size: 12px; }
+  .mating-inspection-body { padding: 12px; }
+  .mating-inspection .card { padding: 12px; }
+  .mating-page .cost-tag { margin-left: 0; }
+}
