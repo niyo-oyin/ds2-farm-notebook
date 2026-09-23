@@ -26,33 +26,39 @@ export function catalogHorses(master: MasterData, base: MasterData, edits: Maste
   })];
 }
 
-function rawValue(h: MasterHorse, key: string): unknown {
+export type HorseValues = Pick<MasterHorse, 'name' | 'kind' | 'price' | 'priceUnknown' | 'purchasePrice' | 'attrs'>;
+
+function rawValue(h: HorseValues, key: string): unknown {
   if (key === 'name') return h.name;
   if (key === 'price') return h.priceUnknown ? null : h.kind === 'stallion' ? h.price : h.purchasePrice ?? 0;
   return h.attrs[key];
 }
 const unknown = (v: unknown) => v == null || v === '' || v === '-';
-export function horseCell(h: MasterHorse, key: string): string {
+export function horseCell(h: HorseValues, key: string): string {
   const v = rawValue(h, key);
   if (unknown(v)) return '—';
   if (key === 'dist') return Array.isArray(v) && v[1] ? `${v[0]}–${v[1]}` : '—';
   if (key === 'price' && h.kind === 'broodmare' && !h.purchasePrice) return '初期から利用可';
   return typeof v === 'number' ? v.toLocaleString('ja-JP') : String(v);
 }
-function sortValue(h: MasterHorse, key: string): string | number | null {
+function sortValue(h: HorseValues, key: string): string | number | null {
   const v = rawValue(h, key);
   if (unknown(v)) return null;
   if (key === 'dist') return Array.isArray(v) && Number(v[1]) > 0 ? Number(v[1]) : null;
+  if (key === 'grown') return ({ '早熟': 1, '持続': 2, '普通': 3, '晩成': 4 } as Record<string, number>)[String(v)] ?? null;
   if (['dirt', 'kenko', 'kisyo', 'jisseki', 'antei', 'konjo'].includes(key)) return ({ A: 3, B: 2, C: 1, '◎': 3, '○': 2, '△': 1 } as Record<string, number>)[String(v)] ?? null;
   if (['price', 'speed', 'stamina', 'power'].includes(key)) return Number.isFinite(Number(v)) ? Number(v) : null;
   return String(v);
 }
 export function sortHorses(horses: MasterHorse[], key: string, direction: 'asc' | 'desc'): MasterHorse[] {
-  return [...horses].sort((a, b) => {
-    const x = sortValue(a, key), y = sortValue(b, key);
-    if (x === null) return y === null ? a.name.localeCompare(b.name, 'ja') : 1;
-    if (y === null) return -1;
-    const diff = typeof x === 'number' && typeof y === 'number' ? x - y : String(x).localeCompare(String(y), 'ja');
-    return diff * (direction === 'asc' ? 1 : -1) || a.name.localeCompare(b.name, 'ja');
-  });
+  return [...horses].sort((a, b) => compareHorseFields(a, b, key, direction));
+}
+
+/** 未確認は昇順・降順のどちらでも末尾。同値は馬名順。 */
+export function compareHorseFields(a: HorseValues, b: HorseValues, key: string, direction: 'asc' | 'desc'): number {
+  const x = sortValue(a, key), y = sortValue(b, key);
+  if (x === null) return y === null ? a.name.localeCompare(b.name, 'ja') : 1;
+  if (y === null) return -1;
+  const diff = typeof x === 'number' && typeof y === 'number' ? x - y : String(x).localeCompare(String(y), 'ja');
+  return diff * (direction === 'asc' ? 1 : -1) || a.name.localeCompare(b.name, 'ja');
 }

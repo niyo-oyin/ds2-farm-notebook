@@ -68,7 +68,7 @@ export function ImportTray() {
         const decision = autoDecision(app, job);
         if (decision) {
           applying.current.add(job.id);
-          const run: Promise<AppliedInfo> = decision.kind === 'card' ? applyCardJob(app, job, decision.reading, decision.target, true).then((h) => ({ name: h.name, href: `#/horses?id=${encodeURIComponent(h.id)}` }))
+          const run: Promise<AppliedInfo> = decision.kind === 'card' ? applyCardJob(job, decision.reading, decision.target, true).then((h) => ({ name: h.name, href: `#/horses?id=${encodeURIComponent(h.id)}` }))
             : decision.kind === 'pedigree' ? Promise.resolve(applyPedigreeJob(decision.target, decision.sireKey, decision.damKey)).then((h) => { saveNewAncestorFactors(app, decision.reading); return { name: h.name, href: `#/horses?id=${encodeURIComponent(h.id)}` }; })
               : Promise.resolve(decision.existing ? applyMasterJob(decision.existing, decision.next, decision.additions) : addMasterJob(decision.next, decision.additions));
           void run.then((info) => { setImported(info); void dismissJob(job.id); }).catch(() => { handled.current.add(job.id); }).finally(() => applying.current.delete(job.id));
@@ -126,7 +126,7 @@ export function ImportTray() {
     <dialog ref={dialog} className="import-dialog" onClose={() => { if (!dialog.current?.open) setOpenJobId(null); }} onClick={(e) => { if (e.target === dialog.current) setOpenJobId(null); }}>
       {openJob && <div className="import-dialog-body">
         <div className="import-dialog-heading"><b>読み取り結果の確認</b><button type="button" onClick={() => advance(openJob.id)}>閉じる</button></div>
-        <ImportJobCard job={openJob} onDismiss={() => { void dismissJob(openJob.id); advance(openJob.id); }} onRetry={() => void retryFailedJob(openJob.id)} onApplied={(info) => { setImported(info); void dismissJob(openJob.id); advance(openJob.id); }} />
+        <ImportJobCard key={openJob.id} job={openJob} onDismiss={() => { void dismissJob(openJob.id); advance(openJob.id); }} onRetry={() => void retryFailedJob(openJob.id)} onApplied={(info) => { setImported(info); void dismissJob(openJob.id); advance(openJob.id); }} />
       </div>}
     </dialog>
   </div>;

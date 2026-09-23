@@ -1,6 +1,6 @@
 import { useMemo, useState } from 'react';
 import { hasBox, imageUrl, type CardScreen, type ImportJob, type MasterScreen, type PedigreeScreen } from '../api';
-import { newAncestorId } from '../core/horse-identity';
+import { horseNameKey, newAncestorId } from '../core/horse-identity';
 import { ancestorOptions } from './ancestor-options';
 import { useApp, sireOptions, damOptions } from './app-context';
 import { HorseSelect } from './HorseSelect';
@@ -75,7 +75,7 @@ function CardResult({ job, reading, onDone }: { job: ImportJob; reading: CardScr
   const traitValues = Object.values(reading.card.traits);
   const apply = async () => {
     setBusy(true); setErr('');
-    try { onDone(await applyCardJob(app, job, reading, target, savePortrait)); }
+    try { onDone(await applyCardJob(job, reading, target, savePortrait)); }
     catch (e) { setErr((e as Error).message); setBusy(false); }
   };
   const c = reading.card;
@@ -113,7 +113,7 @@ function PedigreeResult({ job, reading, onDone }: { job: ImportJob; reading: Ped
   const factorRows = useMemo(() => compareAncestorFactors(p.ancestors ?? [], app.master, factorIds), [p.ancestors, app.master, factorIds]);
   const [factorSkip, setFactorSkip] = useState<Set<string>>(() => new Set());
   const factorTargets = factorRows.filter((r) => r.status !== '一致' && r.status !== '要選択' && !factorSkip.has(r.name));
-  const saveFactors = () => { if (factorTargets.length) store.saveAncestorEdits(factorTargets.map((r) => ({ id: r.id ?? newAncestorId(), name: r.name, system: r.id ? app.ctx.ancestors.get(r.id)?.system ?? null : null, sex: r.id ? app.ctx.ancestors.get(r.id)?.sex ?? null : null, effects: r.factors }))); };
+  const saveFactors = () => { if (factorTargets.length) store.saveAncestorEdits(factorTargets.map((r) => ({ id: r.id ?? newAncestorId(), name: r.id ? app.resolver.label(r.id) : r.name, system: r.id ? app.ctx.ancestors.get(r.id)?.system ?? null : null, sex: r.id ? app.ctx.ancestors.get(r.id)?.sex ?? null : null, effects: r.factors }))); };
   const apply = () => {
     if (!target) {
       if (!factorTargets.length) { setErr('反映先の所有馬を選んでください（血統画面には馬名がないため、新規登録はできません）'); return; }
@@ -137,7 +137,7 @@ function PedigreeResult({ job, reading, onDone }: { job: ImportJob; reading: Ped
       <p className="small muted">新規と相違の祖先は祖先マスターに反映する（チェックを外すと反映しない）。一致は変更なし。</p>
       <table className="import-diff"><tbody>{factorRows.map((r) => <tr key={r.name} className={r.status === '一致' ? 'muted' : factorSkip.has(r.name) ? 'excluded' : ''}>
         <td>{r.status !== '一致' && r.status !== '要選択' && <input type="checkbox" aria-label={`${r.name} の因子を反映する`} checked={!factorSkip.has(r.name)} onChange={(e) => setFactorSkip((s) => { const n = new Set(s); if (e.target.checked) n.delete(r.name); else n.add(r.name); return n; })} />}</td>
-        <th>{r.name}{(r.status === '要選択' || factorIds[r.name]) && <HorseSelect aria-label={`${r.name} の個体`} value={factorIds[r.name] ?? ''} onChange={id => setFactorIds({ ...factorIds, [r.name]: id })} options={ancestorOptions(app.master).filter(o => o.name === r.name)} />}</th><td className="muted">{r.known ? (r.known.length ? r.known.join('・') : '因子なし') : '未登録'}</td><td>→</td><td>{r.factors.length ? r.factors.join('・') : '因子なし'}<span className="small muted"> {r.status}</span></td></tr>)}</tbody></table>
+        <th>{r.name}{(r.status === '要選択' || factorIds[r.name]) && <HorseSelect aria-label={`${r.name} の個体`} value={factorIds[r.name] ?? ''} onChange={id => setFactorIds({ ...factorIds, [r.name]: id })} options={ancestorOptions(app.master).filter(o => horseNameKey(o.name) === horseNameKey(r.name))} />}</th><td className="muted">{r.known ? (r.known.length ? r.known.join('・') : '因子なし') : r.id ? '因子未確認' : '未登録'}</td><td>→</td><td>{r.factors.length ? r.factors.join('・') : '因子なし'}<span className="small muted"> {r.status}</span></td></tr>)}</tbody></table>
     </details>}
     <div className="import-apply">
       <button type="button" className="primary" onClick={apply}>{target ? `${target.name} の血統として登録${factorTargets.length ? `（祖先の因子 ${factorTargets.length}頭も反映）` : ''}` : factorTargets.length ? `祖先の因子 ${factorTargets.length}頭だけ反映` : '血統として登録'}</button>

@@ -8,6 +8,7 @@ import { EffectChips } from './Pedigree';
 import { nameSearch } from './name-search';
 import { DataMaintenanceFilters } from './DataMaintenanceFilters';
 import { matchesMaintenance } from './data-maintenance';
+import { AncestorPedigreeReferences } from './AncestorPedigreeReferences';
 import './MasterHorsesPage.css';
 
 const mq = typeof matchMedia !== 'undefined' ? matchMedia('(max-width: 900px)') : null;
@@ -95,7 +96,7 @@ function AncestorSheet({ info, onDone, onCancel, onReverted }: { info: AncestorI
     const error = store.deleteAncestorEdit(info.id);
     if (error) setError(error); else onReverted?.();
   };
-  return <form className="master-sheet" noValidate onSubmit={(e) => { e.preventDefault(); save(); }}>
+  return <div className="master-sheet"><form noValidate onSubmit={(e) => { e.preventDefault(); save(); }}>
     <div className="master-sheet-head">
       <div><span className="small muted">{info ? (inBase ? (edited ? 'マスター（修正あり）' : 'マスター') : isRegistered ? '追加した祖先' : '血統表の祖先') : '新しい祖先'}</span><h2>{name || '（名前未入力）'}</h2></div>
       <div className="master-sheet-actions">
@@ -122,5 +123,7 @@ function AncestorSheet({ info, onDone, onCancel, onReverted }: { info: AncestorI
         <div className="sheet-effect-options">{app.master.meta.crossEffects.map((effect) => <label key={effect} className={effectsKnown && effects.includes(effect) ? 'selected' : ''}><input type="checkbox" aria-label={`因子 ${effect}`} disabled={!effectsKnown} checked={effectsKnown && effects.includes(effect)} onChange={(e) => setEffects(e.target.checked ? [...effects, effect] : effects.filter((x) => x !== effect))} /><EffectChips effects={[effect]} /><span>{effect}</span></label>)}</div>
       </section>
     </div>
-  </form>;
+  </form>
+    {info && <div className="master-sections"><AncestorPedigreeReferences ancestorId={info.id} /></div>}
+  </div>;
 }

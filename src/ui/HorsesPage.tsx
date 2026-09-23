@@ -2,7 +2,8 @@ import { useMemo, useRef, useState, useSyncExternalStore } from 'react';
 import type { HorseCategory, Sex, OwnedHorse } from '../core/types';
 import { HORSE_CATEGORIES, horseAge, sexAgeLabel } from '../core/owned-horse';
 import { PageHeading } from './icons';
-import { useApp } from './app-context';
+import { useApp, ownedParentKeys } from './app-context';
+import { ActionDialog } from './ActionDialog';
 import { store, horsePlanLinks } from '../store/userdata';
 import { imageUrl } from '../api';
 import { navigate } from './router';
@@ -10,6 +11,7 @@ import { requestCapture } from '../store/jobs';
 import { nameSearch } from './name-search';
 import { HorseSheet, type HorseSheetHandle } from './HorseSheet';
 import './HorsesPage.css';
+import { HorsePlaceholder } from './HorsePlaceholder';
 
 const mq = typeof matchMedia !== 'undefined' ? matchMedia('(max-width: 900px)') : null;
 const useNarrow = () => useSyncExternalStore((cb) => { mq?.addEventListener('change', cb); return () => mq?.removeEventListener('change', cb); }, () => !!mq?.matches);
@@ -46,6 +48,7 @@ export function HorsesPage({ params }: { params: URLSearchParams }) {
   const [status, setStatus] = useState<HorseCategory | 'all'>('all');
   const [sex, setSex] = useState<'' | Sex>('');
   const [linked, setLinked] = useState('all');
+  const [addingMaster, setAddingMaster] = useState(false);
   const [sort, setSort] = useState<Sort>(loadSort);
   const changeSort = (next: Sort) => { setSort(next); localStorage.setItem(SORT_KEY, JSON.stringify(next)); };
   const nextKey = SORTS[(SORTS.findIndex((x) => x.key === sort.key) + 1) % SORTS.length];
@@ -57,7 +60,7 @@ export function HorsesPage({ params }: { params: URLSearchParams }) {
     const hasLinks = !!linksByHorse.get(h.id)?.length;
     return (status === 'all' || h.category === status) && (!sex || h.sex === sex)
       && (linked === 'all' || (linked === 'linked' ? hasLinks : !hasLinks));
-  }).sort(compare(sort)), (h) => [h.name, label(h.sireKey), label(h.damKey), ...(linksByHorse.get(h.id)?.map((l) => l.plan?.name ?? l.foal?.name) ?? [])]);
+  }).sort(compare(sort)), (h) => [h.name, label(ownedParentKeys(app, h).sire), label(ownedParentKeys(app, h).dam), ...(linksByHorse.get(h.id)?.map((l) => l.plan?.name ?? l.foal?.name) ?? [])]);
   const selected = app.data.horses.find((h) => h.id === selectedId) ?? (!narrow ? horses[0] : undefined);
   const detailVisible = !!editing || !!selected;
   const finish = (h: OwnedHorse) => {
@@ -70,7 +73,7 @@ export function HorsesPage({ params }: { params: URLSearchParams }) {
     if (err) setError(err); else { setSelectedId(null); setMessage(`${horse.name} を削除しました`); }
   };
   return <div className="horses-page">
-    <PageHeading icon="horse" title="所有馬" count={{ value: app.data.horses.length, unit: '頭' }} actions={<><button onClick={() => requestCapture(['育成馬', '入厩馬', '血統'])}>写真から取り込み</button><button className="primary" onClick={() => { if (editing === 'new' || !leave()) return; setEditing('new'); setError(''); scrollTop(); }}>＋ 所有馬を登録</button></>} />
+    <PageHeading icon="horse" title="所有馬" count={{ value: app.data.horses.length, unit: '頭' }} actions={<><button onClick={() => requestCapture(['育成馬', '入厩馬', '血統'])}>写真から取り込み</button><button onClick={() => { if (!leave()) return; setAddingMaster(true); }}>データの繁殖牝馬から追加</button><button className="primary" onClick={() => { if (editing === 'new' || !leave()) return; setEditing('new'); setError(''); scrollTop(); }}>＋ 所有馬を登録</button></>} />
     {message && <div className="horse-feedback" role="status">{message}</div>}
     {error && <div className="error" role="alert">{error}</div>}
     <div className={'horses-workspace' + (detailVisible ? ' has-detail' : '')}>
@@ -87,15 +90,16 @@ export function HorsesPage({ params }: { params: URLSearchParams }) {
         <div className="horse-list">{horses.map((h) => {
           const links = linksByHorse.get(h.id) ?? [];
           const plans = [...new Map(links.flatMap(({ plan, foal }) => plan ? [[plan.id, plan.name] as const] : foal ? [[foal.id, foal.name] as const] : [])).entries()];
-          const parents = `${label(h.sireKey)} × ${label(h.damKey)}`;
-          const missing = !h.sireKey && !h.damKey;
+          const { sire, dam } = ownedParentKeys(app, h);
+          const parents = `${label(sire)} × ${label(dam)}`;
+          const missing = !sire && !dam;
           return <button key={h.id} className={'horse-list-item' + (selected?.id === h.id ? ' selected' : '')} aria-pressed={selected?.id === h.id} onClick={() => { if ((!editing && selected?.id === h.id) || !leave()) return; setSelectedId(h.id); setEditing(null); setError(''); if (narrow) scrollTop(); }}>
-            <span className="portrait horse-list-thumb">{h.imageId ? <img src={imageUrl(h.imageId)} alt="" loading="lazy" /> : <span className="portrait-empty">画像なし</span>}</span>
+            <span className="portrait horse-list-thumb">{h.imageId ? <img src={imageUrl(h.imageId)} alt="" loading="lazy" /> : <HorsePlaceholder category={h.category} sex={h.sex} />}</span>
             <span className="horse-list-body">
               <span className="horse-list-title"><b className="horse-list-name">{h.name}</b><span className={`pill cat-${h.category}`}>{h.category}</span><span className={`pill sex-${h.sex ?? 'none'}`}>{sexAgeLabel(h.sex, horseAge(h.profile?.birthYear, app.data.settings.gameYear))}</span>{h.profile?.color && <span className="pill">{h.profile.color}</span>}</span>
               {missing
                 ? <span className="horse-list-parents missing">血統未登録</span>
-                : <span className="horse-list-parents" title={parents}>{h.sireKey ? label(h.sireKey) : <em className="missing">未登録</em>} × {h.damKey ? label(h.damKey) : <em className="missing">未登録</em>}</span>}
+                : <span className="horse-list-parents" title={parents}>{sire ? label(sire) : <em className="missing">未登録</em>} × {dam ? label(dam) : <em className="missing">未登録</em>}</span>}
               {plans.length > 0 && <span className="horse-list-plans" aria-label={`対応する計画: ${plans.map(([, name]) => name).join("、")}`}>{plans.slice(0, 2).map(([id, name]) => <span className="horse-plan-label" key={id} title={name}>{name}</span>)}{plans.length > 2 && <span className="horse-plan-more" title={plans.slice(2).map(([, name]) => name).join('、')} aria-label={`ほかの計画: ${plans.slice(2).map(([, name]) => name).join('、')}`}>+{plans.length - 2}</span>}</span>}
             </span>
             <span className="horse-list-chevron" aria-hidden="true">›</span>
@@ -108,5 +112,36 @@ export function HorsesPage({ params }: { params: URLSearchParams }) {
         {editing || selected ? <HorseSheet ref={sheet} key={editing ?? selected!.id} horse={editing === 'new' ? undefined : selected} initialPlannedId={editing === 'new' ? params.get('planned') : null} initialParents={editing === 'new' ? { sire: params.get('sire') ?? '', dam: params.get('dam') ?? '' } : undefined} onSave={finish} onCancel={() => setEditing(null)} onRemove={selected ? () => remove(selected) : undefined} /> : <div className="horse-detail-empty"><h3>所有馬の血統と能力を確認</h3><p>一覧から馬を選択してください。</p></div>}
       </div>
     </div>
+    {addingMaster && <AddMasterMareDialog onClose={() => setAddingMaster(false)} onAdded={(added) => { setAddingMaster(false); if (added.length) setSelectedId(added[0].id); setEditing(null); setMessage(added.length === 1 ? `${added[0].name} を所有馬に追加しました` : `${added.length}頭を所有馬に追加しました`); setError(''); }} />}
   </div>;
+}
+
+/** データの繁殖牝馬（実在馬）を所有馬として追加する。血統・能力はデータのものを使う。ゲーム開始時のように複数頭をまとめて追加できる */
+function AddMasterMareDialog({ onClose, onAdded }: { onClose: () => void; onAdded: (horses: OwnedHorse[]) => void }) {
+  const app = useApp();
+  const [q, setQ] = useState('');
+  const [picked, setPicked] = useState<string[]>([]);
+  const [error, setError] = useState('');
+  const owned = new Set(app.data.horses.flatMap((h) => (h.masterKey ? [h.masterKey] : [])));
+  const mares = nameSearch(q).filter(app.master.broodmares.filter((b) => !owned.has(b.id)), (b) => [b.name]);
+  const toggle = (id: string) => setPicked(picked.includes(id) ? picked.filter((x) => x !== id) : [...picked, id]);
+  const add = () => {
+    try {
+      onAdded(picked.flatMap((id) => {
+        const mare = app.master.broodmares.find((b) => b.id === id);
+        return mare ? [store.addHorse({ kind: 'owned', name: mare.name, sex: 'F', category: '繁殖牝馬', masterKey: mare.id, sireKey: '', damKey: '', memo: '' })] : [];
+      }));
+    } catch (e) { setError((e as Error).message); }
+  };
+  return <ActionDialog title="データの繁殖牝馬から追加" onClose={onClose}>
+    <input className="master-mare-search" aria-label="繁殖牝馬を検索" placeholder="馬名で検索" value={q} onChange={(e) => setQ(e.target.value)} />
+    <ul className="master-mare-list" aria-label="追加する繁殖牝馬">{mares.map((b) => <li key={b.id}><label className={picked.includes(b.id) ? 'selected' : ''}>
+      <input type="checkbox" checked={picked.includes(b.id)} onChange={() => toggle(b.id)} />
+      <span className="master-mare-name">{b.name}</span>
+      <span className="master-mare-sub">{b.smallSystem ?? '-'}系 · {b.purchasePrice ? `${b.purchasePrice.toLocaleString()}万` : b.priceUnknown ? '購入価格未確認' : '初期から'}</span>
+    </label></li>)}</ul>
+    {!mares.length && <p className="small muted">該当する繁殖牝馬はありません。</p>}
+    {error && <p className="error" role="alert">{error}</p>}
+    <div className="action-dialog-actions"><button type="button" onClick={onClose}>キャンセル</button><button type="button" className="primary" disabled={!picked.length} onClick={add}>{picked.length ? `${picked.length}頭を所有馬に追加` : '所有馬に追加'}</button></div>
+  </ActionDialog>;
 }

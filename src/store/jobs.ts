@@ -1,14 +1,14 @@
 // 写真取り込みジョブの状態。画面が開いている間だけサーバを定期取得する。
 import { useSyncExternalStore } from 'react';
-import { createJob, deleteJob, listJobs, retryJob, type ImportJob, type ScreenType } from '../api';
+import { createJob, deleteJob, listJobs, retryJob, type EncodedImage, type ImportJob, type ScreenType } from '../api';
 import { checkWorkspace, workspaceGeneration } from './workspace';
 import { pollingStore } from './polling';
 
 const poll = pollingStore<ImportJob>(listJobs, (j) => j.status === 'queued' || j.status === 'running');
 export const refreshJobs = poll.refresh;
-export async function submitJob(file: File, scope: ScreenType[], targetHorseId?: string) {
+export async function submitJob(image: EncodedImage, scope: ScreenType[], targetHorseId?: string) {
   const generation = workspaceGeneration();
-  const job = await createJob(file, scope, targetHorseId);
+  const job = await createJob(image, scope, targetHorseId);
   checkWorkspace(generation);
   poll.update((jobs) => [...jobs.filter((j) => j.id !== job.id), job]);
   return job;

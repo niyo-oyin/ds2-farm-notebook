@@ -94,6 +94,7 @@ type NewHorse<T> = Omit<T, 'id' | 'createdAt' | 'updatedAt'> & { id?: string };
 type HorsePatch<T> = Partial<Omit<T, 'id' | 'kind' | 'createdAt' | 'updatedAt'>>;
 function checkIdentity(patch: object) {
   if ('kind' in patch || 'id' in patch) throw new Error('所有馬と計画馬の区分・IDは変更できません');
+  if ('masterKey' in patch) throw new Error('データの繁殖牝馬との対応は変更できません');
 }
 function removeHorse(id: string, planned: boolean): string | null {
   const ref = allUserHorses(state).find((h) => h.sireKey === id || h.damKey === id);
@@ -113,6 +114,7 @@ export const store = {
     if (h.kind !== 'owned' || h.id?.startsWith('p:')) throw new Error('計画馬を所有馬として登録することはできません');
     const horse: OwnedHorse = { ...h, id: h.id ?? uid('u'), createdAt: now(), updatedAt: now() };
     if (allUserHorses(state).some((x) => x.id === horse.id)) throw new Error('同じIDの馬が登録済みです');
+    if (horse.masterKey && state.horses.some((x) => x.masterKey === horse.masterKey)) throw new Error('この繁殖牝馬はすでに所有馬に登録されています');
     validateOwnedParents(state, horse);
     validateOwnedDetails(horse);
     set(setHorsePlanLinks({ ...state, horses: [...state.horses, horse] }, horse.id, plannedIds, now()));
@@ -165,17 +167,9 @@ export const store = {
   deletePlan(id: string) {
     const plan = state.plans.find((p) => p.id === id);
     if (!plan) return;
-    const foalIds = new Set(plan.steps.map((s) => s.foalId));
     const plans = state.plans.filter((p) => p.id !== id);
     // 実産駒との関係や、他の血統・計画に必要な仮想馬は残す。
-    const keep = new Set(allUserHorses(state).filter((h) => !foalIds.has(h.id)).flatMap((h) => [h.sireKey, h.damKey]));
-    for (const p of plans) { keep.add(p.startKey); for (const s of p.steps) { keep.add(s.sire); keep.add(s.dam); keep.add(s.foalId); } }
-    for (const h of state.plannedHorses) if (h.realizedIds.length) keep.add(h.id);
-    // 残す計画馬の祖先も残す。
-    let changed = true;
-    while (changed) { changed = false; for (const h of state.plannedHorses) if (keep.has(h.id)) for (const parent of [h.sireKey, h.damKey]) if (parent && !keep.has(parent)) { keep.add(parent); changed = true; } }
-    const t = now();
-    set({ ...state, plans, plannedHorses: state.plannedHorses.filter((h) => !foalIds.has(h.id) || keep.has(h.id)).map((h) => h.planId === id ? { ...h, planId: undefined, updatedAt: t } : h) });
+    set({ ...state, plans, plannedHorses: dropPlannedHorses(state, id, new Set(plan.steps.map((s) => s.foalId)), plans) });
   },
   /** マスターの馬の修正・追加・非表示を保存する（同じIDは置き換え） */
   saveMasterEdit(edit: Omit<MasterEdit, 'updatedAt'>) {
@@ -237,19 +231,17 @@ export const store = {
   reset() { const d = emptyUserData(); set({ ...d, settings: { ...d.settings, updatedAt: now() } }); },
 };
 
-/** 探索結果を計画として保存する。途中産駒は計画馬（繁殖牝馬予定）として登録する */
-export function savePlanFromResult(
-  name: string, startKey: HorseKey, result: SearchResult, goals: SearchGoal[], request: SearchRequest | undefined,
-  rulesVersion: string, dataVersion: string, finalRole: 'stallion' | 'broodmare' | 'none',
-): Plan {
-  const planId = uid('plan');
+type FinalRole = 'stallion' | 'broodmare' | 'none';
+
+/** 経路の各配合に計画馬を作る。途中産駒は繁殖牝馬の予定、最後は指定した役割。offset は計画の中での通し番号の開始 */
+function plannedSteps(planId: string, planName: string, startKey: HorseKey, result: SearchResult, finalRole: FinalRole, offset: number) {
   const steps: PlanStep[] = [];
-  let dam = startKey;
   const created: PlannedHorse[] = [];
+  let dam = startKey;
   result.steps.forEach((st, i) => {
     const last = i === result.steps.length - 1;
     const foal: PlannedHorse = {
-      id: uid('p'), kind: 'planned', name: last ? `${name} 最終産駒` : `${name} ${i + 1}代目`, sex: null,
+      id: uid('p'), kind: 'planned', name: last ? `${planName} 最終産駒` : `${planName} ${offset + i + 1}代目`, sex: null,
       desiredSex: last ? (finalRole === 'stallion' ? 'M' : finalRole === 'broodmare' ? 'F' : undefined) : 'F',
       role: last ? (finalRole === 'none' ? undefined : finalRole) : 'broodmare',
       sireKey: st.sire, damKey: dam, status: '繁殖入り予定', planId,
@@ -259,7 +251,51 @@ export function savePlanFromResult(
     steps.push({ sire: st.sire, dam, foalId: foal.id });
     dam = foal.id;
   });
+  return { steps, created };
+}
+
+/** 計画から外す計画馬のうち、所有馬を紐付けた馬と、他の血統・計画で使う馬を残す（残す馬は計画から切り離す） */
+function dropPlannedHorses(data: UserData, planId: string, foalIds: Set<string>, plans: Plan[], extra: PlannedHorse[] = []): PlannedHorse[] {
+  const all = [...data.plannedHorses, ...extra];
+  const keep = new Set([...data.horses, ...all].filter((h) => !foalIds.has(h.id)).flatMap((h) => [h.sireKey, h.damKey]));
+  for (const p of plans) { keep.add(p.startKey); for (const s of p.steps) { keep.add(s.sire); keep.add(s.dam); keep.add(s.foalId); } }
+  for (const h of all) if (h.realizedIds.length) keep.add(h.id);
+  // 残す計画馬の祖先も残す。
+  let changed = true;
+  while (changed) { changed = false; for (const h of all) if (keep.has(h.id)) for (const parent of [h.sireKey, h.damKey]) if (parent && !keep.has(parent)) { keep.add(parent); changed = true; } }
+  const t = now();
+  return all.filter((h) => !foalIds.has(h.id) || keep.has(h.id)).map((h) => foalIds.has(h.id) && h.planId === planId ? { ...h, planId: undefined, updatedAt: t } : h);
+}
+
+/** 探索結果を計画として保存する。途中産駒は計画馬（繁殖牝馬予定）として登録する */
+export function savePlanFromResult(
+  name: string, startKey: HorseKey, result: SearchResult, goals: SearchGoal[], request: SearchRequest | undefined,
+  rulesVersion: string, dataVersion: string, finalRole: FinalRole,
+): Plan {
+  const planId = uid('plan');
+  const { steps, created } = plannedSteps(planId, name, startKey, result, finalRole, 0);
   const plan: Plan = { id: planId, name, createdAt: now(), updatedAt: now(), startKey, steps, goals, request, rulesVersion, dataVersion, memo: '' };
   set({ ...state, plannedHorses: [...state.plannedHorses, ...created], plans: [...state.plans, plan] });
   return plan;
+}
+
+/**
+ * 計画の fromIndex 回目以降を、同じ母から探し直した経路に置き換える。
+ * それより前の手順と、外した手順のうち所有馬を紐付けた計画馬は残す。
+ */
+export function replacePlanSteps(
+  planId: string, fromIndex: number, result: SearchResult, goals: SearchGoal[], request: SearchRequest | undefined,
+  rulesVersion: string, dataVersion: string, finalRole: FinalRole,
+): Plan {
+  const plan = state.plans.find((p) => p.id === planId);
+  if (!plan) throw new Error('計画が見つかりません');
+  const from = plan.steps[fromIndex];
+  if (!from) throw new Error('計画の手順が見つかりません');
+  if (result.steps[0]?.dam !== from.dam) throw new Error('経路の起点が計画の手順の母と違います');
+  const { steps, created } = plannedSteps(planId, plan.name, from.dam, result, finalRole, fromIndex);
+  const next: Plan = { ...plan, steps: [...plan.steps.slice(0, fromIndex), ...steps], goals, request, rulesVersion, dataVersion, updatedAt: now() };
+  const plans = state.plans.map((p) => (p.id === planId ? next : p));
+  const removed = new Set(plan.steps.slice(fromIndex).map((s) => s.foalId));
+  set({ ...state, plans, plannedHorses: dropPlannedHorses(state, planId, removed, plans, created) });
+  return next;
 }

@@ -13,8 +13,9 @@
 .search-form { display: grid; gap: 12px; margin-bottom: 20px; }
 .search-section { display: grid; grid-template-columns: var(--search-label-width) minmax(0, 1fr); gap: 20px; padding: 20px; border: 1px solid var(--rule); border-radius: var(--r-md); background: var(--paper-raised); }
 .search-section-heading { display: flex; align-items: center; align-self: start; gap: 10px; min-height: 40px; }
-.search-section-heading h3 { margin: 0; font-size: 15px; line-height: 1.5; }
-.search-section-qualifier { display: block; margin-top: 2px; font: 400 12px/1.5 var(--font-body); color: var(--ink-muted); white-space: nowrap; }
+.search-section-heading h3 { position: relative; margin: 0; font-size: 15px; line-height: 1.5; }
+/* 補足は見出しの文字の下に吊り下げ、アイコンと見出しの文字の高さをそろえる */
+.search-section-qualifier { position: absolute; top: 100%; left: 0; margin-top: 2px; font: 400 12px/1.5 var(--font-body); color: var(--ink-muted); white-space: nowrap; }
 .search-section-content { min-width: 0; align-self: center; }
 .search-page input:not([type="checkbox"]), .search-page select { min-height: 40px; }
 .search-page .field { gap: 6px; }
@@ -32,6 +33,7 @@
 .search-section-content > .search-selections { margin-top: 10px; }
 .search-selection { display: inline-flex; align-items: center; gap: 8px; padding: 2px 4px 2px 12px; border: 1px solid color-mix(in srgb, var(--accent) 35%, var(--rule)); background: var(--sire); color: var(--accent); border-radius: var(--r-sm); font-size: 13px; }
 .search-selection button { min-height: 32px; width: 28px; padding: 0; color: inherit; background: transparent; border: 0; font-size: 18px; }
+.search-replan { margin-bottom: 12px; }
 .search-horse-fields { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 16px; }
 .search-limits { display: grid; grid-template-columns: repeat(2, minmax(0, .9fr)) 1.2fr 1.1fr; gap: 12px; margin-top: 16px; max-width: 960px; }
 .search-repeat { display: flex; align-items: center; gap: 8px; width: fit-content; margin-top: 12px; min-height: 28px; font-size: 13px; cursor: pointer; }
@@ -94,12 +96,13 @@
   .search-pool > span:first-child { width: 100%; text-align: right; }
   .search-pool strong { font-size: 18px; }
   .search-pool-link { padding-left: 8px; }
-  .search-mode { width: 100%; margin-bottom: 12px; }
-  .search-mode button { flex: 1; padding: 8px 4px; font-size: 12px; white-space: normal; min-height: 44px; }
+  .search-mode { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); width: 100%; margin-bottom: 12px; }
+  .search-mode button { padding: 8px 4px; font-size: 12px; white-space: normal; min-height: 44px; }
   .search-section { grid-template-columns: minmax(0, 1fr); padding: 16px; gap: 12px; }
   .search-section-heading { min-height: 24px; }
   .search-section-heading h3 { font-size: 15px; }
-  .search-section-qualifier { display: inline-block; margin: 0 0 0 8px; }
+  /* 見出しの下に吊り下げた補足の分だけ、入力欄を下げる */
+  .search-section-heading:has(.search-section-qualifier) { margin-bottom: 20px; }
   .search-page input:not([type="checkbox"]), .search-page select { min-height: 44px; font-size: 16px; }
   .search-origin-toggle { display: grid; grid-template-columns: 1fr 1fr; }
   .search-origin-toggle button { min-height: 44px; padding-inline: 6px; font-size: 12px; }
@@ -133,11 +136,22 @@
 .result-expanded .inline-row { gap: 16px; }
 tr.result-expanded-row:hover { background: transparent; }
 tr.result-expanded-row > td { background: var(--paper); }
-/* 1世代総当たりの表は列幅を割合で指定し、馬名と判定の列に幅を配分する。 */
-.onegen-table th:nth-child(1) { width: 26%; }
-.onegen-table th:nth-child(2) { width: 16%; }
-.onegen-table th:nth-child(3) { width: 6%; }
-.onegen-table th:nth-child(4) { width: 52%; }
+.onegen-table th { white-space: nowrap; }
+.onegen-table th button { border: 0; background: transparent; padding: 4px 0; font: inherit; font-weight: 600; min-height: 30px; }
+.onegen-table th[aria-sort="ascending"], .onegen-table th[aria-sort="descending"] { color: var(--accent); }
+.onegen-table th button:hover { text-decoration: underline; }
+.onegen-table .name { min-width: 150px; }
+.onegen-table .name .tag { display: block; width: fit-content; max-width: 180px; white-space: normal; margin-top: 4px; }
+.onegen-table .onegen-distance { white-space: nowrap; }
+.onegen-table .onegen-rating { text-align: center; white-space: nowrap; }
+.onegen-table .onegen-judgement { min-width: 260px; }
+.onegen-sort-tools { display: flex; align-items: center; flex-wrap: wrap; gap: 12px; margin: 12px 0; }
+.onegen-sort-tools details { margin-left: auto; position: relative; }
+.onegen-sort-tools details > .field { position: absolute; right: 0; top: 100%; z-index: 5; padding: 12px; border: 1px solid var(--rule); background: var(--paper-raised); border-radius: var(--r-md); }
+.onegen-card-abilities { display: flex; flex-wrap: wrap; gap: 6px 14px; margin: 10px 0; font-size: 12px; }
+.onegen-card-abilities > div { display: flex; gap: 5px; }
+.onegen-card-abilities dt { color: var(--ink-muted); }
+.onegen-card-abilities dd { margin: 0; }
 .result-origin-note { margin-right: 12px; }
 /* 横スクロール用に固定表示の1列目は独自の背景を持つので、行の反転時は同じ色を重ねて他の列と揃える */
 .table-wrap tbody tr.clickable:hover td:first-child { background: linear-gradient(var(--hover), var(--hover)) var(--paper-raised); }
@@ -166,3 +180,7 @@ tr.result-expanded-row > td { background: var(--paper); }
 @media (min-width: 721px) {
   .search-horse-fields-three { grid-template-columns: repeat(3, minmax(0, 1fr)); }
 }
+.loop-detail { margin-top: 6px; }
+.loop-detail h4 { margin: 12px 0 4px; font: 600 13px/1.5 var(--font-display); }
+.loop-detail h4:first-child { margin-top: 0; }
+.result-card-actions { display: flex; justify-content: flex-end; }

@@ -3,11 +3,11 @@ import { useApp, sireOptions, damOptions, includePlannedInSearch } from './app-c
 import { Icon } from './icons';
 import { HorseSelect } from './HorseSelect';
 import { StallionFilter, EMPTY_FILTER, matchesStallion, isFilterActive, type StallionFilterState } from './StallionFilter';
-import { goalLabel, type SearchGoal } from '../core/search';
-import { loopFromMare, type LoopReport, type LoopRequest, type LoopResult } from '../core/loop-search';
+import type { SearchGoal, SearchResult } from '../core/search';
+import { type LoopEntryReport, type LoopReport, type LoopRequest, type LoopResult } from '../core/loop-search';
 import type { WorkerIn, WorkerOut } from '../core/worker';
 import { savePlanFromResult, allUserHorses } from '../store/userdata';
-import { Constraints, GoalEditor, SearchSection, Summary, useMemoState, useMobile } from './SearchPage';
+import { ConditionTags, CostUnknownTag, EvalLimitField, GoalEditor, SearchSection, Summary, useMemoState, useMobile } from './SearchPage';
 import { isSearchJobActive, type SearchJob } from '../api';
 import { loopReport, stopSearchJob, submitSearchJob } from '../store/search-jobs';
 
@@ -15,9 +15,11 @@ import { ResultPagination } from './ResultPagination';
 import { useResultPage } from './use-result-page';
 import { SearchResultFilters } from './SearchResultFilters';
 import { SavePlanDialog } from './SavePlanDialog';
+import { Tip } from './Tip';
 
 type LoopSort = 'cost' | 'nicks' | 'crosses' | 'perfect';
 const DEFAULT_GOALS: SearchGoal[] = [{ type: 'kotta' }, { type: 'notDangerous' }];
+const ENTRY_MAX_BRIDGE = 2;
 
 /**
  * 種牡馬を決まった順に交配し、毎世代の産駒牝馬で目標が成立し続ける周期を探す。
@@ -48,13 +50,18 @@ export function LoopSearch({ filter, setFilter, job }: { filter: StallionFilterS
   const [resultHorse, setResultHorse] = useState('');
   const [mare, setMare] = useMemoState<string>('loop', 'mare', '');
   const [savingResult, setSavingResult] = useState<LoopResult | null>(null);
+  // 導入と1周目がまだ出ていない周期の「保存」を押した時は、見つかり次第保存のダイアログを出す
+  const pendingSave = useRef<string | null>(null);
   const [saved, setSaved] = useMemoState<Record<string, { id: string; name: string }>>('loop', 'saved', {});
   const [err, setErr] = useState('');
   const [savedMsg, setSavedMsg] = useState<{ id: string; name: string } | null>(null);
   const worker = useRef<Worker | null>(null);
-  useEffect(() => () => worker.current?.terminate(), []);
+  const entryWorker = useRef<Worker | null>(null);
+  useEffect(() => () => { worker.current?.terminate(); entryWorker.current?.terminate(); }, []);
+  // 導入の配合を挟んだ経路の探索結果。起点の牝馬と周期ごとに持つ
+  const [entries, setEntries] = useState<Record<string, LoopEntryReport>>({});
+  const [entrySearch, setEntrySearch] = useState<{ key: string; evaluated: number } | null>(null);
   const resultKey = (r: LoopResult) => r.steps.map((st) => st.sire).join('>');
-  const env = useMemo(() => ({ ctx: app.ctx, rules: app.rules, resolve: (k: string) => app.resolver.get(k) }), [app]);
 
   const buildRequest = (): LoopRequest => {
     const all = sOpts.map((o) => o.key);
@@ -64,7 +71,7 @@ export function LoopSearch({ filter, setFilter, job }: { filter: StallionFilterS
   const startedAt = useRef(0);
   const start = () => {
     resultPage.setPage(0); setResultHorse('');
-    setErr(''); setReport(null); setSaved({}); setSavedMsg(null); setStarted(null); setOpen(null); setViewingJob(false); setProgress({ evaluated: 0, pruned: 0, found: 0 });
+    setErr(''); setReport(null); setSaved({}); setSavedMsg(null); setEntries({}); setEntrySearch(null); entryWorker.current?.terminate(); setStarted(null); setOpen(null); setViewingJob(false); setProgress({ evaluated: 0, pruned: 0, found: 0 });
     const request = buildRequest();
     startedAt.current = Date.now();
     worker.current?.terminate();
@@ -101,29 +108,81 @@ export function LoopSearch({ filter, setFilter, job }: { filter: StallionFilterS
     });
   }, [report, sort, resultHorse]);
   const resultPage = useResultPage(sorted, mobile ? 100 : 200);
-  // 選んだ牝馬から1周した実際の経路。元の牝馬の血統が残るので、定常状態と違って崩れる世代があり得る
-  const firstCycle = (r: LoopResult) => (mare ? loopFromMare(env, mare, r.steps.map((s) => s.sire), goals) : null);
+  // 選んだ牝馬から周期に入る経路。元の牝馬の血が残る世代は定常状態と判定が違うので、入り方を選び、必要なら導入の配合を挟む
+  const loopGoals = report?.request.goals ?? goals;
+  const entryKey = (r: LoopResult) => `${mare}|${resultKey(r)}`;
+  const entryOf = (r: LoopResult): Entry | null => {
+    if (!mare) return null;
+    const searched = entries[entryKey(r)];
+    if (searched) return searched.result ? { kind: 'found', result: searched.result, bridge: searched.bridge } : { kind: 'none', status: searched.status };
+    return { kind: 'searching', evaluated: entrySearch?.key === entryKey(r) ? entrySearch.evaluated : 0 };
+  };
+  const searchEntry = (r: LoopResult) => {
+    const key = entryKey(r);
+    entryWorker.current?.terminate();
+    const w = new Worker(new URL('../core/worker.ts', import.meta.url), { type: 'module' });
+    entryWorker.current = w;
+    setEntrySearch({ key, evaluated: 0 });
+    w.onmessage = (e: MessageEvent<WorkerOut>) => {
+      const m = e.data;
+      if (m.type === 'progress') setEntrySearch({ key, evaluated: m.evaluated });
+      else if (m.type === 'loopEntryDone') {
+        setEntries((prev) => ({ ...prev, [key]: m.report })); setEntrySearch(null); w.terminate();
+        if (pendingSave.current === key && m.report.result) setSavingResult(r);
+        if (pendingSave.current === key) pendingSave.current = null;
+      }
+      else if (m.type === 'error') { setErr(m.message); setEntrySearch(null); w.terminate(); }
+    };
+    const pool = report?.request.stallionPool ?? buildRequest().stallionPool;
+    w.postMessage({ type: 'startLoopEntry', master: app.master, userHorses: allUserHorses(app.data), rules: app.data.settings.rules, request: { mare, cycle: r.steps.map((s) => s.sire), goals: loopGoals, bridgePool: pool, maxBridge: ENTRY_MAX_BRIDGE, maxEvaluations: maxEval } } satisfies WorkerIn);
+  };
+  const cancelEntry = () => entryWorker.current?.postMessage({ type: 'cancel' } satisfies WorkerIn);
   const save = (r: LoopResult, name: string) => {
-    const result = firstCycle(r);
-    if (!result) throw new Error('起点の繁殖牝馬を選んでください');
-    const p = savePlanFromResult(name, mare, result, goals, undefined, app.ctx.rulesVersion, app.ctx.dataVersion, 'broodmare');
+    const entry = entryOf(r);
+    if (entry?.kind !== 'found') throw new Error('起点の繁殖牝馬から周期に入る経路がありません');
+    const p = savePlanFromResult(name, mare, entry.result, loopGoals, undefined, app.ctx.rulesVersion, app.ctx.dataVersion, 'broodmare');
     setSaved({ ...saved, [resultKey(r)]: { id: p.id, name: p.name } });
     setSavedMsg({ id: p.id, name: p.name });
     setSavingResult(null);
+  };
+  // 行を開いたら、選んだ牝馬から周期に入る経路を探す（見つかるまで入り方と導入の配合を試す）
+  const openResult = report?.results.find((r) => resultKey(r) === open) ?? null;
+  useEffect(() => {
+    if (!openResult || !mare) return;
+    const key = `${mare}|${resultKey(openResult)}`;
+    if (!entries[key] && entrySearch?.key !== key) searchEntry(openResult);
+    // searchEntry は描画ごとに作り直すので依存に含めない
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [openResult, mare, entries, entrySearch]);
+  /** 既定の計画名。周期は実際に入る順（導入の後の1周目の並び）で書く */
+  const planName = (r: LoopResult) => {
+    const entry = entryOf(r);
+    const cycle = entry?.kind === 'found' ? entry.result.steps.slice(entry.bridge, entry.bridge + r.length) : r.steps;
+    return `${app.resolver.label(mare)} ループ ${cycle.map((s) => s.sireName).join('→')} 1周目`;
+  };
+  /** 表（スマホではカード）の「保存」。保存するのは選んだ繁殖牝馬からの導入と1周目 */
+  const saveButton = (r: LoopResult) => {
+    if (saved[resultKey(r)]) return <a href={`#/plans?id=${saved[resultKey(r)].id}`} className="small" onClick={(e) => e.stopPropagation()}>保存済み</a>;
+    const entry = entryOf(r);
+    return <button title={!mare ? '起点の繁殖牝馬を選ぶと保存できます' : entry?.kind === 'found' ? `${entryLabel(entry, r.length)}を計画として保存` : '導入と1周目を探して計画として保存'} disabled={!mare || entry?.kind === 'none'} onClick={(e) => {
+      e.stopPropagation();
+      if (entry?.kind === 'found') { setSavingResult(r); return; }
+      pendingSave.current = entryKey(r);
+      setOpen(resultKey(r));
+    }}>保存</button>;
   };
   const route = (r: LoopResult) => r.steps.map((s) => s.sireName).join(' → ') + ' → …';
 
   return (
     <div>
       <div className="search-form">
-        <SearchSection title="周期と上限" icon="horse">
+        <SearchSection title="周期と上限" icon="horse" tip={<Tip label="周期と上限">同じ種牡馬を5世代以内に再び付けると1×Nの危険な配合になるため、危険な配合を避ける場合の周期は5以上になります。</Tip>}>
           <div className="search-limits">
             <label className="field">周期の長さ（最小）<input type="number" min={2} max={10} value={minL} onChange={(e) => setMinL(Number(e.target.value))} /></label>
             <label className="field">周期の長さ（最大）<input type="number" min={2} max={10} value={maxL} onChange={(e) => setMaxL(Number(e.target.value))} /></label>
             <label className="field">1周の種付料合計の上限（万）<input type="number" value={maxCost} onChange={(e) => setMaxCost(e.target.value)} placeholder="なし" /></label>
-            <label className="field">判定回数上限<input type="number" value={maxEval} onChange={(e) => setMaxEval(Number(e.target.value))} /></label>
+            <EvalLimitField value={maxEval} onChange={setMaxEval} />
           </div>
-          <p className="small muted">同じ種牡馬を5世代以内に再び付けると1×Nの危険な配合になるため、危険な配合を避ける場合の周期は5以上になる。</p>
         </SearchSection>
         <GoalEditor goals={goals} setGoals={setGoals} qualifier="毎世代" />
         <SearchSection title="種牡馬の属性" icon="sliders"><StallionFilter value={filter} onChange={setFilter} /></SearchSection>
@@ -147,7 +206,7 @@ export function LoopSearch({ filter, setFilter, job }: { filter: StallionFilterS
           </div>
           <div className="toolbar loop-result-toolbar">
             <label className="field">並び順<select value={sort} onChange={(e) => { setSort(e.target.value as LoopSort); resultPage.setPage(0); }}><option value="cost">1周の費用が安い順</option><option value="perfect">完璧／凝ったの世代が多い順</option><option value="nicks">ニックス段階の合計順</option><option value="crosses">クロスが少ない順</option></select></label>
-            <label className="field">起点の繁殖牝馬（計画の保存用）<HorseSelect value={mare} onChange={setMare} options={dOpts} aria-label="起点の繁殖牝馬" plannedToggle /></label>
+            <label className="field">起点の繁殖牝馬<HorseSelect value={mare} onChange={setMare} options={dOpts} aria-label="起点の繁殖牝馬" plannedToggle /></label>
             <SearchResultFilters results={report.results} horse={resultHorse} count={sorted.length} onHorseChange={(key) => { setResultHorse(key); resultPage.setPage(0); }} />
           </div>
           <ResultPagination {...resultPage} onChange={resultPage.setPage} />
@@ -155,8 +214,9 @@ export function LoopSearch({ filter, setFilter, job }: { filter: StallionFilterS
           {mobile ? (
             <div className="result-cards" style={{ marginTop: 8 }}>
               {resultPage.rows.map((r) => <div key={resultKey(r)} className="result-card">
-                <div className="result-head" onClick={() => setOpen(open === resultKey(r) ? null : resultKey(r))}><b>{route(r)} <Constraints steps={r.steps} /></b><span className="num muted">{r.length}頭 / {r.cost.toLocaleString()}万</span></div>
-                {open === resultKey(r) && <LoopDetail r={r} first={firstCycle(r)} saved={saved[resultKey(r)]} onSave={() => setSavingResult(r)} mareChosen={!!mare} />}
+                <div className="result-head" onClick={() => setOpen(open === resultKey(r) ? null : resultKey(r))}><b>{route(r)} <CostUnknownTag steps={r.steps} /></b><span className="num muted">{r.length}頭 / {r.cost.toLocaleString()}万</span></div>
+                <div className="result-card-actions">{saveButton(r)}</div>
+                {open === resultKey(r) && <LoopDetail r={r} mareName={mare ? app.resolver.label(mare) : ''} entry={entryOf(r)} onSearchEntry={() => searchEntry(r)} onCancelEntry={cancelEntry} />}
               </div>)}
             </div>
           ) : (
@@ -165,11 +225,11 @@ export function LoopSearch({ filter, setFilter, job }: { filter: StallionFilterS
               <tbody>{resultPage.rows.map((r, i) => [
                 <tr key={resultKey(r)} className={'clickable' + (open === resultKey(r) ? ' selected' : '')} onClick={() => setOpen(open === resultKey(r) ? null : resultKey(r))}>
                   <td className="num">{resultPage.offset + i + 1}</td><td className="num">{r.length}</td><td className="num">{r.cost.toLocaleString()}</td>
-                  <td className="name wrap">{route(r)} <Constraints steps={r.steps} /></td>
+                  <td className="name wrap">{route(r)} <CostUnknownTag steps={r.steps} /></td>
                   <td className="wrap small">{r.steps.map((s, k) => <span key={k} className="loop-gen">{k + 1}: {s.judgement.perfectKotta === '成立' ? '完璧／凝った' : s.judgement.perfect === '成立' ? '完璧' : [s.judgement.omoshiro === '成立' && '面白', s.judgement.migoto === '成立' && '見事', s.judgement.kotta === '成立' && '凝った'].filter(Boolean).join('・') || '—'}{s.judgement.nicksLevel > 0 && ` ★${s.judgement.nicksLevel}`}</span>)}</td>
-                  <td className="action">{saved[resultKey(r)] ? <a href={`#/plans?id=${saved[resultKey(r)].id}`} className="small" onClick={(e) => e.stopPropagation()}>保存済み</a> : <button title="選んだ繁殖牝馬から1周分を計画として保存" disabled={!mare} onClick={(e) => { e.stopPropagation(); setSavingResult(r); }}>保存</button>}</td>
+                  <td className="action">{saveButton(r)}</td>
                 </tr>,
-                open === resultKey(r) && <tr key={'d' + resultKey(r)}><td colSpan={6} className="wrap"><LoopDetail r={r} first={firstCycle(r)} saved={saved[resultKey(r)]} onSave={() => setSavingResult(r)} mareChosen={!!mare} /></td></tr>,
+                open === resultKey(r) && <tr key={'d' + resultKey(r)}><td colSpan={6} className="wrap"><LoopDetail r={r} mareName={mare ? app.resolver.label(mare) : ''} entry={entryOf(r)} onSearchEntry={() => searchEntry(r)} onCancelEntry={cancelEntry} /></td></tr>,
               ])}</tbody>
             </table></div>
           )}
@@ -178,20 +238,36 @@ export function LoopSearch({ filter, setFilter, job }: { filter: StallionFilterS
           {report.results.length === 0 && !running && <div className="empty">条件を満たす周期は見つかりませんでした。周期を長くするか、条件を減らしてください。</div>}
         </div>
       )}
-      {savingResult && <SavePlanDialog defaultName={`${app.resolver.label(mare)} ループ ${savingResult.steps.map(s => s.sireName).join('→')}`} onSave={(name) => save(savingResult, name)} onClose={() => setSavingResult(null)} />}
+      {savingResult && <SavePlanDialog defaultName={planName(savingResult)} onSave={(name) => save(savingResult, name)} onClose={() => setSavingResult(null)} />}
     </div>
   );
 }
 
-function LoopDetail({ r, first, saved, onSave, mareChosen }: { r: LoopResult; first: ReturnType<typeof loopFromMare> | null; saved?: { id: string; name: string }; onSave: () => void; mareChosen: boolean }) {
-  return <div style={{ marginTop: 6 }}>
-    <div className="small muted">定常状態（周期を回し続けた時）の各世代</div>
-    <ol className="steps">{r.steps.map((s, k) => <li key={k}><b>{s.sireName}</b>（{s.cost}万）× 前世代の産駒牝馬<div><Summary s={s.judgement} /></div></li>)}</ol>
-    {first && <>
-      <div className="small muted" style={{ marginTop: 8 }}>選んだ繁殖牝馬からの1周目（元の牝馬の血統が残るため、定常状態と判定が違う世代があり得る）</div>
-      <ol className="steps">{first.steps.map((s, k) => <li key={k}><b>{s.sireName}</b> × {s.damName}<div><Summary s={s.judgement} /></div>{k === 0 && <a href={`#/mating?sire=${encodeURIComponent(s.sire)}&dam=${encodeURIComponent(s.dam)}`}>配合確認で開く</a>}</li>)}</ol>
-      {first.goals.some((g) => g.verdict !== '成立') && <div className="small">1周目の目標: {first.goals.map((g, k) => <span key={k} className={'tag' + (g.verdict !== '成立' ? ' warn' : '')}>{goalLabel(g.goal)}: {g.verdict}</span>)}</div>}
+/** 開いた周期: 回し続けた時の各世代と、選んだ繁殖牝馬からの導入と1周目（表の「保存」で保存するのはこの手順） */
+function LoopDetail({ r, mareName, entry, onSearchEntry, onCancelEntry }: { r: LoopResult; mareName: string; entry: Entry | null; onSearchEntry: () => void; onCancelEntry: () => void }) {
+  return <div className="loop-detail">
+    <h4>周期（回し続けた時の各世代）</h4>
+    <ol className="steps">{r.steps.map((s, k) => <li key={k}><b>{s.sireName}</b>（{s.cost}万）× 前世代の産駒牝馬 <ConditionTags constraints={s.constraints} /><div><Summary s={s.judgement} /></div></li>)}</ol>
+    {!entry ? <p className="small muted">起点の繁殖牝馬を選ぶと、そこから周期に入る手順を出します。</p> : <>
+      <h4>{mareName}からの{entry.kind === 'found' ? entryLabel(entry, r.length) : '手順'}</h4>
+      {entry.kind === 'found' ? <>
+        <ol className="steps">{entry.result.steps.map((s, k) => <li key={k}><span className="tag">{k < entry.bridge ? '導入' : `${Math.floor((k - entry.bridge) / r.length) + 1}周目`}</span> <b>{s.sireName}</b> × {s.damName} <ConditionTags constraints={s.constraints} /><div><Summary s={s.judgement} /></div>{k === 0 && <a href={`#/mating?sire=${encodeURIComponent(s.sire)}&dam=${encodeURIComponent(s.dam)}`}>配合確認で開く</a>}</li>)}</ol>
+      </>
+        : entry.kind === 'none' ? <div className="inline-row"><span className="small">{entry.status === '完了' ? `導入の配合を${ENTRY_MAX_BRIDGE}回まで挟んでも、目標を満たしたまま周期に入る手順はありません。` : `手順の探索は途中で止まりました（${entry.status}）。`}</span>{entry.status !== '完了' && <button onClick={onSearchEntry}>もう一度探す</button>}</div>
+        : <div className="inline-row"><span className="small muted" role="status">探索中 · 判定 {entry.evaluated.toLocaleString()} 回</span><button onClick={onCancelEntry}>中止</button></div>}
     </>}
-    <div className="inline-row" style={{ marginTop: 6 }}>{saved ? <a href={`#/plans?id=${saved.id}`}>保存済み（計画を開く）</a> : <button className="primary" disabled={!mareChosen} onClick={onSave}>{mareChosen ? '1周分を計画として保存' : '起点の繁殖牝馬を選ぶと計画として保存できます'}</button>}</div>
   </div>;
 }
+
+/** 経路の中身の呼び方。元の牝馬の血が抜けるまでが1周に収まらない短い周期では、2周目以降も含む */
+const entryLabel = (entry: { result: SearchResult; bridge: number }, length: number) => {
+  const cycles = Math.ceil((entry.result.steps.length - entry.bridge) / length);
+  const cycle = cycles === 1 ? '1周目' : `${cycles}周目まで`;
+  return entry.bridge ? `導入と${cycle}` : cycle;
+};
+
+/** 選んだ繁殖牝馬から周期に入る経路の状態 */
+type Entry =
+  | { kind: 'found'; result: SearchResult; bridge: number }
+  | { kind: 'none'; status: LoopEntryReport['status'] }
+  | { kind: 'searching'; evaluated: number };

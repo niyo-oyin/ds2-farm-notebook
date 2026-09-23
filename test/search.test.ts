@@ -35,7 +35,7 @@ describe('探索', () => {
     ]) {
       for (const finalStallion of [M.stallions[0].id, null]) {
         const req: SearchRequest = {
-          startMare: goals.some((g) => g.type === 'nicks') ? M.broodmares.find((m) => m.name === 'ヴェイパー')!.id : M.broodmares[2].id, stallionPool: pool, intermediateStallion: null, finalStallion, finalPool: finalStallion ? null : pool.slice(0, 8),
+          startMares: [goals.some((g) => g.type === 'nicks') ? M.broodmares.find((m) => m.name === 'ヴェイパー')!.id : M.broodmares[2].id], stallionPool: pool, intermediateStallion: null, finalStallion, finalPool: finalStallion ? null : pool.slice(0, 8),
           minMatings: 1, maxMatings: 3, goals, maxCost: null, maxEvaluations: 10_000_000, allowRepeatStallion: true,
         };
         const pruned = await searchLineageForward(env, req, {}, true);
@@ -57,7 +57,7 @@ describe('探索', () => {
   it('費用上限と同一種牡馬の禁止を保ち、成立する全経路を返す', async () => {
     const pool = M.stallions.slice(0, 30).map((s) => s.id);
     const req: SearchRequest = {
-      startMare: M.broodmares[0].id, stallionPool: pool, intermediateStallion: null, finalStallion: null, finalPool: null,
+      startMares: [M.broodmares[0].id], stallionPool: pool, intermediateStallion: null, finalStallion: null, finalPool: null,
       minMatings: 2, maxMatings: 2, goals: [], maxCost: 1200, maxEvaluations: 1e6, allowRepeatStallion: false,
     };
     const expected = await searchLineageForward(env, req);
@@ -78,7 +78,7 @@ describe('探索', () => {
     const siskin = M.stallions.find((horse) => horse.name === 'シスキン')!;
     const found: SearchResult[] = [];
     const result = await searchLineage(env, {
-      startMare: start.id, stallionPool: M.stallions.map((horse) => horse.id), intermediateStallion: null, finalStallion: null, finalPool: null,
+      startMares: [start.id], stallionPool: M.stallions.map((horse) => horse.id), intermediateStallion: null, finalStallion: null, finalPool: null,
       minMatings: 2, maxMatings: 2, goals: [{ type: 'migoto' }], maxCost: null, maxEvaluations: 1e6, allowRepeatStallion: true,
     }, { onFound: (row) => { found.push(row); } });
     expect(result.status).toBe('完了');
@@ -111,7 +111,7 @@ function fixture(rules: RuleOptions, unknown = false) {
   const horses = new Map([start, ...pool, ...finals].map((horse) => [horse.key, horse]));
   const env: SearchEnv = { ctx: makeContext(M, rules), rules, resolve: (key) => horses.get(key) ?? null };
   const request: SearchRequest = {
-    startMare: start.key, stallionPool: pool.map((horse) => horse.key),
+    startMares: [start.key], stallionPool: pool.map((horse) => horse.key),
     intermediateStallion: null, finalStallion: null, finalPool: finals.map((horse) => horse.key),
     minMatings: 1, maxMatings: 4, goals: [], maxCost: null,
     maxEvaluations: 1_000_000, allowRepeatStallion: true,
@@ -194,7 +194,7 @@ describe('探索条件に応じた系統の事前絞り込み', () => {
     const sunday = M.stallions.find((horse) => horse.name === 'サンデーサイレンス')!;
     const pool = M.stallions.map((horse) => horse.id);
     const request: SearchRequest = {
-      startMare: start.id, stallionPool: pool, intermediateStallion: null, finalStallion: final.id, finalPool: null,
+      startMares: [start.id], stallionPool: pool, intermediateStallion: null, finalStallion: final.id, finalPool: null,
       minMatings: 1, maxMatings: 2, goals: [{ type: 'perfectKotta' }], maxCost: null,
       maxEvaluations: 1_000_000, allowRepeatStallion: true,
     };

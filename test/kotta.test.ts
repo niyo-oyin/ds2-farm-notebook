@@ -4,7 +4,7 @@ import { kottaParents, kottaProfile, compareKottaProfiles, type KottaParents } f
 import { judge, makeContext } from '../src/core/judge';
 import { masterToRecord } from '../src/core/pedigree';
 import { horseIdentities } from '../src/core/horse-identity';
-import { kottaHints } from '../src/core/master-edits';
+import { applyMasterEdits, kottaHints } from '../src/core/master-edits';
 import { owned } from './horse-fixtures';
 
 const identities = horseIdentities(master);
@@ -40,11 +40,26 @@ describe('凝ったペアの3代血統の比較', () => {
     const p = kottaParents({ ...master, stallions: [h, { ...h, ancestors: ['別の父', ...h.ancestors.slice(1)] }], broodmares: [] });
     expect(kottaProfile(h.id, p).complete).toBe(false);
   });
+  it('祖先に登録した親情報からペアを判定し、因子や名前の編集後も血統を辿れる', () => {
+    const ancestors = Array.from({ length: 15 }, (_, i) => {
+      const n = i + 1;
+      return { id: `a:${n}`, name: `祖先${n}`, sex: n === 1 || n % 2 === 0 ? 'M' as const : 'F' as const, system: null,
+        effects: [2, 10, 14].includes(n) ? ['速力'] : [],
+        ...(n < 8 ? { sireId: `a:${n * 2}`, damId: `a:${n * 2 + 1}` } : {}) };
+    });
+    const base = { ...master, stallions: [], broodmares: [], ancestors };
+    const edited = applyMasterEdits(base, [], [{ id: 'a:1', name: '変更後', sex: 'M', system: null, effects: [], updatedAt: '2026-09-24' }]);
+    const effects = (key: string) => edited.ancestors.find(a => a.id === key)?.effects;
+    const profile = kottaProfile('a:1', kottaParents(edited));
+    expect(compareKottaProfiles(profile, profile, effects)).toMatchObject({ pair: true, complete: true, crosses: ['a:2', 'a:10', 'a:14'] });
+    edited.ancestors.find(a => a.id === 'a:10')!.effects = [];
+    expect(compareKottaProfiles(profile, profile, effects)).toMatchObject({ pair: false, complete: true });
+  });
 });
 
 describe('方向・対象世代・自家生産馬を含む配合判定', () => {
   it('同じ牝馬に対する正方向のペアは成立し、逆方向は成立しない', () => {
-    const ctx = makeContext(master), dam = record(horse('ダンスアミーガ'));
+    const ctx = makeContext({ ...master, kotta: [[id('エルコンドルパサー'), id('Kingmambo')]] }), dam = record(horse('ダンスアミーガ'));
     expect(judge(record(horse('クリソベリル')), dam, ctx).kotta.verdict).toBe('成立');
     expect(judge(record(horse('サンダースノー')), dam, ctx).kotta.verdict).toBe('不成立');
     const hints = kottaHints(horse('サンダースノー'), [[id('エルコンドルパサー'), id('Kingmambo')]]);
@@ -97,5 +112,10 @@ describe('方向・対象世代・自家生産馬を含む配合判定', () => {
     expect(judge(sire, dam, ctx).kotta.verdict).toBe('未確定');
     dam.nodes[2] = 'u:sire';
     expect(judge(sire, dam, ctx).kotta.verdict).toBe('不成立');
+    // 同じ自家生産馬が遠い祖先として両側にいる場合は、危険条件に当たらなければ比較する。
+    sire.nodes[1] = 'st:父'; sire.nodes[8] = 'u:sire';
+    dam.nodes[2] = 'a:別の父'; dam.nodes[8] = 'u:sire';
+    ctx.ancestors.set('a:共通3', { id: 'a:共通3', name: '共通3', sex: 'M', system: null, effects: ['速力'] });
+    expect(judge(sire, dam, ctx).kotta).toMatchObject({ verdict: '成立', estimated: true, estimatedPairs: [['u:sire', 'u:sire']] });
   });
 });

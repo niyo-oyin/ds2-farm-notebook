@@ -5,7 +5,7 @@ import { compareAncestorFactors, diffAgainstBase, homebredBlockReason, prepareRe
 import { newAncestorId } from '../core/horse-identity';
 import { baseMaster } from '../data/base-master';
 import { applyCardReading, cardMatchCandidates, inferredGameYear, pedigreeMatchCandidates, type CardReading } from '../core/owned-horse';
-import { store } from '../store/userdata';
+import { getUserData, store } from '../store/userdata';
 import { checkWorkspace, workspaceGeneration } from '../store/workspace';
 import { sireOptions, damOptions, type AppCtx, type HorseOption } from './app-context';
 
@@ -23,11 +23,23 @@ export function matchName(name: string, options: HorseOption[]): string {
   return matches.length === 1 ? matches[0].key : '';
 }
 
-/** カードを所有馬に反映する。target が無ければ新規登録。年齢と生年から推定した年が進んでいれば設定も更新する */
-export async function applyCardJob(app: AppCtx, job: ImportJob, reading: CardScreen, target: OwnedHorse | undefined, savePortrait: boolean): Promise<OwnedHorse> {
+const applyingCards = new Map<string, Promise<OwnedHorse>>();
+/** 同じ取り込みの手動・自動反映は処理を共有する。反映済みなら保存先を返す。 */
+export function applyCardJob(job: ImportJob, reading: CardScreen, target: OwnedHorse | undefined, savePortrait: boolean): Promise<OwnedHorse> {
   const generation = workspaceGeneration();
+  const key = `${generation}:${job.id}`;
+  const pending = applyingCards.get(key);
+  if (pending) return pending;
+  const applied = getUserData().horses.find(h => h.observations?.some(o => o.importJobId === job.id));
+  if (applied) return Promise.resolve(applied);
+  const run = saveCardJob(job, reading, target?.id, savePortrait, generation).finally(() => { applyingCards.delete(key); });
+  applyingCards.set(key, run);
+  return run;
+}
+
+/** カードを所有馬に反映し、年齢と生年から推定した年が進んでいれば設定も更新する。 */
+async function saveCardJob(job: ImportJob, reading: CardScreen, targetId: string | undefined, savePortrait: boolean, generation: number): Promise<OwnedHorse> {
   const card = toCardReading(reading);
-  const gameYear = app.data.settings.gameYear;
   let imageId: string | undefined;
   // 切り出しは付加情報なので、写真の取得や保存に失敗しても反映は続ける
   if (savePortrait && hasBox(reading.card.horse_box)) {
@@ -35,11 +47,19 @@ export async function applyCardJob(app: AppCtx, job: ImportJob, reading: CardScr
     catch (e) { console.warn(`馬の画像を保存できませんでした: ${(e as Error).message}`); }
   }
   checkWorkspace(generation);
+  const data = getUserData();
+  const applied = data.horses.find(h => h.observations?.some(o => o.importJobId === job.id));
+  if (applied) return applied;
+  const target = targetId ? data.horses.find(h => h.id === targetId) : undefined;
+  if (targetId && !target) throw new Error('反映先の所有馬が見つかりません');
+  const gameYear = data.settings.gameYear;
   const patch = applyCardReading(target, card, new Date().toISOString(), gameYear);
+  patch.observations = patch.observations?.map((o, i, all) => i === all.length - 1 ? { ...o, importJobId: job.id } : o);
   if (!patch.name.trim()) throw new Error('馬名が読み取れていません');
   let saved: OwnedHorse;
   if (target) { store.updateHorse(target.id, { ...patch, ...(imageId ? { imageId } : {}) }); saved = { ...target, ...patch, ...(imageId ? { imageId } : {}) }; }
-  else saved = store.addHorse({ kind: 'owned', ...patch, sireKey: '', damKey: '', imageId });
+  // 複数タブ・端末で同じジョブを同時反映しても、同期先では同じ馬になる。
+  else saved = store.addHorse({ kind: 'owned', ...patch, id: `u:import:${job.id}`, sireKey: '', damKey: '', imageId });
   const inferred = inferredGameYear(card, patch);
   if (inferred !== undefined && inferred > (gameYear ?? -Infinity)) store.setSettings({ gameYear: inferred });
   return saved;
@@ -48,7 +68,7 @@ export async function applyCardJob(app: AppCtx, job: ImportJob, reading: CardScr
 /** 血統画面で読んだ祖先の因子のうち、祖先マスターに未登録の馬だけを登録する（自動反映用。既存の値は書き換えない） */
 export function saveNewAncestorFactors(app: AppCtx, reading: PedigreeScreen) {
   const rows = compareAncestorFactors(reading.pedigree.ancestors ?? [], app.master).filter((r) => r.status === '新規');
-  if (rows.length) store.saveAncestorEdits(rows.map((r) => ({ id: r.id ?? newAncestorId(), name: r.name, system: r.id ? app.ctx.ancestors.get(r.id)?.system ?? null : null, sex: r.id ? app.ctx.ancestors.get(r.id)?.sex ?? null : null, effects: r.factors })));
+  if (rows.length) store.saveAncestorEdits(rows.map((r) => ({ id: r.id ?? newAncestorId(), name: r.id ? app.resolver.label(r.id) : r.name, system: r.id ? app.ctx.ancestors.get(r.id)?.system ?? null : null, sex: r.id ? app.ctx.ancestors.get(r.id)?.sex ?? null : null, effects: r.factors })));
 }
 
 /** 血統画面の父母を所有馬に登録する */

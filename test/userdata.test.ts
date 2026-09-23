@@ -93,6 +93,25 @@ describe('保存操作の境界', () => {
     expect(horsePlanLinks(getUserData(), 'u:1')[0].foal?.id).toBe('p:2');
   });
 
+  it('計画の途中から探し直した経路で置き換えると、前の手順を保ち、外した計画馬は所有馬の紐付けがあるものだけ残す', async () => {
+    const { store, replacePlanSteps, savePlanFromResult, getUserData } = await import('../src/store/userdata');
+    const saved = savePlanFromResult('計画', 'b:1', { steps: [{ sire: 's:1' }, { sire: 's:2' }, { sire: 's:3' }] } as SearchResult, [], undefined, '1', '1', 'broodmare');
+    const [first, second, third] = saved.steps.map((s) => s.foalId);
+    store.addHorse(owned('u:2'), [second]);
+    const replaced = replacePlanSteps(saved.id, 1, { steps: [{ sire: 's:4', dam: first }, { sire: 's:5' }] } as SearchResult, [{ type: 'kotta' }], undefined, '1', '1', 'stallion');
+    expect(replaced.steps.map((s) => s.sire)).toEqual(['s:1', 's:4', 's:5']);
+    expect(replaced.steps[0].foalId).toBe(first);
+    expect(replaced.steps[1].dam).toBe(first);
+    expect(replaced.steps[2].dam).toBe(replaced.steps[1].foalId);
+    expect(replaced.goals).toEqual([{ type: 'kotta' }]);
+    const ids = getUserData().plannedHorses.map((h) => h.id);
+    expect(ids).toContain(second);
+    expect(ids).not.toContain(third);
+    expect(getUserData().plannedHorses.find((h) => h.id === second)?.planId).toBeUndefined();
+    expect(getUserData().plannedHorses.find((h) => h.id === replaced.steps[2].foalId)).toMatchObject({ role: 'stallion', desiredSex: 'M', planId: saved.id });
+    expect(() => replacePlanSteps(saved.id, 1, { steps: [{ sire: 's:4', dam: 'b:other' }] } as SearchResult, [], undefined, '1', '1', 'none')).toThrow();
+  });
+
   it('所有馬を削除すると紐付けだけを除き、計画は維持する', async () => {
     const { store, getUserData } = await import('../src/store/userdata');
     store.addHorse(owned('u:1'));

@@ -18,8 +18,12 @@ export const RACE_TRAIT_FIELDS: CardField<RaceTraitKey>[] = [
   { key: 'health', label: '体質', marks: CARD_MARKS }, { key: 'legs', label: '脚元', marks: CARD_MARKS }, { key: 'concentration', label: '集中力', marks: CARD_MARKS },
   { key: 'timid', label: 'こわがり', marks: CARD_MARKS }, { key: 'soundReaction', label: '音反応', marks: CARD_MARKS }, { key: 'reaction', label: '反応', marks: CARD_MARKS },
 ];
+/** 配合確認・探索・計画で使う馬のキー。データの繁殖牝馬を所有している場合はその馬のキー */
+export const breedingKey = (horse: Pick<OwnedHorse, 'id' | 'masterKey'>): string => horse.masterKey ?? horse.id;
+
 /** 血統（父母）が登録されていない所有馬は配合確認・探索の候補にしない。理由の文言も返す */
-export function pedigreeIssue(horse: Pick<OwnedHorse, 'sireKey' | 'damKey'>): string | null {
+export function pedigreeIssue(horse: Pick<OwnedHorse, 'sireKey' | 'damKey' | 'masterKey'>): string | null {
+  if (horse.masterKey) return null;
   if (!horse.sireKey && !horse.damKey) return '血統未登録です';
   if (!horse.sireKey) return '父が未登録です';
   if (!horse.damKey) return '母が未登録です';
@@ -29,8 +33,9 @@ export function isBreedingHorse(horse: OwnedHorse) {
   return (horse.category === '繁殖牝馬' && horse.sex === 'F') || (horse.category === '種牡馬' && horse.sex === 'M');
 }
 
-export function validateOwnedDetails(horse: Pick<OwnedHorse, 'profile' | 'abilities'> & Partial<Pick<OwnedHorse, 'category' | 'sex'>>) {
+export function validateOwnedDetails(horse: Pick<OwnedHorse, 'profile' | 'abilities'> & Partial<Pick<OwnedHorse, 'category' | 'sex' | 'masterKey'>>) {
   if (horse.category !== undefined && !HORSE_CATEGORIES.includes(horse.category)) throw new Error('区分が不正です');
+  if (horse.masterKey && (horse.sex !== 'F' || horse.category !== '繁殖牝馬')) throw new Error('データの繁殖牝馬は、区分を繁殖牝馬・性別を牝として登録してください');
   if ((horse.category === '繁殖牝馬' && horse.sex !== 'F') || (horse.category === '種牡馬' && horse.sex !== 'M')) throw new Error('区分と性別が一致していません');
   const a = horse.abilities;
   const number = (value: number | undefined, label: string) => {

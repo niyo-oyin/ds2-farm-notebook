@@ -4,32 +4,37 @@ import { gen, nodePath, sideOf } from '../core/pedigree';
 import { useApp } from './app-context';
 
 const COLORS = ['#d97706', '#059669', '#2563eb', '#dc2626', '#7c3aed', '#db2777', '#0d9488', '#ea580c', '#4f46e5', '#65a30d'];
-/** 15大系統の色（タグの枠と文字にだけ使う） */
-const SYSTEM_HUES: Record<string, number> = { Ec: 20, Ph: 40, Ns: 60, Ro: 210, Ne: 340, Na: 100, Fa: 130, To: 160, Te: 190, Sw: 250, Ha: 280, Hi: 300, St: 0, Ma: 80, He: 230 };
+/** ゲームの大系統凡例に合わせた背景色。 */
+const SYSTEM_COLORS: Record<string, string> = {
+  Ec: '#fcfcfc', Ph: '#bcd8ff', Ns: '#62d866', Ro: '#ffb2d2', Ne: '#f5fe7f',
+  Na: '#86e1ff', Fa: '#feca43', To: '#ff9f4b', Te: '#ba6ef5', Sw: '#fcdedc',
+  Ha: '#afff46', Hi: '#5ca1ff', St: '#a498fc', Ma: '#d2aef8', He: '#b7fffe',
+};
+const systemStyle = (system: string | null) => system && SYSTEM_COLORS[system]
+  ? { background: SYSTEM_COLORS[system], color: '#30394d', borderColor: '#485168' }
+  : undefined;
 export function SystemTag({ system, role }: { system: string | null; role: '面白' | '見事' }) {
-  const hue = system ? SYSTEM_HUES[system] ?? 0 : 0;
-  const style = system ? { borderColor: `hsl(${hue} 45% 45%)`, color: `hsl(${hue} 55% 32%)`, background: `hsl(${hue} 60% 96%)` } : undefined;
-  return <span className={'systag ' + (role === '見事' ? 'migoto' : 'omoshiro')} style={style} title={`${role}判定の参照枠${system ? `: ${system}系` : '（系統不明）'}`}>{role === '見事' ? '見' : '面'}{system ?? '?'}</span>;
+  return <span className={'systag ' + (role === '見事' ? 'migoto' : 'omoshiro')} style={systemStyle(system)} title={`${role}判定の参照枠${system ? `: ${system}系` : '（系統不明）'}`}>{role === '見事' ? '見' : '面'}{system ?? '?'}</span>;
 }
 
-/** クロス効果の短縮表記と色分け（速さ系＝藍、スタミナ系＝緑、パワー＝橙、適性＝茶、成長＝紫、気性＝朱） */
+/** ゲームの血統・クロス画面に合わせた因子の短縮表記と色分け。 */
 export const EFFECT_CHIP: Record<string, { label: string; cls: string; note: string }> = {
-  '短距離': { label: '短', cls: 'fx-speed', note: 'スピード大幅アップ、スタミナダウン' },
+  '短距離': { label: '短', cls: 'fx-short', note: 'スピード大幅アップ、スタミナダウン' },
   '速力': { label: '速', cls: 'fx-speed', note: 'スピードアップ' },
   'パワー': { label: 'パ', cls: 'fx-power', note: 'パワーアップ' },
-  '底力': { label: '底', cls: 'fx-stamina', note: '勝負根性アップ' },
+  '底力': { label: '底', cls: 'fx-guts', note: '勝負根性アップ' },
   '長距離': { label: '長', cls: 'fx-stamina', note: 'スタミナアップ' },
   'ダート': { label: 'ダ', cls: 'fx-dirt', note: 'ダート適性アップ' },
   '丈夫さ': { label: '丈', cls: 'fx-body', note: '脚元の強さアップ' },
-  '早熟型': { label: '早', cls: 'fx-growth', note: '成長型の早熟化' },
-  '晩成型': { label: '晩', cls: 'fx-growth', note: '成長型の晩成化' },
+  '早熟型': { label: '早', cls: 'fx-early', note: '成長型の早熟化' },
+  '晩成型': { label: '晩', cls: 'fx-late', note: '成長型の晩成化' },
   '堅実さ': { label: '堅', cls: 'fx-steady', note: '気性アップ、勝負根性少しダウン' },
   '気性難': { label: '気', cls: 'fx-temper', note: '気性難' },
 };
 
 /** 祖先の大系統の札。血統表の右端に、最後の世代の父側（牡）の祖先ごとに出す。不明なら空の枠 */
 export function SystemBadge({ system }: { system: string | null }) {
-  return <span className={'sys-badge' + (system ? '' : ' unknown')} title={system ? `${system}系` : '大系統は未登録'}>{system ?? ''}</span>;
+  return <span className={'sys-badge' + (system ? '' : ' unknown')} style={systemStyle(system)} title={system ? `${system}系` : '大系統不明'}>{system ?? ''}</span>;
 }
 
 export function EffectChips({ effects, size }: { effects: string[]; size?: 'sm' }) {

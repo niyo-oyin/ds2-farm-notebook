@@ -62,6 +62,7 @@
 .plan-section-heading { display: flex; align-items: center; justify-content: space-between; gap: 10px; margin-bottom: 16px; }
 .plan-section-heading h3 { margin: 0; font-size: 16px; }
 .plan-section-heading > span { color: var(--ink-muted); font-size: 11px; }
+.plan-step-actions { display: flex; flex-wrap: wrap; justify-content: flex-end; gap: 6px; }
 .plan-section-heading button { font-size: 12px; }
 .plan-step-nav { padding: 20px 0; border-right: 1px solid var(--rule); }
 .plan-step-nav .plan-section-heading { padding-inline: 16px; }

@@ -1,0 +1,17 @@
+.rules-page { display: grid; gap: 16px; }
+.rules-navigation { display: flex; gap: 8px; flex-wrap: wrap; }
+.stat-guide-grid { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 16px; align-items: start; }
+.stat-guide-section { margin: 0; padding: 16px; }
+.stat-guide-section h3 { margin: 0; font-size: 16px; }
+.stat-guide-section p { margin: 8px 0 12px; line-height: 1.7; }
+.stat-guide-section dl { margin: 12px 0 0; }
+.stat-guide-section dl > div { display: grid; grid-template-columns: 112px minmax(0, 1fr); gap: 12px; padding: 10px 0; border-top: 1px solid var(--rule); font-size: 13px; line-height: 1.7; }
+.stat-guide-section dt { font-weight: 600; }
+.stat-guide-section dd { margin: 0; overflow-wrap: anywhere; }
+.stat-guide-note { grid-column: 1 / -1; margin: 0; }
+.stat-guide-sources { margin: 0; }
+@media (max-width: 800px) {
+  .stat-guide-grid { grid-template-columns: minmax(0, 1fr); }
+  .stat-guide-section dl > div { grid-template-columns: 88px minmax(0, 1fr); gap: 8px; }
+  .rules-navigation button { white-space: normal; min-height: 44px; }
+}

@@ -18,7 +18,7 @@ export interface RuleOptions {
   omoshiroThreshold: number;       // 面白い配合に必要な大系統の種類数
   migotoMode: 'set' | 'multiset';  // 見事な配合の一致判定（種類のみ / 個数も比較）
   migotoMinSystems: number;        // 見事な配合で一致する大系統に必要な種類数（0 で不問）
-  kottaGenerations: number;        // 凝った配合で参照する世代（対象馬自身 = 1）
+  kottaGenerations: number;        // 産駒から数えた対象世代（父母 = 1、父母の曾祖父母 = 4）
   dangerousCrossCount: number;     // この本数以上のクロスで危険な配合
   homebredSmallSystem: 'sire' | 'unknown'; // 自家製馬の小系統を父から推定するか
   kottaEstimateHomebred: boolean;  // 自家製馬が関わる凝ったペアを前作ルール（3代以内に効果ありクロス3本）で推定する
@@ -36,7 +36,7 @@ export const DEFAULT_RULES: RuleOptions = Object.freeze({
   nitroGenerations: 5,
 });
 
-export const RULES_VERSION = 'ds2-rules-2026-09-22-r1';
+export const RULES_VERSION = 'ds2-rules-2026-09-24-r1';
 
 /**
  * 出典の略記。
@@ -73,11 +73,11 @@ export const RULE_LEDGER: RuleEntry[] = [
   },
   {
     id: 'kotta', title: '凝った配合',
-    condition: '産駒から4代以内の父側・母側の牡馬に、成立する祖先ペアがある。祖先ペアそれぞれの3代血統を比較し、父側の独立した枝に効果のあるクロスが3本以上必要。同じ父系の重複は1本と数え、父母の方向を区別する。危険な配合の場合は無効。',
+    condition: '父馬・母馬それぞれの4代血統（本馬を1代目とする）に、似た血統構成を持つ牡馬のペアがある。その2頭を起点に、さらに3代前までの血統を比較し、父側に効果のあるクロスが3本以上発生すること。実際の父馬と母馬の配合が危険な配合でないこと。',
     effect: '繁殖牝馬のスピード・スタミナ・パワーをより強く引き出す。',
     status: '公開資料',
     source: `${OFFICIAL}、${PUBLIC}`,
-    note: `${SAME_AS_PREV} 登録ペアは父側・母側の方向を保って判定する。自家製の牡馬が関わるペアは3代血統の牡馬7枠から推定する。血統や因子が不足する場合は未確定とする。`,
+    note: `${SAME_AS_PREV} 比較する2頭からは、それぞれの父を1代前として3代前まで辿るため、画面の4代血統より先の情報も必要になる。同じ馬が父側・母側にいる場合も比較する。同じ父系で連続するクロスは1本、別の枝のクロスは別々に数える。父側の本数で判定するため、ペアの方向を区別する。`,
   },
   {
     id: 'perfectKotta', title: '完璧／凝った配合',

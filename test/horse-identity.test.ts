@@ -5,6 +5,7 @@ import { judge, makeContext } from '../src/core/judge';
 import { DEFAULT_RULES } from '../src/core/rules';
 import { goalVerdict } from '../src/core/search';
 import { applyMasterEdits, compareAncestorFactors, prepareReadingAncestors } from '../src/core/master-edits';
+import { uniqueHorseNamed } from '../src/core/horse-identity';
 
 function fixture() {
   const horse = (id: string, sex: 'M' | 'F'): MasterHorse => ({
@@ -21,6 +22,23 @@ function fixture() {
 }
 
 describe('馬の個体ID', () => {
+  it('画像の英字表記が違っても確認済みの因子なしを照合し、同名の別個体は選択を待つ', () => {
+    const { master } = fixture();
+    const ancestor = { id: 'a:english', name: 'Example Mare', sex: 'F' as const, system: null, effects: [], effectsKnown: true };
+    master.ancestors.push(ancestor);
+    const reading = [{ name: 'example   mare', factors: [] }, { name: 'ＥＸＡＭＰＬＥ ＭＡＲＥ', factors: [] }];
+    expect(compareAncestorFactors(reading, master)).toEqual([{ id: ancestor.id, name: reading[0].name, factors: [], known: [], status: '一致' }]);
+    const parents = prepareReadingAncestors(master, { sire: '', dam: 'example mare', dam_sire: '' });
+    expect(parents.parentIds.dam).toBe(ancestor.id);
+    expect(parents.additions).toEqual([]);
+    expect(uniqueHorseNamed(master.ancestors, 'EXAMPLE MARE')?.id).toBe(ancestor.id);
+
+    master.ancestors.push({ ...ancestor, id: 'a:other', name: 'example mare', effects: ['底力'] });
+    expect(compareAncestorFactors(reading, master)[0].status).toBe('要選択');
+    expect(uniqueHorseNamed(master.ancestors, 'EXAMPLE MARE')).toBeUndefined();
+    expect(compareAncestorFactors(reading, master, { [reading[0].name]: ancestor.id })[0]).toMatchObject({ id: ancestor.id, status: '一致' });
+  });
+
   it('同名の別馬はクロスにせず、同じIDが本馬と祖先に現れた場合はクロスと危険判定に使う', () => {
     const { master, sire, dam, result } = fixture();
     expect(result(master).outbreed.verdict).toBe('成立');

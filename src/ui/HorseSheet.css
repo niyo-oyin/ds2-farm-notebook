@@ -20,11 +20,11 @@
 .sheet-more-menu { position: absolute; right: 0; top: calc(100% + 4px); min-width: 160px; padding: 4px; border: 1px solid var(--rule-strong); border-radius: var(--r-sm); background: var(--paper-raised); box-shadow: 0 4px 14px rgba(28, 26, 23, .12); z-index: 30; }
 .sheet-more-menu > button { display: block; width: 100%; text-align: left; border: 0; background: transparent; font-size: 13px; padding: 8px 10px; }
 .sheet-more-menu > button:hover { background: var(--hover); }
-/* 上段の3列は名前側の実測高さ（--band-height）に揃え、最小 200px とする。 */
+/* 上段の3列は名前側の実測高さ（--band-height）に揃え、最小 236px（命名候補のボタンを含む高さ）とする。 */
 .sheet-overview { display: grid; grid-template-columns: auto minmax(0, 1fr) minmax(260px, 38%); gap: 20px; padding: 20px 0; align-items: stretch; }
 .sheet-identity { min-width: 0; }
 .sheet-identity-main { display: grid; gap: 10px; align-content: start; }
-.sheet-portrait .portrait { position: relative; width: var(--band-height, 200px); height: var(--band-height, 200px); }
+.sheet-portrait .portrait { position: relative; width: var(--band-height, 236px); height: var(--band-height, 236px); }
 .sheet-portrait-bar { position: absolute; inset: auto 0 0 0; display: flex; min-height: 32px; background: rgba(28, 26, 23, .62); }
 .sheet-portrait-bar > * { flex: 1; display: grid; place-items: center; min-height: 32px; padding: 0 6px; border: 0; border-radius: 0; background: transparent; font-size: 12px; font-weight: 600; color: #fff; cursor: pointer; }
 .sheet-portrait-bar > * + * { border-left: 1px solid rgba(255, 255, 255, .3); }
@@ -49,7 +49,9 @@
 .sheet-parents-summary .dam dt { background: var(--dam); }
 .sheet-parents-summary dd { margin: 0; overflow-wrap: anywhere; font-weight: 600; font-size: 15px; }
 /* 要約列。上に賞金と勝ち鞍、残りをメモが埋める。帯より高くならないよう本文は枠内で省略・スクロールする */
-.sheet-context { min-width: 0; height: var(--band-height, 200px); display: grid; grid-template-rows: auto minmax(0, 1fr); gap: 8px; }
+.sheet-context { min-width: 0; height: var(--band-height, 236px); display: grid; grid-template-rows: auto minmax(0, 1fr); gap: 8px; }
+/* データの繁殖牝馬は戦績の欄を出さず、メモだけを帯の高さに広げる */
+.sheet-context.memo-only { grid-template-rows: minmax(0, 1fr); }
 .sheet-card { min-width: 0; padding: 8px 12px; border: 1px solid var(--rule); border-radius: 8px; background: var(--paper); }
 .sheet-card-heading { display: flex; align-items: center; gap: 8px; margin-bottom: 4px; }
 .sheet-card-heading h3 { margin: 0; font: 600 11px var(--font-body); color: var(--ink-muted); }
@@ -187,6 +189,8 @@
   .sheet-toolbar { top: 46px; flex-wrap: wrap; }
   .sheet-toolbar-actions { width: 100%; }
   .sheet-toolbar-actions > button { flex: 1; min-height: 40px; font-size: 13px; }
+  /* 「データを確認」は配合確認・配合探索と同じく中身の幅にする */
+  .sheet-toolbar-actions > button.sheet-data-button { flex: none; }
   .sheet-more > summary { width: 40px; height: 40px; }
   .horse-sheet .field input, .horse-sheet .field select { min-height: 44px; font-size: 16px; }
   .sheet-name h2, .horse-sheet .sheet-name input { font-size: 22px; }

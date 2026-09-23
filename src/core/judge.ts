@@ -221,7 +221,6 @@ export function judge(sire: HorseRecord, dam: HorseRecord, ctx: JudgeContext): J
       const a = nodes[na], b = nodes[nb];
       const aHome = !isMasterKey(a), bHome = !isMasterKey(b);
       if (!aHome && !bHome) continue;
-      if (a === b) continue;
       const r = compareKottaProfiles(profileOf(ctx, a), profileOf(ctx, b), key => effectsOf(ctx, key));
       if (r.pair) estimatedPairs.push([a, b]);
       else if (!r.complete) estimateIncomplete = true;

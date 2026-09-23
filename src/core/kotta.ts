@@ -17,11 +17,14 @@ export function kottaParents(master: MasterData, horses: UserHorse[] = []): Kott
     parents.set(key, [sire || previous?.[0] || '', dam || previous?.[1] || '']);
   };
   const masterHorses = [...master.stallions, ...master.broodmares];
+  for (const ancestor of master.ancestors) {
+    if (ancestor.sireId || ancestor.damId) add(ancestor.id, ancestor.sireId ?? '', ancestor.damId ?? '');
+  }
   for (const horse of masterHorses) {
     const nodes = ['', horse.id, ...horse.ancestors];
     for (let n = 1; n < 16; n++) add(nodes[n], nodes[2 * n] ?? '', nodes[2 * n + 1] ?? '');
   }
-  for (const horse of horses) add(horse.id, horse.sireKey, horse.damKey);
+  for (const horse of horses) if (horse.kind !== 'owned' || !horse.masterKey) add(horse.id, horse.sireKey, horse.damKey);
   return parents;
 }
 

@@ -25,6 +25,11 @@ describe('馬の比較表', () => {
     expect(names(sortHorses(list, 'dist', 'desc'))).toEqual(['長', '短', '未確認']);
     expect(names(sortHorses(list, 'dist', 'asc'))).toEqual(['短', '長', '未確認']);
   });
+  it('成長は早熟・持続・普通・晩成の区分順に並べ、未確認は末尾にする', () => {
+    const list = [horse('晩成', { grown: '晩成' }), horse('普通', { grown: '普通' }), horse('未確認', {}), horse('早熟', { grown: '早熟' }), horse('持続', { grown: '持続' })];
+    expect(names(sortHorses(list, 'grown', 'asc'))).toEqual(['早熟', '持続', '普通', '晩成', '未確認']);
+    expect(names(sortHorses(list, 'grown', 'desc'))).toEqual(['晩成', '普通', '持続', '早熟', '未確認']);
+  });
   it('種付料の無料と未確認、繁殖牝馬の初期利用と購入を区別する', () => {
     const free = horse('無料', {}, { price: 0, priceUnknown: false });
     const unknown = horse('不明', {}, { price: 0, priceUnknown: true });

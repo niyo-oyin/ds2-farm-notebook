@@ -3,7 +3,8 @@ import { baseMaster } from '../src/data/base-master';
 import { HorseResolver, makeFoalRecord } from '../src/core/pedigree';
 import { judge, makeContext } from '../src/core/judge';
 import { DEFAULT_RULES } from '../src/core/rules';
-import { loopFromMare, searchLoops, type LoopReport } from '../src/core/loop-search';
+import { searchLoopEntry, searchLoops, type LoopReport } from '../src/core/loop-search';
+import { goalVerdict, type SearchGoal } from '../src/core/search';
 
 const M = baseMaster;
 const resolver = new HorseResolver(M, [], DEFAULT_RULES);
@@ -41,11 +42,25 @@ describe('凝った配合ループの探索', { timeout: 30_000 }, () => {
       expect(verdicts).toEqual(x.steps.map(() => '成立'));
     }
   });
-  it('1周目の経路は選んだ牝馬から作り、世代ごとの判定を持つ', () => {
-    const first = loopFromMare(env, M.broodmares[0].id, r.results[0].steps.map((s) => s.sire), [{ type: 'kotta' }]);
-    expect(first.steps).toHaveLength(5);
-    expect(first.steps[0].dam).toBe(M.broodmares[0].id);
-    expect(first.steps.map((s) => s.sire)).toEqual(r.results[0].steps.map((s) => s.sire));
-    expect(first.goals[0].goal.type).toBe('kotta');
+  it('選んだ牝馬から周期に入る経路は、導入の配合の後に周期の回転が続き、周期の全世代で目標が成立する', async () => {
+    const goals: SearchGoal[] = [{ type: 'kotta' }, { type: 'notDangerous' }];
+    const cycle = r.results[0].steps.map((s) => s.sire);
+    const mare = M.broodmares[0].id;
+    const entry = await searchLoopEntry(env, { mare, cycle, goals, bridgePool: pool, maxBridge: 2, maxEvaluations: 1_000_000 });
+    const route = entry.result!;
+    expect(route.steps[0].dam).toBe(mare);
+    const cyclePart = route.steps.slice(entry.bridge).map((s) => s.sire);
+    expect(cyclePart).toHaveLength(5);
+    const rotations = cycle.map((_, i) => [...cycle.slice(i), ...cycle.slice(0, i)].join('>'));
+    expect(rotations).toContain(cyclePart.join('>'));
+    // 保存した経路を実際の牝馬から組み直しても、周期の各世代で目標が成立する
+    let m = resolver.get(mare)!;
+    route.steps.forEach((st, i) => {
+      const s = resolver.get(st.sire)!;
+      const j = judge(s, m, env.ctx);
+      if (i >= entry.bridge) for (const g of goals) expect(goalVerdict(j, g)).toBe('成立');
+      else expect(j.dangerous.verdict).toBe('不成立');
+      m = makeFoalRecord(s, m, { key: `e:${i}`, name: `${i}`, sex: 'F', kind: 'planned' }, DEFAULT_RULES);
+    });
   });
 });

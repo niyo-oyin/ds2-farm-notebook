@@ -9,7 +9,7 @@ vi.mock('../src/core/search', () => ({ searchLineage: searches.lineage }));
 vi.mock('../src/core/loop-search', () => ({ searchLoops: searches.loop }));
 
 const request: SearchRequest = {
-  startMare: baseMaster.broodmares[0].id, stallionPool: [baseMaster.stallions[0].id],
+  startMares: [baseMaster.broodmares[0].id], stallionPool: [baseMaster.stallions[0].id],
   intermediateStallion: null, finalStallion: null, finalPool: null, minMatings: 1, maxMatings: 2,
   goals: [], maxCost: null, maxEvaluations: 10_000, allowRepeatStallion: true,
 };

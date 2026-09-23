@@ -30,7 +30,7 @@ describe('種付け権と種付料の分離', () => {
     for (const includeOverseas of [false, true]) {
       const options = sireOptions(app, { onlyAvailable: true, includeOverseas });
       expect(options.map(h => h.key)).toEqual(includeOverseas ? ['u:own', domestic.id, foreign.id] : ['u:own', domestic.id]);
-      const req: SearchRequest = { startMare: m.broodmares[0].id, finalStallion: null, intermediateStallion: null, finalPool: null, stallionPool: options.filter(h => h.group === '種牡馬').map(h => h.key), minMatings: 2, maxMatings: 2, goals: [], maxCost: null, maxEvaluations: 100, allowRepeatStallion: true };
+      const req: SearchRequest = { startMares: [m.broodmares[0].id], finalStallion: null, intermediateStallion: null, finalPool: null, stallionPool: options.filter(h => h.group === '種牡馬').map(h => h.key), minMatings: 2, maxMatings: 2, goals: [], maxCost: null, maxEvaluations: 100, allowRepeatStallion: true };
       const report = await searchLineage({ ctx, rules: DEFAULT_RULES, resolve: key => resolver.get(key) }, req);
       expect(report.results.length).toBeGreaterThan(0);
       for (const index of [0, 1]) expect(report.results.some(r => r.steps[index].sire === foreign.id)).toBe(includeOverseas);
@@ -42,7 +42,7 @@ describe('種付け権と種付料の分離', () => {
     expect(sireOptions({ ...app, master: changed }, { includeOverseas: false }).some(h => h.key === foreign.id)).toBe(true);
   });
   it('権利代を各世代の種付料に加算せず、解禁条件として伝える', async () => {
-    const req: SearchRequest = { startMare: master.broodmares[0].id, stallionPool: [horse.id], intermediateStallion: null, finalStallion: horse.id, minMatings: 2, maxMatings: 2, goals: [], maxCost: 200, maxEvaluations: 1000, allowRepeatStallion: true };
+    const req: SearchRequest = { startMares: [master.broodmares[0].id], stallionPool: [horse.id], intermediateStallion: null, finalStallion: horse.id, minMatings: 2, maxMatings: 2, goals: [], maxCost: 200, maxEvaluations: 1000, allowRepeatStallion: true };
     for (const run of [searchLineage, searchLineageForward]) {
       const report = await run(env, req);
       expect(report.results.length).toBeGreaterThan(0);

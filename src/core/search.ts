@@ -102,7 +102,8 @@ export function goalVerdict(j: Judgement, g: SearchGoal): Verdict {
 }
 
 export interface SearchRequest {
-  startMare: HorseKey;
+  /** 起点の繁殖牝馬。複数なら起点ごとに探索して結果をまとめる */
+  startMares: HorseKey[];
   stallionPool: HorseKey[];
   finalStallion: HorseKey | null;
   /** 最後の配合を除く、いずれかの回で必ず使う種牡馬 */
@@ -186,11 +187,19 @@ export function bruteForceOneGeneration(env: SearchEnv, sires: HorseKey[], dams:
   return out;
 }
 
+const resolveStarts = (env: SearchEnv, req: SearchRequest) => {
+  if (!req.startMares.length) throw new Error('起点の繁殖牝馬を選んでください');
+  return req.startMares.map((key) => {
+    const start = env.resolve(key);
+    if (!start) throw new Error('起点の繁殖牝馬が見つかりません');
+    return start;
+  });
+};
+
 /** 時間順の深さ優先探索（検証用）。usePruning=false は単純全探索 */
 export async function searchLineageForward(env: SearchEnv, req: SearchRequest, hooks: SearchHooks = {}, usePruning = true): Promise<SearchReport> {
   const t0 = Date.now();
-  const start = env.resolve(req.startMare);
-  if (!start) throw new Error('起点の繁殖牝馬が見つかりません');
+  const starts = resolveStarts(env, req);
   const pool = req.stallionPool.map((k) => env.resolve(k)).filter((r): r is HorseRecord => !!r);
   const intermediate = req.intermediateStallion ? pool.find((s) => s.key === req.intermediateStallion) : null;
   if (req.intermediateStallion && !intermediate) throw new Error('途中で使う種牡馬が探索候補に含まれていません。種牡馬の属性や利用可能な馬の設定を確認してください');
@@ -272,7 +281,7 @@ export async function searchLineageForward(env: SearchEnv, req: SearchRequest, h
     }
   };
 
-  await dfs(start, 0, [], 0, new Set());
+  for (const start of starts) await dfs(start, 0, [], 0, new Set());
   report.elapsedMs = Date.now() - t0;
   return report;
 }
@@ -286,8 +295,7 @@ export async function searchLineageForward(env: SearchEnv, req: SearchRequest, h
  */
 export async function searchLineage(env: SearchEnv, req: SearchRequest, hooks: SearchHooks = {}): Promise<SearchReport> {
   const t0 = Date.now();
-  const start = env.resolve(req.startMare);
-  if (!start) throw new Error('起点の繁殖牝馬が見つかりません');
+  const starts = resolveStarts(env, req);
   const pool = req.stallionPool.map((k) => env.resolve(k)).filter((r): r is HorseRecord => !!r);
   const intermediate = req.intermediateStallion ? pool.find((s) => s.key === req.intermediateStallion) : null;
   if (req.intermediateStallion && !intermediate) throw new Error('途中で使う種牡馬が探索候補に含まれていません。種牡馬の属性や利用可能な馬の設定を確認してください');
@@ -298,7 +306,8 @@ export async function searchLineage(env: SearchEnv, req: SearchRequest, hooks: S
   if (!pool.length && req.maxMatings > 1) throw new Error('途中に使う種牡馬の候補がありません');
   const minPoolPrice = pool.length ? Math.min(...pool.map((p) => p.price)) : 0;
   const unknown = unknownRecord();
-  const systemPrefilter = createSystemPrefilter(start, pool, req.goals, env.ctx.rules);
+  let start = starts[0];
+  let systemPrefilter = createSystemPrefilter(start, pool, req.goals, env.ctx.rules);
   const report: SearchReport = { status: '完了', results: [], evaluated: 0, pruned: 0, dataIssues: 0, elapsedMs: 0, request: req };
   const isCancelled = () => report.status === '中止';
   let sinceYield = 0, stopped = false;
@@ -353,45 +362,50 @@ export async function searchLineage(env: SearchEnv, req: SearchRequest, hooks: S
     hooks.onFound?.(result);
   };
 
-  for (let k = Math.max(intermediate ? 2 : 1, req.minMatings); k <= req.maxMatings && !stopped; k++) {
-    const layerCount = k - 1; // 途中の種牡馬の数（最後の1回は finals）
-    for (const f of finals) {
-      if (stopped) break;
-      if (req.maxCost != null && f.price + minPoolPrice * layerCount > req.maxCost) { report.pruned++; continue; }
-      if (intermediate && !req.allowRepeatStallion && f.key === intermediate.key) { report.pruned++; continue; }
-      const layers: (HorseRecord | null)[] = Array(layerCount).fill(null);
-      const used = new Set<HorseKey>([f.key]);
-      // pos: 決める位置（layers の添字）。最後の配合に近い側（添字の大きい側）から決める
-      const rec = async (pos: number, cost: number, needsIntermediate: boolean): Promise<void> => {
-        if (stopped) return;
-        const remaining = pos + 1;
-        if (needsIntermediate && (remaining === 0 || (req.maxCost != null && cost + intermediate!.price + minPoolPrice * (remaining - 1) > req.maxCost))) {
-          report.pruned++;
-          await tick();
-          return;
-        }
-        const evaluation = await evaluate(f, layers);
-        if (!evaluation || isCancelled()) return;
-        const { j, verdicts } = evaluation;
-        if (verdicts.some((v) => v.verdict === '不成立')) { report.pruned++; return; }
-        if (remaining === 0) {
-          if (verdicts.every((v) => v.verdict === '成立')) pushResult(f, layers as HorseRecord[], j, verdicts);
-          else report.dataIssues++;
-          return;
-        }
-        // 必須の馬が未使用なら、最後に残った途中の枠はその馬に限定する。
-        const candidates = needsIntermediate && remaining === 1 ? [intermediate!] : pool;
-        for (const s of candidates) {
+  for (const mare of starts) {
+    if (stopped) break;
+    start = mare;
+    systemPrefilter = createSystemPrefilter(start, pool, req.goals, env.ctx.rules);
+    for (let k = Math.max(intermediate ? 2 : 1, req.minMatings); k <= req.maxMatings && !stopped; k++) {
+      const layerCount = k - 1; // 途中の種牡馬の数（最後の1回は finals）
+      for (const f of finals) {
+        if (stopped) break;
+        if (req.maxCost != null && f.price + minPoolPrice * layerCount > req.maxCost) { report.pruned++; continue; }
+        if (intermediate && !req.allowRepeatStallion && f.key === intermediate.key) { report.pruned++; continue; }
+        const layers: (HorseRecord | null)[] = Array(layerCount).fill(null);
+        const used = new Set<HorseKey>([f.key]);
+        // pos: 決める位置（layers の添字）。最後の配合に近い側（添字の大きい側）から決める
+        const rec = async (pos: number, cost: number, needsIntermediate: boolean): Promise<void> => {
           if (stopped) return;
-          if (!req.allowRepeatStallion && used.has(s.key)) continue;
-          const nextCost = cost + s.price;
-          if (req.maxCost != null && nextCost + minPoolPrice * (remaining - 1) > req.maxCost) { report.pruned++; continue; }
-          layers[pos] = s; used.add(s.key);
-          await rec(pos - 1, nextCost, needsIntermediate && s.key !== intermediate!.key);
-          used.delete(s.key); layers[pos] = null;
-        }
-      };
-      await rec(layerCount - 1, f.price, !!intermediate);
+          const remaining = pos + 1;
+          if (needsIntermediate && (remaining === 0 || (req.maxCost != null && cost + intermediate!.price + minPoolPrice * (remaining - 1) > req.maxCost))) {
+            report.pruned++;
+            await tick();
+            return;
+          }
+          const evaluation = await evaluate(f, layers);
+          if (!evaluation || isCancelled()) return;
+          const { j, verdicts } = evaluation;
+          if (verdicts.some((v) => v.verdict === '不成立')) { report.pruned++; return; }
+          if (remaining === 0) {
+            if (verdicts.every((v) => v.verdict === '成立')) pushResult(f, layers as HorseRecord[], j, verdicts);
+            else report.dataIssues++;
+            return;
+          }
+          // 必須の馬が未使用なら、最後に残った途中の枠はその馬に限定する。
+          const candidates = needsIntermediate && remaining === 1 ? [intermediate!] : pool;
+          for (const s of candidates) {
+            if (stopped) return;
+            if (!req.allowRepeatStallion && used.has(s.key)) continue;
+            const nextCost = cost + s.price;
+            if (req.maxCost != null && nextCost + minPoolPrice * (remaining - 1) > req.maxCost) { report.pruned++; continue; }
+            layers[pos] = s; used.add(s.key);
+            await rec(pos - 1, nextCost, needsIntermediate && s.key !== intermediate!.key);
+            used.delete(s.key); layers[pos] = null;
+          }
+        };
+        await rec(layerCount - 1, f.price, !!intermediate);
+      }
     }
   }
   report.results.sort((a, b) => a.matings - b.matings || a.cost - b.cost);

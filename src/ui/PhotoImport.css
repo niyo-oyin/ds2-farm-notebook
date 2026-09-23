@@ -1,9 +1,8 @@
 /* 写真取り込み。撮影→送信前の確認→ジョブの状態→結果ごとの反映、を上から順に並べる。 */
-.photo-import-heading { display: flex; align-items: center; gap: 12px; flex-wrap: wrap; margin-bottom: 4px; }
+.photo-import-heading { display: flex; align-items: center; gap: 12px; flex-wrap: wrap; margin-bottom: 10px; }
 .photo-import-heading h3 { margin: 0; }
 .photo-import-heading .segmented button { font-size: 12px; }
 .photo-import-close { margin-left: auto; }
-.photo-import-hint { margin: 0 0 10px; }
 .photo-capture { display: flex; gap: 8px; flex-wrap: wrap; padding: 12px; border: 2px dashed var(--rule-strong); border-radius: var(--r-md); background: var(--paper); }
 .photo-capture.active { border-color: var(--accent); background: var(--hover); }
 .photo-capture label { display: grid; place-items: center; flex: 1; min-height: 56px; padding: 8px 12px; border: 1px solid var(--rule-strong); border-radius: var(--r-sm); background: var(--paper-raised); font-size: 14px; font-weight: 600; text-align: center; cursor: pointer; }
@@ -18,6 +17,8 @@
 .photo-pending-item img { width: 220px; height: 124px; object-fit: contain; border: 1px solid var(--rule); border-radius: var(--r-sm); background: #1c1a17; }
 .photo-pending-item figcaption { display: flex; gap: 6px; align-items: center; flex-wrap: wrap; }
 .photo-pending-item button { font-size: 12px; min-height: 32px; }
+.photo-rotate-actions { display: flex; flex-wrap: wrap; gap: 6px; align-items: center; width: 100%; }
+.photo-preview-empty { display: grid; place-items: center; width: 100%; height: 124px; background: var(--paper); color: var(--ink-muted); }
 .photo-import-status { margin: 12px 0 0; }
 .import-job { margin-top: 8px; }
 .import-job.status-done { border-left: 3px solid var(--ok); }
@@ -60,6 +61,8 @@
   .photo-capture label { flex-basis: 100%; }
   .photo-pending-item { width: 100%; }
   .photo-pending-item img { width: 100%; height: 180px; }
+  .photo-preview-empty { height: 180px; }
+  .photo-pending-item button { min-height: 44px; }
   .import-card-marks, .import-card-marks.traits { grid-template-columns: repeat(4, minmax(0, 1fr)); }
   .import-target-other { flex-direction: column; align-items: stretch; }
   .import-target-other select { max-width: none; }

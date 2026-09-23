@@ -26,7 +26,7 @@ export function SearchTray() {
     return () => { document.removeEventListener('mousedown', away); document.removeEventListener('keydown', esc); };
   }, [open]);
   const title = (job: SearchJob) => job.kind === 'lineage'
-    ? `数世代探索: ${app.resolver.label(job.request.startMare)}${job.request.finalStallion ? ` → ${app.resolver.label(job.request.finalStallion)}` : ''}`
+    ? `数世代探索: ${job.request.startMares.length > 1 ? `起点 ${job.request.startMares.length}頭` : app.resolver.label(job.request.startMares[0])}${job.request.finalStallion ? ` → ${app.resolver.label(job.request.finalStallion)}` : ''}`
     : `ループ探索: 周期 ${job.request.minLength}〜${job.request.maxLength}`;
   const detail = (job: SearchJob) => {
     const goals = job.request.goals.map(goalLabel).join('・') || '条件なし';

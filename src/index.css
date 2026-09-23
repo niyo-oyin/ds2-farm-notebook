@@ -151,11 +151,13 @@ tr.clickable:hover, tbody tr:hover { background: var(--hover); }
 @media (max-width: 720px) { .row > .segmented { width: 100%; } .segmented button { flex: 1; } }
 /* ---- 因子チップ ---- */
 .fx-group { display: inline-flex; gap: 2px; margin-left: 4px; vertical-align: middle; }
-.fx { display: inline-flex; align-items: center; justify-content: center; min-width: 18px; height: 18px; padding: 0 3px; border-radius: 2px; font-size: 11px; font-weight: 700; line-height: 1; color: #fff; }
+.fx { display: inline-flex; align-items: center; justify-content: center; min-width: 18px; height: 18px; padding: 0 3px; border: 1px solid #485168; border-radius: 2px; font-size: 11px; font-weight: 700; line-height: 1; color: #30394d; }
 .fx-group.sm .fx { min-width: 15px; height: 15px; font-size: 10px; }
-.fx-speed { background: #2f5d8a; } .fx-stamina { background: #1f6b3a; } .fx-power { background: #c2410c; }
-.fx-dirt { background: #7c5a2e; } .fx-body { background: #0f766e; } .fx-growth { background: #6d28d9; }
-.fx-steady { background: #4b6382; } .fx-temper { background: #b3261e; }
+.fx-short { background: #ffd34d; } .fx-speed { background: #ffff8a; } .fx-power { background: #b9faff; }
+.fx-guts { background: #ff9b3e; } .fx-stamina { background: #6bdcf6; }
+.fx-dirt { background: #ffe0e4; } .fx-body { background: #f8b0d2; }
+.fx-early { background: #cceaff; } .fx-late { background: #a4ff78; }
+.fx-steady { background: #d4b5fc; } .fx-temper { background: #9299ff; }
 .fx-legend { margin-top: 6px; line-height: 2; }
 .fx-legend .fx { margin-right: 2px; }
 .pedigree td.tappable { cursor: pointer; }
@@ -252,6 +254,10 @@ button.help-icon:hover { color: var(--accent); border-color: var(--accent); }
   font-family: var(--font-body);
   box-shadow: 0 4px 12px rgba(0, 0, 0, 0.08);
 }
+button.help-icon.tip-icon { font-family: var(--font-body); width: 16px; height: 16px; padding: 0; border-radius: 999px; font-size: 10px; font-weight: 600; line-height: 14px; }
+.help-wrap.tip { margin-left: 6px; vertical-align: 1px; }
+.tip-heading { display: flex; align-items: center; }
+.help-wrap.tip .popover { left: 0; right: auto; line-height: 1.6; font-size: 12px; color: var(--ink); }
 /* ---- サマリーの成否インジケータ ---- */
 .indicators { display: inline-flex; flex-wrap: wrap; gap: 6px; align-items: center; }
 .ind {
@@ -294,7 +300,6 @@ tr.selected td { background: var(--highlight) !important; }
 /* 馬の画像。正方形・角丸・罫線で、一覧と詳細で同じ比率 */
 .portrait { display: grid; place-items: center; overflow: hidden; border: 1px solid var(--rule); border-radius: 8px; background: var(--paper); color: var(--ink-muted); }
 .portrait > img { width: 100%; height: 100%; object-fit: cover; }
-.portrait > .portrait-empty { font-size: 11px; }
 .sync-status { display: flex; align-items: center; gap: 10px; flex-wrap: wrap; margin-bottom: 6px; }
 .pill.sync-ok { background: var(--ok); color: #fff; border-color: transparent; }
 .pill.sync-warn { background: var(--unk); color: #fff; border-color: transparent; }
@@ -343,3 +348,13 @@ tr.selected td { background: var(--highlight) !important; }
 /* 父母の選択肢の末尾: 計画馬を候補に出すかの切り替え */
 .combo .combo-toggle { position: sticky; bottom: 0; display: flex; align-items: center; gap: 6px; padding: 6px 10px; font-size: 12px; color: var(--ink-muted); background: var(--paper); border-top: 1px solid var(--rule); cursor: pointer; }
 .combo .combo-toggle input { width: 14px; height: 14px; min-height: 0; margin: 0; }
+/* ---- 写真がない馬の絵（HorsePlaceholder）。性別を地色、区分を絵柄で示す ---- */
+.horse-placeholder { display: block; width: 100%; height: 100%; }
+.horse-placeholder .hp-bg { fill: var(--paper); }
+.horse-placeholder.sex-M .hp-bg { fill: var(--sire); }
+.horse-placeholder.sex-F .hp-bg { fill: var(--dam); }
+.horse-placeholder .hp-head { fill: var(--paper-raised); stroke: var(--ink-muted); stroke-width: 1.2; stroke-linejoin: round; }
+.horse-placeholder .hp-line { fill: none; stroke: var(--ink-muted); stroke-width: 1.2; stroke-linecap: round; stroke-linejoin: round; }
+.horse-placeholder .hp-eye, .horse-placeholder .hp-mark { fill: var(--ink-muted); }
+/* 縮小した仔馬の線を親と同じ太さに見せる */
+.horse-placeholder .hp-foal .hp-head, .horse-placeholder .hp-foal .hp-line { stroke-width: 2.6; }

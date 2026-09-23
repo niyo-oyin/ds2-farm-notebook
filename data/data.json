@@ -1,8 +1,8 @@
 {
   "master": {
     "meta": {
-      "dataVersion": "2026-09-23-03",
-      "createdAt": "2026-09-23T01:13:14.633Z",
+      "dataVersion": "2026-09-24-07",
+      "createdAt": "2026-09-23T16:34:35.970Z",
       "bigSystems": [
         "Ec",
         "Ph",
@@ -25962,6 +25962,61 @@
           "kisyo": null,
           "type": 0
         }
+      },
+      {
+        "id": "bm:n-4",
+        "kind": "broodmare",
+        "name": "ドナブルーハ",
+        "sex": "F",
+        "price": 0,
+        "color": null,
+        "bigSystem": "Ne",
+        "smallSystem": "ストームキャット",
+        "omoshiro": "ehef",
+        "migoto": null,
+        "ancestors": [
+          "a:3937",
+          "a:3938",
+          "a:442",
+          "a:3939",
+          "a:90",
+          "a:3940",
+          "a:2468",
+          "a:1404",
+          "a:3941",
+          "a:3942",
+          "a:89",
+          "a:208",
+          "a:276",
+          "a:3943",
+          "a:139",
+          "a:2578",
+          "a:233",
+          "a:3935",
+          "a:21",
+          "a:3944",
+          "a:3945",
+          "a:3946",
+          "a:85",
+          "a:205",
+          "a:45",
+          "a:2600",
+          "a:8",
+          "a:428",
+          "a:953",
+          "a:3947"
+        ],
+        "unlock": null,
+        "purchasePrice": null,
+        "attrs": {
+          "speed": null,
+          "stamina": null,
+          "power": null,
+          "dirt": null,
+          "kenko": null,
+          "kisyo": null,
+          "type": 0
+        }
       }
     ],
     "ancestors": [
@@ -26018,7 +26073,8 @@
         "effects": [
           "底力"
         ],
-        "id": "a:6"
+        "id": "a:6",
+        "effectsKnown": true
       },
       {
         "name": "Alycidon",
@@ -26037,7 +26093,8 @@
           "パワー",
           "底力"
         ],
-        "id": "a:8"
+        "id": "a:8",
+        "effectsKnown": true
       },
       {
         "name": "Aureole",
@@ -26111,7 +26168,8 @@
           "底力",
           "気性難"
         ],
-        "id": "a:16"
+        "id": "a:16",
+        "effectsKnown": true
       },
       {
         "name": "Bois Roussel",
@@ -26130,7 +26188,8 @@
         "effects": [
           "パワー"
         ],
-        "id": "a:18"
+        "id": "a:18",
+        "effectsKnown": true
       },
       {
         "name": "Bold Ruler",
@@ -26140,7 +26199,8 @@
           "速力",
           "ダート"
         ],
-        "id": "a:19"
+        "id": "a:19",
+        "effectsKnown": true
       },
       {
         "name": "Brantome",
@@ -26159,7 +26219,8 @@
           "速力",
           "ダート"
         ],
-        "id": "a:21"
+        "id": "a:21",
+        "effectsKnown": true
       },
       {
         "name": "Bull Dog",
@@ -26188,7 +26249,8 @@
           "長距離",
           "晩成型"
         ],
-        "id": "a:24"
+        "id": "a:24",
+        "effectsKnown": true
       },
       {
         "name": "Caro",
@@ -26198,7 +26260,8 @@
           "底力",
           "早熟型"
         ],
-        "id": "a:25"
+        "id": "a:25",
+        "effectsKnown": true
       },
       {
         "name": "Chateau Bouscaut",
@@ -26282,7 +26345,8 @@
           "短距離",
           "早熟型"
         ],
-        "id": "a:34"
+        "id": "a:34",
+        "effectsKnown": true
       },
       {
         "name": "Deputy Minister",
@@ -26291,7 +26355,8 @@
         "effects": [
           "パワー"
         ],
-        "id": "a:35"
+        "id": "a:35",
+        "effectsKnown": true
       },
       {
         "name": "Discovery",
@@ -26337,7 +26402,8 @@
           "底力",
           "ダート"
         ],
-        "id": "a:40"
+        "id": "a:40",
+        "effectsKnown": true
       },
       {
         "name": "Eight Thirty",
@@ -26383,7 +26449,8 @@
           "長距離",
           "丈夫さ"
         ],
-        "id": "a:45"
+        "id": "a:45",
+        "effectsKnown": true
       },
       {
         "name": "Gainsborouph",
@@ -26421,7 +26488,8 @@
           "速力",
           "早熟型"
         ],
-        "id": "a:49"
+        "id": "a:49",
+        "effectsKnown": true
       },
       {
         "name": "Grey Dawn",
@@ -26430,7 +26498,8 @@
         "effects": [
           "丈夫さ"
         ],
-        "id": "a:50"
+        "id": "a:50",
+        "effectsKnown": true
       },
       {
         "name": "Grey Sovereign",
@@ -26459,7 +26528,8 @@
         "effects": [
           "底力"
         ],
-        "id": "a:53"
+        "id": "a:53",
+        "effectsKnown": true
       },
       {
         "name": "Halo",
@@ -26469,7 +26539,8 @@
           "短距離",
           "底力"
         ],
-        "id": "a:54"
+        "id": "a:54",
+        "effectsKnown": true
       },
       {
         "name": "Heliopolis",
@@ -26506,7 +26577,8 @@
           "パワー",
           "底力"
         ],
-        "id": "a:58"
+        "id": "a:58",
+        "effectsKnown": true
       },
       {
         "name": "Hoist the Flag",
@@ -26524,7 +26596,8 @@
         "effects": [
           "長距離"
         ],
-        "id": "a:60"
+        "id": "a:60",
+        "effectsKnown": true
       },
       {
         "name": "Hyperion",
@@ -26543,7 +26616,8 @@
         "effects": [
           "短距離"
         ],
-        "id": "a:62"
+        "id": "a:62",
+        "effectsKnown": true
       },
       {
         "name": "In Reality",
@@ -26553,7 +26627,8 @@
           "速力",
           "底力"
         ],
-        "id": "a:63"
+        "id": "a:63",
+        "effectsKnown": true
       },
       {
         "name": "Intentionally",
@@ -26572,7 +26647,8 @@
           "長距離",
           "気性難"
         ],
-        "id": "a:65"
+        "id": "a:65",
+        "effectsKnown": true
       },
       {
         "name": "Key to the Mint",
@@ -26601,7 +26677,8 @@
         "effects": [
           "パワー"
         ],
-        "id": "a:68"
+        "id": "a:68",
+        "effectsKnown": true
       },
       {
         "name": "Klairon",
@@ -26639,7 +26716,8 @@
           "速力",
           "パワー"
         ],
-        "id": "a:72"
+        "id": "a:72",
+        "effectsKnown": true
       },
       {
         "name": "Mahmoud",
@@ -26676,7 +26754,8 @@
           "速力",
           "堅実さ"
         ],
-        "id": "a:76"
+        "id": "a:76",
+        "effectsKnown": true
       },
       {
         "name": "Mill Reef",
@@ -26686,7 +26765,8 @@
           "底力",
           "長距離"
         ],
-        "id": "a:77"
+        "id": "a:77",
+        "effectsKnown": true
       },
       {
         "name": "Mossborough",
@@ -26705,7 +26785,8 @@
           "速力",
           "底力"
         ],
-        "id": "a:79"
+        "id": "a:79",
+        "effectsKnown": true
       },
       {
         "name": "My Babu",
@@ -26723,7 +26804,8 @@
         "effects": [
           "速力"
         ],
-        "id": "a:81"
+        "id": "a:81",
+        "effectsKnown": true
       },
       {
         "name": "Nasrullah",
@@ -26743,7 +26825,8 @@
           "速力",
           "底力"
         ],
-        "id": "a:83"
+        "id": "a:83",
+        "effectsKnown": true
       },
       {
         "name": "Nearco",
@@ -26762,7 +26845,8 @@
         "effects": [
           "速力"
         ],
-        "id": "a:85"
+        "id": "a:85",
+        "effectsKnown": true
       },
       {
         "name": "Never Bend",
@@ -26772,7 +26856,8 @@
           "速力",
           "ダート"
         ],
-        "id": "a:86"
+        "id": "a:86",
+        "effectsKnown": true
       },
       {
         "name": "Never Say Die",
@@ -26792,7 +26877,8 @@
           "底力",
           "長距離"
         ],
-        "id": "a:88"
+        "id": "a:88",
+        "effectsKnown": true
       },
       {
         "name": "Northern Dancer",
@@ -26801,7 +26887,8 @@
         "effects": [
           "底力"
         ],
-        "id": "a:89"
+        "id": "a:89",
+        "effectsKnown": true
       },
       {
         "name": "Nureyev",
@@ -26810,7 +26897,8 @@
         "effects": [
           "速力"
         ],
-        "id": "a:90"
+        "id": "a:90",
+        "effectsKnown": true
       },
       {
         "name": "Olympia",
@@ -26949,7 +27037,8 @@
           "長距離",
           "ダート"
         ],
-        "id": "a:105"
+        "id": "a:105",
+        "effectsKnown": true
       },
       {
         "name": "Rahy",
@@ -26959,7 +27048,8 @@
           "速力",
           "丈夫さ"
         ],
-        "id": "a:106"
+        "id": "a:106",
+        "effectsKnown": true
       },
       {
         "name": "Raise a Native",
@@ -26968,7 +27058,8 @@
         "effects": [
           "速力"
         ],
-        "id": "a:107"
+        "id": "a:107",
+        "effectsKnown": true
       },
       {
         "name": "Raja Baba",
@@ -27016,7 +27107,8 @@
           "底力",
           "気性難"
         ],
-        "id": "a:112"
+        "id": "a:112",
+        "effectsKnown": true
       },
       {
         "name": "Right Royal",
@@ -27034,7 +27126,8 @@
         "effects": [
           "底力"
         ],
-        "id": "a:114"
+        "id": "a:114",
+        "effectsKnown": true
       },
       {
         "name": "Roberto",
@@ -27044,7 +27137,8 @@
           "長距離",
           "早熟型"
         ],
-        "id": "a:115"
+        "id": "a:115",
+        "effectsKnown": true
       },
       {
         "name": "Rockefella",
@@ -27072,7 +27166,8 @@
           "長距離",
           "丈夫さ"
         ],
-        "id": "a:118"
+        "id": "a:118",
+        "effectsKnown": true
       },
       {
         "name": "Rouph'n Tumble",
@@ -27108,7 +27203,8 @@
         "effects": [
           "長距離"
         ],
-        "id": "a:122"
+        "id": "a:122",
+        "effectsKnown": true
       },
       {
         "name": "Sanctus",
@@ -27118,7 +27214,8 @@
           "速力",
           "気性難"
         ],
-        "id": "a:123"
+        "id": "a:123",
+        "effectsKnown": true
       },
       {
         "name": "Sea-Bird",
@@ -27137,7 +27234,8 @@
           "底力",
           "早熟型"
         ],
-        "id": "a:125"
+        "id": "a:125",
+        "effectsKnown": true
       },
       {
         "name": "Secretariat",
@@ -27147,7 +27245,8 @@
           "速力",
           "気性難"
         ],
-        "id": "a:126"
+        "id": "a:126",
+        "effectsKnown": true
       },
       {
         "name": "Sharpen Up",
@@ -27157,7 +27256,8 @@
           "速力",
           "パワー"
         ],
-        "id": "a:127"
+        "id": "a:127",
+        "effectsKnown": true
       },
       {
         "name": "Sicambre",
@@ -27214,7 +27314,8 @@
         "effects": [
           "パワー"
         ],
-        "id": "a:133"
+        "id": "a:133",
+        "effectsKnown": true
       },
       {
         "name": "Solario",
@@ -27260,7 +27361,8 @@
         "effects": [
           "長距離"
         ],
-        "id": "a:138"
+        "id": "a:138",
+        "effectsKnown": true
       },
       {
         "name": "Storm Bird",
@@ -27269,7 +27371,8 @@
         "effects": [
           "パワー"
         ],
-        "id": "a:139"
+        "id": "a:139",
+        "effectsKnown": true
       },
       {
         "name": "Sunny Boy",
@@ -27382,7 +27485,8 @@
         "effects": [
           "長距離"
         ],
-        "id": "a:151"
+        "id": "a:151",
+        "effectsKnown": true
       },
       {
         "name": "Vandale",
@@ -27496,7 +27600,8 @@
         "effects": [
           "丈夫さ"
         ],
-        "id": "a:163"
+        "id": "a:163",
+        "effectsKnown": true
       },
       {
         "name": "オンリーフォアライフ",
@@ -27515,7 +27620,8 @@
           "速力",
           "気性難"
         ],
-        "id": "a:165"
+        "id": "a:165",
+        "effectsKnown": true
       },
       {
         "name": "ゲイタイム",
@@ -27543,7 +27649,8 @@
           "速力",
           "底力"
         ],
-        "id": "st:2"
+        "id": "st:2",
+        "effectsKnown": true
       },
       {
         "name": "シーホーク",
@@ -27639,7 +27746,8 @@
           "底力",
           "気性難"
         ],
-        "id": "a:178"
+        "id": "a:178",
+        "effectsKnown": true
       },
       {
         "name": "トウショウボーイ",
@@ -27648,7 +27756,8 @@
         "effects": [
           "速力"
         ],
-        "id": "a:179"
+        "id": "a:179",
+        "effectsKnown": true
       },
       {
         "name": "トニービン",
@@ -27657,7 +27766,8 @@
         "effects": [
           "パワー"
         ],
-        "id": "st:w-9"
+        "id": "st:w-9",
+        "effectsKnown": true
       },
       {
         "name": "ネヴァービート",
@@ -27677,7 +27787,8 @@
           "速力",
           "堅実さ"
         ],
-        "id": "st:5"
+        "id": "st:5",
+        "effectsKnown": true
       },
       {
         "name": "パーソロン",
@@ -27687,7 +27798,8 @@
           "速力",
           "底力"
         ],
-        "id": "a:183"
+        "id": "a:183",
+        "effectsKnown": true
       },
       {
         "name": "ハロウェー",
@@ -27707,7 +27819,8 @@
           "長距離",
           "晩成型"
         ],
-        "id": "a:185"
+        "id": "a:185",
+        "effectsKnown": true
       },
       {
         "name": "フォーティナイナー",
@@ -27725,7 +27838,8 @@
         "effects": [
           "長距離"
         ],
-        "id": "a:187"
+        "id": "a:187",
+        "effectsKnown": true
       },
       {
         "name": "プリメロ",
@@ -27753,7 +27867,8 @@
         "effects": [
           "底力"
         ],
-        "id": "st:w-38"
+        "id": "st:w-38",
+        "effectsKnown": true
       },
       {
         "name": "メジロサンマン",
@@ -27772,7 +27887,8 @@
           "長距離",
           "晩成型"
         ],
-        "id": "a:192"
+        "id": "a:192",
+        "effectsKnown": true
       },
       {
         "name": "ライジングフレーム",
@@ -27802,7 +27918,8 @@
           "短距離",
           "底力"
         ],
-        "id": "a:195"
+        "id": "a:195",
+        "effectsKnown": true
       },
       {
         "name": "Fairy Bridge",
@@ -27812,7 +27929,8 @@
           "底力",
           "長距離"
         ],
-        "id": "a:196"
+        "id": "a:196",
+        "effectsKnown": true
       },
       {
         "name": "Foreseer",
@@ -27822,7 +27940,8 @@
           "速力",
           "底力"
         ],
-        "id": "a:197"
+        "id": "a:197",
+        "effectsKnown": true
       },
       {
         "name": "Glorious Song",
@@ -27832,7 +27951,8 @@
           "パワー",
           "底力"
         ],
-        "id": "a:198"
+        "id": "a:198",
+        "effectsKnown": true
       },
       {
         "name": "Highclere",
@@ -27840,9 +27960,10 @@
         "sex": "F",
         "effects": [
           "長距離",
-          "晩成型"
+          "底力"
         ],
-        "id": "a:199"
+        "id": "a:199",
+        "effectsKnown": true
       },
       {
         "name": "Lady Angela",
@@ -27862,7 +27983,8 @@
           "底力",
           "丈夫さ"
         ],
-        "id": "a:201"
+        "id": "a:201",
+        "effectsKnown": true
       },
       {
         "name": "Lassie Dear",
@@ -27872,7 +27994,8 @@
           "速力",
           "底力"
         ],
-        "id": "a:202"
+        "id": "a:202",
+        "effectsKnown": true
       },
       {
         "name": "Miesque",
@@ -27882,7 +28005,8 @@
           "速力",
           "底力"
         ],
-        "id": "a:203"
+        "id": "a:203",
+        "effectsKnown": true
       },
       {
         "name": "My Charmer",
@@ -27892,7 +28016,8 @@
           "短距離",
           "底力"
         ],
-        "id": "a:204"
+        "id": "a:204",
+        "effectsKnown": true
       },
       {
         "name": "Natalma",
@@ -27902,7 +28027,8 @@
           "パワー",
           "底力"
         ],
-        "id": "a:205"
+        "id": "a:205",
+        "effectsKnown": true
       },
       {
         "name": "Pulpit",
@@ -27912,7 +28038,8 @@
           "速力",
           "ダート"
         ],
-        "id": "a:206"
+        "id": "a:206",
+        "effectsKnown": true
       },
       {
         "name": "Sex Appeal",
@@ -27922,7 +28049,8 @@
           "パワー",
           "底力"
         ],
-        "id": "a:207"
+        "id": "a:207",
+        "effectsKnown": true
       },
       {
         "name": "Special",
@@ -27932,7 +28060,8 @@
           "速力",
           "底力"
         ],
-        "id": "a:208"
+        "id": "a:208",
+        "effectsKnown": true
       },
       {
         "name": "ウインドインハーヘア",
@@ -27942,7 +28071,8 @@
           "速力",
           "底力"
         ],
-        "id": "a:209"
+        "id": "a:209",
+        "effectsKnown": true
       },
       {
         "name": "クリアアンバー",
@@ -27962,7 +28092,8 @@
           "パワー",
           "底力"
         ],
-        "id": "a:211"
+        "id": "a:211",
+        "effectsKnown": true
       },
       {
         "name": "Flaming Page",
@@ -28006,7 +28137,8 @@
         "system": 3,
         "sex": "M",
         "effects": [],
-        "id": "a:216"
+        "id": "a:216",
+        "effectsKnown": true
       },
       {
         "name": "Abbots Trace",
@@ -28083,7 +28215,8 @@
         "system": 3,
         "sex": "F",
         "effects": [],
-        "id": "a:227"
+        "id": "a:227",
+        "effectsKnown": true
       },
       {
         "name": "Admiral's Voyage",
@@ -28097,14 +28230,16 @@
         "system": 14,
         "sex": "F",
         "effects": [],
-        "id": "a:229"
+        "id": "a:229",
+        "effectsKnown": true
       },
       {
         "name": "Aerturas",
         "system": 4,
         "sex": "F",
         "effects": [],
-        "id": "a:230"
+        "id": "a:230",
+        "effectsKnown": true
       },
       {
         "name": "Affair Of State",
@@ -28125,14 +28260,16 @@
         "system": 6,
         "sex": "M",
         "effects": [],
-        "id": "a:233"
+        "id": "a:233",
+        "effectsKnown": true
       },
       {
         "name": "Agathea's Dawn",
         "system": 11,
         "sex": "F",
         "effects": [],
-        "id": "a:234"
+        "id": "a:234",
+        "effectsKnown": true
       },
       {
         "name": "Aggravate",
@@ -28230,7 +28367,8 @@
         "system": 10,
         "sex": "M",
         "effects": [],
-        "id": "a:248"
+        "id": "a:248",
+        "effectsKnown": true
       },
       {
         "name": "Alada",
@@ -28324,7 +28462,8 @@
           "長距離",
           "底力"
         ],
-        "id": "a:261"
+        "id": "a:261",
+        "effectsKnown": true
       },
       {
         "name": "Allen's Prospect",
@@ -28415,7 +28554,8 @@
         "system": 6,
         "sex": "F",
         "effects": [],
-        "id": "a:274"
+        "id": "a:274",
+        "effectsKnown": true
       },
       {
         "name": "Alydar's Promise",
@@ -28429,14 +28569,16 @@
         "system": 6,
         "sex": "M",
         "effects": [],
-        "id": "a:276"
+        "id": "a:276",
+        "effectsKnown": true
       },
       {
         "name": "Alzao",
         "system": 5,
         "sex": "M",
         "effects": [],
-        "id": "a:277"
+        "id": "a:277",
+        "effectsKnown": true
       },
       {
         "name": "Alzara",
@@ -28541,7 +28683,8 @@
         "system": 5,
         "sex": "F",
         "effects": [],
-        "id": "a:292"
+        "id": "a:292",
+        "effectsKnown": true
       },
       {
         "name": "Amo",
@@ -28569,7 +28712,8 @@
         "system": 10,
         "sex": "F",
         "effects": [],
-        "id": "a:296"
+        "id": "a:296",
+        "effectsKnown": true
       },
       {
         "name": "Anaza",
@@ -28688,7 +28832,8 @@
         "system": 3,
         "sex": "F",
         "effects": [],
-        "id": "a:313"
+        "id": "a:313",
+        "effectsKnown": true
       },
       {
         "name": "Anntelle",
@@ -28765,7 +28910,8 @@
         "system": 4,
         "sex": "M",
         "effects": [],
-        "id": "a:324"
+        "id": "a:324",
+        "effectsKnown": true
       },
       {
         "name": "Arch's Gal Edith",
@@ -28835,7 +28981,8 @@
         "system": 13,
         "sex": "F",
         "effects": [],
-        "id": "a:334"
+        "id": "a:334",
+        "effectsKnown": true
       },
       {
         "name": "Armos",
@@ -28849,7 +28996,8 @@
         "system": 13,
         "sex": "M",
         "effects": [],
-        "id": "a:336"
+        "id": "a:336",
+        "effectsKnown": true
       },
       {
         "name": "Arts and Letters",
@@ -28870,7 +29018,8 @@
         "system": 3,
         "sex": "F",
         "effects": [],
-        "id": "a:339"
+        "id": "a:339",
+        "effectsKnown": true
       },
       {
         "name": "Ascot Belle",
@@ -28996,14 +29145,16 @@
         "system": 5,
         "sex": "F",
         "effects": [],
-        "id": "a:357"
+        "id": "a:357",
+        "effectsKnown": true
       },
       {
         "name": "Authi",
         "system": 11,
         "sex": "M",
         "effects": [],
-        "id": "a:358"
+        "id": "a:358",
+        "effectsKnown": true
       },
       {
         "name": "Authorized",
@@ -29045,7 +29196,8 @@
         "system": 5,
         "sex": "M",
         "effects": [],
-        "id": "a:364"
+        "id": "a:364",
+        "effectsKnown": true
       },
       {
         "name": "Awesome of Course",
@@ -29080,7 +29232,8 @@
         "system": 14,
         "sex": "F",
         "effects": [],
-        "id": "a:369"
+        "id": "a:369",
+        "effectsKnown": true
       },
       {
         "name": "Backatem",
@@ -29101,14 +29254,16 @@
         "system": 3,
         "sex": "F",
         "effects": [],
-        "id": "a:372"
+        "id": "a:372",
+        "effectsKnown": true
       },
       {
         "name": "Bahr",
         "system": 5,
         "sex": "F",
         "effects": [],
-        "id": "a:373"
+        "id": "a:373",
+        "effectsKnown": true
       },
       {
         "name": "Bahri",
@@ -29398,7 +29553,8 @@
         "system": 2,
         "sex": "F",
         "effects": [],
-        "id": "a:414"
+        "id": "a:414",
+        "effectsKnown": true
       },
       {
         "name": "Beafleet",
@@ -29496,7 +29652,8 @@
         "system": 3,
         "sex": "F",
         "effects": [],
-        "id": "a:428"
+        "id": "a:428",
+        "effectsKnown": true
       },
       {
         "name": "Belga",
@@ -29594,7 +29751,8 @@
         "system": 5,
         "sex": "M",
         "effects": [],
-        "id": "a:442"
+        "id": "a:442",
+        "effectsKnown": true
       },
       {
         "name": "Bertolini",
@@ -29607,8 +29765,12 @@
         "name": "Best in Show",
         "system": 11,
         "sex": "F",
-        "effects": [],
-        "id": "a:444"
+        "effects": [
+          "速力",
+          "底力"
+        ],
+        "id": "a:444",
+        "effectsKnown": true
       },
       {
         "name": "Best Turn",
@@ -29685,7 +29847,8 @@
         "system": 5,
         "sex": "F",
         "effects": [],
-        "id": "a:455"
+        "id": "a:455",
+        "effectsKnown": true
       },
       {
         "name": "Biribi",
@@ -29713,7 +29876,8 @@
         "system": 4,
         "sex": "F",
         "effects": [],
-        "id": "a:459"
+        "id": "a:459",
+        "effectsKnown": true
       },
       {
         "name": "Black Polly",
@@ -29741,14 +29905,16 @@
         "system": 15,
         "sex": "M",
         "effects": [],
-        "id": "a:463"
+        "id": "a:463",
+        "effectsKnown": true
       },
       {
         "name": "Blame",
         "system": 4,
         "sex": "M",
         "effects": [],
-        "id": "a:464"
+        "id": "a:464",
+        "effectsKnown": true
       },
       {
         "name": "Bleebok",
@@ -29769,7 +29935,8 @@
         "system": 3,
         "sex": "F",
         "effects": [],
-        "id": "a:467"
+        "id": "a:467",
+        "effectsKnown": true
       },
       {
         "name": "Blue Double",
@@ -29790,7 +29957,8 @@
         "system": 1,
         "sex": "F",
         "effects": [],
-        "id": "a:470"
+        "id": "a:470",
+        "effectsKnown": true
       },
       {
         "name": "Blue Peter",
@@ -29853,7 +30021,8 @@
         "system": 3,
         "sex": "F",
         "effects": [],
-        "id": "a:479"
+        "id": "a:479",
+        "effectsKnown": true
       },
       {
         "name": "Bold Captive",
@@ -29916,7 +30085,8 @@
         "system": 3,
         "sex": "M",
         "effects": [],
-        "id": "a:488"
+        "id": "a:488",
+        "effectsKnown": true
       },
       {
         "name": "Bold Revenue",
@@ -30028,7 +30198,8 @@
         "system": 5,
         "sex": "F",
         "effects": [],
-        "id": "a:504"
+        "id": "a:504",
+        "effectsKnown": true
       },
       {
         "name": "Boundary",
@@ -30067,10 +30238,11 @@
       },
       {
         "name": "Bramalea",
-        "system": 13,
+        "system": 3,
         "sex": "F",
         "effects": [],
-        "id": "a:510"
+        "id": "a:510",
+        "effectsKnown": true
       },
       {
         "name": "Brandon's Ride",
@@ -30161,7 +30333,8 @@
         "system": 9,
         "sex": "F",
         "effects": [],
-        "id": "a:523"
+        "id": "a:523",
+        "effectsKnown": true
       },
       {
         "name": "Brief Attire",
@@ -30301,7 +30474,8 @@
         "system": 14,
         "sex": "M",
         "effects": [],
-        "id": "a:543"
+        "id": "a:543",
+        "effectsKnown": true
       },
       {
         "name": "Bupers",
@@ -30315,7 +30489,8 @@
         "system": 10,
         "sex": "F",
         "effects": [],
-        "id": "a:545"
+        "id": "a:545",
+        "effectsKnown": true
       },
       {
         "name": "Bury the Hatchet",
@@ -30377,8 +30552,12 @@
         "name": "Caerleon",
         "system": 5,
         "sex": "M",
-        "effects": [],
-        "id": "a:554"
+        "effects": [
+          "速力",
+          "早熟型"
+        ],
+        "id": "a:554",
+        "effectsKnown": true
       },
       {
         "name": "Cairn Rouge",
@@ -30406,7 +30585,8 @@
         "system": 4,
         "sex": "F",
         "effects": [],
-        "id": "a:558"
+        "id": "a:558",
+        "effectsKnown": true
       },
       {
         "name": "Cambrienne",
@@ -30651,7 +30831,8 @@
         "system": 4,
         "sex": "F",
         "effects": [],
-        "id": "a:593"
+        "id": "a:593",
+        "effectsKnown": true
       },
       {
         "name": "Catienus",
@@ -30840,14 +31021,16 @@
         "system": 5,
         "sex": "F",
         "effects": [],
-        "id": "a:620"
+        "id": "a:620",
+        "effectsKnown": true
       },
       {
         "name": "Chase the Dream",
         "system": 4,
         "sex": "F",
         "effects": [],
-        "id": "a:621"
+        "id": "a:621",
+        "effectsKnown": true
       },
       {
         "name": "Chaste",
@@ -30952,7 +31135,8 @@
         "system": 6,
         "sex": "F",
         "effects": [],
-        "id": "a:636"
+        "id": "a:636",
+        "effectsKnown": true
       },
       {
         "name": "Chop Chop",
@@ -31008,7 +31192,8 @@
         "system": 9,
         "sex": "F",
         "effects": [],
-        "id": "a:644"
+        "id": "a:644",
+        "effectsKnown": true
       },
       {
         "name": "Cinegita",
@@ -31043,14 +31228,16 @@
         "system": 7,
         "sex": "M",
         "effects": [],
-        "id": "a:649"
+        "id": "a:649",
+        "effectsKnown": true
       },
       {
         "name": "Classic Perfection",
         "system": 3,
         "sex": "F",
         "effects": [],
-        "id": "a:650"
+        "id": "a:650",
+        "effectsKnown": true
       },
       {
         "name": "Classicist",
@@ -31197,7 +31384,8 @@
         "system": 5,
         "sex": "F",
         "effects": [],
-        "id": "a:671"
+        "id": "a:671",
+        "effectsKnown": true
       },
       {
         "name": "Colorspin",
@@ -31267,7 +31455,8 @@
         "system": 8,
         "sex": "F",
         "effects": [],
-        "id": "a:681"
+        "id": "a:681",
+        "effectsKnown": true
       },
       {
         "name": "Concerto",
@@ -31435,7 +31624,8 @@
         "system": 2,
         "sex": "F",
         "effects": [],
-        "id": "a:705"
+        "id": "a:705",
+        "effectsKnown": true
       },
       {
         "name": "Cosmic Bomb",
@@ -31540,7 +31730,8 @@
         "system": 3,
         "sex": "F",
         "effects": [],
-        "id": "a:720"
+        "id": "a:720",
+        "effectsKnown": true
       },
       {
         "name": "Covert Side",
@@ -31575,7 +31766,8 @@
         "system": 3,
         "sex": "M",
         "effects": [],
-        "id": "a:725"
+        "id": "a:725",
+        "effectsKnown": true
       },
       {
         "name": "Cozzene's Angel",
@@ -31659,7 +31851,8 @@
         "system": 15,
         "sex": "M",
         "effects": [],
-        "id": "a:737"
+        "id": "a:737",
+        "effectsKnown": true
       },
       {
         "name": "Cumbres",
@@ -31778,7 +31971,8 @@
         "system": 5,
         "sex": "F",
         "effects": [],
-        "id": "a:754"
+        "id": "a:754",
+        "effectsKnown": true
       },
       {
         "name": "Dance Spell",
@@ -31791,8 +31985,12 @@
         "name": "ダンシングブレーヴ",
         "system": 5,
         "sex": "M",
-        "effects": [],
-        "id": "a:756"
+        "effects": [
+          "パワー",
+          "底力"
+        ],
+        "id": "a:756",
+        "effectsKnown": true
       },
       {
         "name": "Dancing Champ",
@@ -31840,8 +32038,11 @@
         "name": "デインヒル",
         "system": 5,
         "sex": "M",
-        "effects": [],
-        "id": "a:763"
+        "effects": [
+          "速力"
+        ],
+        "id": "a:763",
+        "effectsKnown": true
       },
       {
         "name": "Danehill Dancer",
@@ -32051,7 +32252,8 @@
         "system": 3,
         "sex": "M",
         "effects": [],
-        "id": "a:793"
+        "id": "a:793",
+        "effectsKnown": true
       },
       {
         "name": "Deputed Testamony",
@@ -32149,7 +32351,8 @@
         "system": 5,
         "sex": "F",
         "effects": [],
-        "id": "a:807"
+        "id": "a:807",
+        "effectsKnown": true
       },
       {
         "name": "Dhow",
@@ -32338,7 +32541,8 @@
         "system": 3,
         "sex": "F",
         "effects": [],
-        "id": "a:834"
+        "id": "a:834",
+        "effectsKnown": true
       },
       {
         "name": "Dominion",
@@ -32366,7 +32570,8 @@
         "system": 1,
         "sex": "F",
         "effects": [],
-        "id": "a:838"
+        "id": "a:838",
+        "effectsKnown": true
       },
       {
         "name": "Donut King",
@@ -32387,7 +32592,8 @@
         "system": 13,
         "sex": "F",
         "effects": [],
-        "id": "a:841"
+        "id": "a:841",
+        "effectsKnown": true
       },
       {
         "name": "Double Agent",
@@ -32527,7 +32733,8 @@
         "system": 10,
         "sex": "M",
         "effects": [],
-        "id": "a:861"
+        "id": "a:861",
+        "effectsKnown": true
       },
       {
         "name": "Dubai Destination",
@@ -32541,7 +32748,8 @@
         "system": 6,
         "sex": "M",
         "effects": [],
-        "id": "st:w-3"
+        "id": "st:w-3",
+        "effectsKnown": true
       },
       {
         "name": "Dubbed In",
@@ -32660,7 +32868,8 @@
         "system": 5,
         "sex": "M",
         "effects": [],
-        "id": "a:880"
+        "id": "a:880",
+        "effectsKnown": true
       },
       {
         "name": "El Prado",
@@ -32675,13 +32884,6 @@
         "sex": "M",
         "effects": [],
         "id": "a:882"
-      },
-      {
-        "name": "Ela-Mana-Mou Ela - Mana - Mou",
-        "system": 7,
-        "sex": "M",
-        "effects": [],
-        "id": "a:883"
       },
       {
         "name": "Eldoret",
@@ -32744,7 +32946,8 @@
         "system": 5,
         "sex": "F",
         "effects": [],
-        "id": "a:892"
+        "id": "a:892",
+        "effectsKnown": true
       },
       {
         "name": "Elizabeth K.",
@@ -32765,7 +32968,8 @@
         "system": 5,
         "sex": "F",
         "effects": [],
-        "id": "a:895"
+        "id": "a:895",
+        "effectsKnown": true
       },
       {
         "name": "Eltish",
@@ -32884,7 +33088,8 @@
         "system": 10,
         "sex": "F",
         "effects": [],
-        "id": "a:912"
+        "id": "a:912",
+        "effectsKnown": true
       },
       {
         "name": "Europa",
@@ -33107,8 +33312,12 @@
         "name": "Fall Aspen",
         "system": 2,
         "sex": "F",
-        "effects": [],
-        "id": "a:944"
+        "effects": [
+          "速力",
+          "底力"
+        ],
+        "id": "a:944",
+        "effectsKnown": true
       },
       {
         "name": "Falling Star",
@@ -33171,7 +33380,8 @@
         "system": 6,
         "sex": "M",
         "effects": [],
-        "id": "a:953"
+        "id": "a:953",
+        "effectsKnown": true
       },
       {
         "name": "Far",
@@ -33311,7 +33521,8 @@
         "system": 6,
         "sex": "M",
         "effects": [],
-        "id": "a:973"
+        "id": "a:973",
+        "effectsKnown": true
       },
       {
         "name": "First Trump",
@@ -33381,7 +33592,8 @@
         "system": 13,
         "sex": "F",
         "effects": [],
-        "id": "a:983"
+        "id": "a:983",
+        "effectsKnown": true
       },
       {
         "name": "Flanders",
@@ -33542,7 +33754,8 @@
         "system": 10,
         "sex": "F",
         "effects": [],
-        "id": "a:1006"
+        "id": "a:1006",
+        "effectsKnown": true
       },
       {
         "name": "Folklore",
@@ -33577,7 +33790,8 @@
         "system": 4,
         "sex": "F",
         "effects": [],
-        "id": "a:1011"
+        "id": "a:1011",
+        "effectsKnown": true
       },
       {
         "name": "Forest Camp",
@@ -33626,7 +33840,8 @@
         "system": 15,
         "sex": "F",
         "effects": [],
-        "id": "a:1018"
+        "id": "a:1018",
+        "effectsKnown": true
       },
       {
         "name": "Fortunate Prospect",
@@ -33766,7 +33981,8 @@
         "system": 1,
         "sex": "F",
         "effects": [],
-        "id": "a:1038"
+        "id": "a:1038",
+        "effectsKnown": true
       },
       {
         "name": "Friendly Ways",
@@ -33888,7 +34104,8 @@
           "長距離",
           "底力"
         ],
-        "id": "st:w-2"
+        "id": "st:w-2",
+        "effectsKnown": true
       },
       {
         "name": "Galla Colors",
@@ -33923,7 +34140,8 @@
         "system": 13,
         "sex": "F",
         "effects": [],
-        "id": "a:1060"
+        "id": "a:1060",
+        "effectsKnown": true
       },
       {
         "name": "Gangster of Love",
@@ -34056,7 +34274,8 @@
         "system": 5,
         "sex": "M",
         "effects": [],
-        "id": "a:1079"
+        "id": "a:1079",
+        "effectsKnown": true
       },
       {
         "name": "Generous Portion",
@@ -34119,14 +34338,16 @@
         "system": 5,
         "sex": "M",
         "effects": [],
-        "id": "st:w-20"
+        "id": "st:w-20",
+        "effectsKnown": true
       },
       {
         "name": "Giant's Causeway",
         "system": 5,
         "sex": "M",
         "effects": [],
-        "id": "a:1089"
+        "id": "a:1089",
+        "effectsKnown": true
       },
       {
         "name": "Gift of the Night",
@@ -34161,7 +34382,8 @@
         "system": 5,
         "sex": "M",
         "effects": [],
-        "id": "a:1094"
+        "id": "a:1094",
+        "effectsKnown": true
       },
       {
         "name": "Girlfriend",
@@ -34259,14 +34481,16 @@
         "system": 3,
         "sex": "F",
         "effects": [],
-        "id": "a:1108"
+        "id": "a:1108",
+        "effectsKnown": true
       },
       {
         "name": "Gold Meridian",
         "system": 3,
         "sex": "M",
         "effects": [],
-        "id": "a:1109"
+        "id": "a:1109",
+        "effectsKnown": true
       },
       {
         "name": "Gold Vault",
@@ -34315,7 +34539,8 @@
         "system": 6,
         "sex": "M",
         "effects": [],
-        "id": "a:1116"
+        "id": "a:1116",
+        "effectsKnown": true
       },
       {
         "name": "Gonfalon",
@@ -34427,7 +34652,8 @@
         "system": 12,
         "sex": "M",
         "effects": [],
-        "id": "a:1132"
+        "id": "a:1132",
+        "effectsKnown": true
       },
       {
         "name": "Great Lady M.",
@@ -34469,7 +34695,8 @@
         "system": 5,
         "sex": "M",
         "effects": [],
-        "id": "a:1138"
+        "id": "a:1138",
+        "effectsKnown": true
       },
       {
         "name": "Green God",
@@ -34501,10 +34728,11 @@
       },
       {
         "name": "Green Valley",
-        "system": 11,
+        "system": 10,
         "sex": "F",
         "effects": [],
-        "id": "a:1143"
+        "id": "a:1143",
+        "effectsKnown": true
       },
       {
         "name": "Grey Autumn",
@@ -34602,21 +34830,24 @@
         "system": 14,
         "sex": "M",
         "effects": [],
-        "id": "a:1157"
+        "id": "a:1157",
+        "effectsKnown": true
       },
       {
         "name": "Hail Proudly",
         "system": 4,
         "sex": "F",
         "effects": [],
-        "id": "a:1158"
+        "id": "a:1158",
+        "effectsKnown": true
       },
       {
         "name": "Hail to Beauty",
         "system": 4,
         "sex": "F",
         "effects": [],
-        "id": "a:1159"
+        "id": "a:1159",
+        "effectsKnown": true
       },
       {
         "name": "Hairbrush",
@@ -34756,7 +34987,8 @@
         "system": 3,
         "sex": "M",
         "effects": [],
-        "id": "a:1179"
+        "id": "a:1179",
+        "effectsKnown": true
       },
       {
         "name": "Hasili",
@@ -34791,7 +35023,8 @@
         "system": 2,
         "sex": "M",
         "effects": [],
-        "id": "a:1184"
+        "id": "a:1184",
+        "effectsKnown": true
       },
       {
         "name": "Hawattef",
@@ -34938,7 +35171,8 @@
         "system": 5,
         "sex": "M",
         "effects": [],
-        "id": "a:1205"
+        "id": "a:1205",
+        "effectsKnown": true
       },
       {
         "name": "Her Demon",
@@ -34980,14 +35214,16 @@
         "system": 5,
         "sex": "M",
         "effects": [],
-        "id": "a:1211"
+        "id": "a:1211",
+        "effectsKnown": true
       },
       {
         "name": "Hethersett",
         "system": 15,
         "sex": "M",
         "effects": [],
-        "id": "a:1212"
+        "id": "a:1212",
+        "effectsKnown": true
       },
       {
         "name": "Hey Dolly A.",
@@ -35064,7 +35300,8 @@
         "system": 11,
         "sex": "F",
         "effects": [],
-        "id": "a:1223"
+        "id": "a:1223",
+        "effectsKnown": true
       },
       {
         "name": "Highest Honor",
@@ -35134,7 +35371,8 @@
         "system": 13,
         "sex": "M",
         "effects": [],
-        "id": "a:1233"
+        "id": "a:1233",
+        "effectsKnown": true
       },
       {
         "name": "Hollywood Wildcat",
@@ -35155,7 +35393,8 @@
         "system": 12,
         "sex": "M",
         "effects": [],
-        "id": "a:1236"
+        "id": "a:1236",
+        "effectsKnown": true
       },
       {
         "name": "Homage",
@@ -35190,7 +35429,8 @@
         "system": 3,
         "sex": "F",
         "effects": [],
-        "id": "a:1241"
+        "id": "a:1241",
+        "effectsKnown": true
       },
       {
         "name": "Honest Pleasure",
@@ -35218,14 +35458,16 @@
         "system": 5,
         "sex": "F",
         "effects": [],
-        "id": "a:1245"
+        "id": "a:1245",
+        "effectsKnown": true
       },
       {
         "name": "Hopespringseternal",
         "system": 8,
         "sex": "F",
         "effects": [],
-        "id": "a:1246"
+        "id": "a:1246",
+        "effectsKnown": true
       },
       {
         "name": "Hostage",
@@ -35267,7 +35509,8 @@
         "system": 4,
         "sex": "M",
         "effects": [],
-        "id": "a:1252"
+        "id": "a:1252",
+        "effectsKnown": true
       },
       {
         "name": "Hymn of the Dawn",
@@ -35302,7 +35545,8 @@
         "system": 11,
         "sex": "F",
         "effects": [],
-        "id": "a:1257"
+        "id": "a:1257",
+        "effectsKnown": true
       },
       {
         "name": "I'm For More",
@@ -35351,7 +35595,8 @@
         "system": 13,
         "sex": "M",
         "effects": [],
-        "id": "a:1264"
+        "id": "a:1264",
+        "effectsKnown": true
       },
       {
         "name": "Iltis",
@@ -35372,7 +35617,8 @@
         "system": 14,
         "sex": "F",
         "effects": [],
-        "id": "a:1267"
+        "id": "a:1267",
+        "effectsKnown": true
       },
       {
         "name": "Imagine",
@@ -35428,7 +35674,8 @@
         "system": 3,
         "sex": "F",
         "effects": [],
-        "id": "a:1275"
+        "id": "a:1275",
+        "effectsKnown": true
       },
       {
         "name": "In Excess",
@@ -35466,18 +35713,12 @@
         "id": "a:1280"
       },
       {
-        "name": "In the Wings In The Wings",
-        "system": 5,
-        "sex": "M",
-        "effects": [],
-        "id": "a:1281"
-      },
-      {
         "name": "Incantation",
         "system": 13,
         "sex": "F",
         "effects": [],
-        "id": "a:1282"
+        "id": "a:1282",
+        "effectsKnown": true
       },
       {
         "name": "Include",
@@ -35638,28 +35879,32 @@
         "system": 2,
         "sex": "F",
         "effects": [],
-        "id": "a:1305"
+        "id": "a:1305",
+        "effectsKnown": true
       },
       {
         "name": "Irish River",
         "system": 3,
         "sex": "M",
         "effects": [],
-        "id": "a:1306"
+        "id": "a:1306",
+        "effectsKnown": true
       },
       {
         "name": "Irish Star",
         "system": 15,
         "sex": "F",
         "effects": [],
-        "id": "a:1307"
+        "id": "a:1307",
+        "effectsKnown": true
       },
       {
         "name": "Irish Valley",
         "system": 3,
         "sex": "F",
         "effects": [],
-        "id": "a:1308"
+        "id": "a:1308",
+        "effectsKnown": true
       },
       {
         "name": "Iron Constitution",
@@ -35701,7 +35946,8 @@
         "system": 2,
         "sex": "F",
         "effects": [],
-        "id": "a:1314"
+        "id": "a:1314",
+        "effectsKnown": true
       },
       {
         "name": "Island Race",
@@ -35743,7 +35989,8 @@
         "system": 4,
         "sex": "F",
         "effects": [],
-        "id": "a:1320"
+        "id": "a:1320",
+        "effectsKnown": true
       },
       {
         "name": "J.O. Tobin",
@@ -35813,7 +36060,8 @@
         "system": 5,
         "sex": "F",
         "effects": [],
-        "id": "a:1330"
+        "id": "a:1330",
+        "effectsKnown": true
       },
       {
         "name": "Jazzmane",
@@ -35911,7 +36159,8 @@
         "system": 7,
         "sex": "F",
         "effects": [],
-        "id": "a:1344"
+        "id": "a:1344",
+        "effectsKnown": true
       },
       {
         "name": "ジュニアス",
@@ -36149,7 +36398,8 @@
         "system": 13,
         "sex": "F",
         "effects": [],
-        "id": "a:1378"
+        "id": "a:1378",
+        "effectsKnown": true
       },
       {
         "name": "Killaloe",
@@ -36163,7 +36413,8 @@
         "system": 5,
         "sex": "F",
         "effects": [],
-        "id": "a:1380"
+        "id": "a:1380",
+        "effectsKnown": true
       },
       {
         "name": "King of Macedon",
@@ -36254,14 +36505,16 @@
         "system": 15,
         "sex": "F",
         "effects": [],
-        "id": "a:1393"
+        "id": "a:1393",
+        "effectsKnown": true
       },
       {
         "name": "Konigsstuhl",
         "system": 10,
         "sex": "M",
         "effects": [],
-        "id": "a:1394"
+        "id": "a:1394",
+        "effectsKnown": true
       },
       {
         "name": "Korveya",
@@ -36289,21 +36542,24 @@
         "system": 6,
         "sex": "M",
         "effects": [],
-        "id": "a:1398"
+        "id": "a:1398",
+        "effectsKnown": true
       },
       {
         "name": "Kris S.",
         "system": 4,
         "sex": "M",
         "effects": [],
-        "id": "a:1399"
+        "id": "a:1399",
+        "effectsKnown": true
       },
       {
         "name": "Kronung",
         "system": 11,
         "sex": "F",
         "effects": [],
-        "id": "a:1400"
+        "id": "a:1400",
+        "effectsKnown": true
       },
       {
         "name": "Kundalini",
@@ -36331,7 +36587,8 @@
         "system": 6,
         "sex": "F",
         "effects": [],
-        "id": "a:1404"
+        "id": "a:1404",
+        "effectsKnown": true
       },
       {
         "name": "La Balada",
@@ -36359,7 +36616,8 @@
         "system": 11,
         "sex": "F",
         "effects": [],
-        "id": "a:1408"
+        "id": "a:1408",
+        "effectsKnown": true
       },
       {
         "name": "La Colorada",
@@ -36387,7 +36645,8 @@
         "system": 4,
         "sex": "F",
         "effects": [],
-        "id": "a:1412"
+        "id": "a:1412",
+        "effectsKnown": true
       },
       {
         "name": "La Milo",
@@ -36492,14 +36751,16 @@
         "system": 3,
         "sex": "F",
         "effects": [],
-        "id": "a:1427"
+        "id": "a:1427",
+        "effectsKnown": true
       },
       {
         "name": "Lady Rebecca",
         "system": 4,
         "sex": "F",
         "effects": [],
-        "id": "a:1428"
+        "id": "a:1428",
+        "effectsKnown": true
       },
       {
         "name": "Lady Sarah",
@@ -36520,7 +36781,8 @@
         "system": 5,
         "sex": "M",
         "effects": [],
-        "id": "a:1431"
+        "id": "a:1431",
+        "effectsKnown": true
       },
       {
         "name": "Lakab",
@@ -36590,7 +36852,8 @@
         "system": 3,
         "sex": "F",
         "effects": [],
-        "id": "a:1441"
+        "id": "a:1441",
+        "effectsKnown": true
       },
       {
         "name": "Larida",
@@ -36688,7 +36951,8 @@
         "system": 13,
         "sex": "M",
         "effects": [],
-        "id": "a:1455"
+        "id": "a:1455",
+        "effectsKnown": true
       },
       {
         "name": "Lawmaker",
@@ -36807,7 +37071,8 @@
         "system": 6,
         "sex": "F",
         "effects": [],
-        "id": "a:1472"
+        "id": "a:1472",
+        "effectsKnown": true
       },
       {
         "name": "Lianga",
@@ -36891,7 +37156,8 @@
         "system": 5,
         "sex": "F",
         "effects": [],
-        "id": "a:1484"
+        "id": "a:1484",
+        "effectsKnown": true
       },
       {
         "name": "Likely Double",
@@ -36933,7 +37199,8 @@
         "system": 15,
         "sex": "F",
         "effects": [],
-        "id": "a:1490"
+        "id": "a:1490",
+        "effectsKnown": true
       },
       {
         "name": "Line of Thunder",
@@ -36947,7 +37214,8 @@
         "system": 11,
         "sex": "F",
         "effects": [],
-        "id": "a:1492"
+        "id": "a:1492",
+        "effectsKnown": true
       },
       {
         "name": "Lis",
@@ -36975,7 +37243,8 @@
         "system": 11,
         "sex": "M",
         "effects": [],
-        "id": "a:1496"
+        "id": "a:1496",
+        "effectsKnown": true
       },
       {
         "name": "Lithiot",
@@ -37031,7 +37300,8 @@
         "system": 9,
         "sex": "M",
         "effects": [],
-        "id": "a:1504"
+        "id": "a:1504",
+        "effectsKnown": true
       },
       {
         "name": "Lomitas",
@@ -37206,21 +37476,24 @@
         "system": 10,
         "sex": "F",
         "effects": [],
-        "id": "a:1529"
+        "id": "a:1529",
+        "effectsKnown": true
       },
       {
         "name": "Love Style",
         "system": 6,
         "sex": "F",
         "effects": [],
-        "id": "a:1530"
+        "id": "a:1530",
+        "effectsKnown": true
       },
       {
         "name": "Love the Chase",
         "system": 6,
         "sex": "F",
         "effects": [],
-        "id": "a:1531"
+        "id": "a:1531",
+        "effectsKnown": true
       },
       {
         "name": "Love The Rain",
@@ -37248,7 +37521,8 @@
         "system": 11,
         "sex": "F",
         "effects": [],
-        "id": "a:1535"
+        "id": "a:1535",
+        "effectsKnown": true
       },
       {
         "name": "Lt. Stevens",
@@ -37269,7 +37543,8 @@
         "system": 11,
         "sex": "M",
         "effects": [],
-        "id": "a:1538"
+        "id": "a:1538",
+        "effectsKnown": true
       },
       {
         "name": "Luckhurst",
@@ -37283,28 +37558,32 @@
         "system": 11,
         "sex": "M",
         "effects": [],
-        "id": "a:1540"
+        "id": "a:1540",
+        "effectsKnown": true
       },
       {
         "name": "Lucky Pulpit",
         "system": 3,
         "sex": "M",
         "effects": [],
-        "id": "a:1541"
+        "id": "a:1541",
+        "effectsKnown": true
       },
       {
         "name": "Lucky Soph",
         "system": 3,
         "sex": "F",
         "effects": [],
-        "id": "a:1542"
+        "id": "a:1542",
+        "effectsKnown": true
       },
       {
         "name": "Lucky Spell",
         "system": 11,
         "sex": "F",
         "effects": [],
-        "id": "a:1543"
+        "id": "a:1543",
+        "effectsKnown": true
       },
       {
         "name": "Luiana",
@@ -37395,7 +37674,8 @@
         "system": 6,
         "sex": "M",
         "effects": [],
-        "id": "a:1556"
+        "id": "a:1556",
+        "effectsKnown": true
       },
       {
         "name": "Macho Uno",
@@ -37696,7 +37976,8 @@
         "system": 3,
         "sex": "F",
         "effects": [],
-        "id": "a:1599"
+        "id": "a:1599",
+        "effectsKnown": true
       },
       {
         "name": "Mariapolis",
@@ -37731,7 +38012,8 @@
         "system": 5,
         "sex": "M",
         "effects": [],
-        "id": "a:1604"
+        "id": "a:1604",
+        "effectsKnown": true
       },
       {
         "name": "Mark of Esteem",
@@ -37850,7 +38132,8 @@
         "system": 7,
         "sex": "M",
         "effects": [],
-        "id": "a:1621"
+        "id": "a:1621",
+        "effectsKnown": true
       },
       {
         "name": "Matuschka",
@@ -37885,14 +38168,16 @@
         "system": 13,
         "sex": "F",
         "effects": [],
-        "id": "a:1626"
+        "id": "a:1626",
+        "effectsKnown": true
       },
       {
         "name": "Meadowlake",
         "system": 13,
         "sex": "M",
         "effects": [],
-        "id": "a:1627"
+        "id": "a:1627",
+        "effectsKnown": true
       },
       {
         "name": "Medaglia d'Oro",
@@ -37920,7 +38205,8 @@
         "system": 12,
         "sex": "F",
         "effects": [],
-        "id": "a:1631"
+        "id": "a:1631",
+        "effectsKnown": true
       },
       {
         "name": "メンデス",
@@ -37997,7 +38283,8 @@
         "system": 13,
         "sex": "F",
         "effects": [],
-        "id": "a:1642"
+        "id": "a:1642",
+        "effectsKnown": true
       },
       {
         "name": "Mia Karina",
@@ -38088,7 +38375,8 @@
         "system": 3,
         "sex": "F",
         "effects": [],
-        "id": "a:1655"
+        "id": "a:1655",
+        "effectsKnown": true
       },
       {
         "name": "Mille Lacs",
@@ -38130,7 +38418,8 @@
         "system": 12,
         "sex": "M",
         "effects": [],
-        "id": "a:1661"
+        "id": "a:1661",
+        "effectsKnown": true
       },
       {
         "name": "Minnetonka",
@@ -38158,7 +38447,8 @@
         "system": 14,
         "sex": "F",
         "effects": [],
-        "id": "a:1665"
+        "id": "a:1665",
+        "effectsKnown": true
       },
       {
         "name": "Mira Adonde",
@@ -38172,7 +38462,8 @@
         "system": 11,
         "sex": "F",
         "effects": [],
-        "id": "a:1667"
+        "id": "a:1667",
+        "effectsKnown": true
       },
       {
         "name": "Miss Carina",
@@ -38221,7 +38512,8 @@
         "system": 3,
         "sex": "F",
         "effects": [],
-        "id": "a:1674"
+        "id": "a:1674",
+        "effectsKnown": true
       },
       {
         "name": "Miss Olympia",
@@ -38326,14 +38618,16 @@
         "system": 6,
         "sex": "M",
         "effects": [],
-        "id": "a:1689"
+        "id": "a:1689",
+        "effectsKnown": true
       },
       {
         "name": "Mitterand",
         "system": 13,
         "sex": "F",
         "effects": [],
-        "id": "a:1690"
+        "id": "a:1690",
+        "effectsKnown": true
       },
       {
         "name": "Mixed Blessing",
@@ -38410,35 +38704,40 @@
         "system": 9,
         "sex": "F",
         "effects": [],
-        "id": "a:1701"
+        "id": "a:1701",
+        "effectsKnown": true
       },
       {
         "name": "Monasia",
         "system": 11,
         "sex": "F",
         "effects": [],
-        "id": "a:1702"
+        "id": "a:1702",
+        "effectsKnown": true
       },
       {
         "name": "Monevassia",
         "system": 6,
         "sex": "F",
         "effects": [],
-        "id": "a:1703"
+        "id": "a:1703",
+        "effectsKnown": true
       },
       {
         "name": "Monroe",
         "system": 4,
         "sex": "F",
         "effects": [],
-        "id": "a:1704"
+        "id": "a:1704",
+        "effectsKnown": true
       },
       {
         "name": "Monsun",
         "system": 10,
         "sex": "M",
         "effects": [],
-        "id": "st:w-54"
+        "id": "st:w-54",
+        "effectsKnown": true
       },
       {
         "name": "モンジュー",
@@ -38466,7 +38765,8 @@
         "system": 14,
         "sex": "F",
         "effects": [],
-        "id": "a:1709"
+        "id": "a:1709",
+        "effectsKnown": true
       },
       {
         "name": "Moonlight's Box",
@@ -38543,7 +38843,8 @@
         "system": 11,
         "sex": "F",
         "effects": [],
-        "id": "a:1720"
+        "id": "a:1720",
+        "effectsKnown": true
       },
       {
         "name": "Moslem Chief",
@@ -38585,7 +38886,8 @@
         "system": 11,
         "sex": "F",
         "effects": [],
-        "id": "a:1726"
+        "id": "a:1726",
+        "effectsKnown": true
       },
       {
         "name": "Mr. Big",
@@ -38613,7 +38915,8 @@
         "system": 4,
         "sex": "M",
         "effects": [],
-        "id": "a:1730"
+        "id": "a:1730",
+        "effectsKnown": true
       },
       {
         "name": "Mr. P's Princess",
@@ -38830,7 +39133,8 @@
         "system": 9,
         "sex": "F",
         "effects": [],
-        "id": "a:1761"
+        "id": "a:1761",
+        "effectsKnown": true
       },
       {
         "name": "Nadie Como Ella",
@@ -38851,14 +39155,16 @@
         "system": 6,
         "sex": "F",
         "effects": [],
-        "id": "a:1764"
+        "id": "a:1764",
+        "effectsKnown": true
       },
       {
         "name": "Najecam",
         "system": 6,
         "sex": "F",
         "effects": [],
-        "id": "a:1765"
+        "id": "a:1765",
+        "effectsKnown": true
       },
       {
         "name": "Nappelon",
@@ -38872,14 +39178,16 @@
         "system": 3,
         "sex": "F",
         "effects": [],
-        "id": "a:1767"
+        "id": "a:1767",
+        "effectsKnown": true
       },
       {
         "name": "Narrate",
         "system": 3,
         "sex": "F",
         "effects": [],
-        "id": "a:1768"
+        "id": "a:1768",
+        "effectsKnown": true
       },
       {
         "name": "Nash Light",
@@ -38907,7 +39215,8 @@
         "system": 13,
         "sex": "F",
         "effects": [],
-        "id": "a:1772"
+        "id": "a:1772",
+        "effectsKnown": true
       },
       {
         "name": "Native Charger",
@@ -38956,14 +39265,16 @@
         "system": 3,
         "sex": "M",
         "effects": [],
-        "id": "a:1779"
+        "id": "a:1779",
+        "effectsKnown": true
       },
       {
         "name": "Nebos",
         "system": 3,
         "sex": "M",
         "effects": [],
-        "id": "a:1780"
+        "id": "a:1780",
+        "effectsKnown": true
       },
       {
         "name": "Necaras Miss",
@@ -38977,7 +39288,8 @@
         "system": 11,
         "sex": "F",
         "effects": [],
-        "id": "a:1782"
+        "id": "a:1782",
+        "effectsKnown": true
       },
       {
         "name": "Nellie L.",
@@ -38998,7 +39310,8 @@
         "system": 5,
         "sex": "F",
         "effects": [],
-        "id": "a:1785"
+        "id": "a:1785",
+        "effectsKnown": true
       },
       {
         "name": "Neptune",
@@ -39096,7 +39409,8 @@
         "system": 15,
         "sex": "F",
         "effects": [],
-        "id": "a:1799"
+        "id": "a:1799",
+        "effectsKnown": true
       },
       {
         "name": "Nice Tradition",
@@ -39124,7 +39438,8 @@
         "system": 5,
         "sex": "F",
         "effects": [],
-        "id": "a:1803"
+        "id": "a:1803",
+        "effectsKnown": true
       },
       {
         "name": "Night of Roses",
@@ -39138,7 +39453,8 @@
         "system": 5,
         "sex": "M",
         "effects": [],
-        "id": "a:1805"
+        "id": "a:1805",
+        "effectsKnown": true
       },
       {
         "name": "Nimble Feet",
@@ -39348,7 +39664,8 @@
         "system": 5,
         "sex": "F",
         "effects": [],
-        "id": "a:1835"
+        "id": "a:1835",
+        "effectsKnown": true
       },
       {
         "name": "Northern Sea",
@@ -39383,7 +39700,8 @@
         "system": 6,
         "sex": "M",
         "effects": [],
-        "id": "a:1840"
+        "id": "a:1840",
+        "effectsKnown": true
       },
       {
         "name": "Not for Sale",
@@ -39436,10 +39754,11 @@
       },
       {
         "name": "Nubia",
-        "system": 3,
+        "system": 10,
         "sex": "F",
         "effects": [],
-        "id": "a:1848"
+        "id": "a:1848",
+        "effectsKnown": true
       },
       {
         "name": "Nucciolina",
@@ -39460,14 +39779,18 @@
         "system": 5,
         "sex": "F",
         "effects": [],
-        "id": "a:1851"
+        "id": "a:1851",
+        "effectsKnown": true,
+        "sireId": "a:88",
+        "damId": "a:208"
       },
       {
         "name": "Numbered Account",
         "system": 8,
         "sex": "F",
         "effects": [],
-        "id": "a:1852"
+        "id": "a:1852",
+        "effectsKnown": true
       },
       {
         "name": "Numidie",
@@ -39488,7 +39811,8 @@
         "system": 5,
         "sex": "M",
         "effects": [],
-        "id": "a:1855"
+        "id": "a:1855",
+        "effectsKnown": true
       },
       {
         "name": "Obeah",
@@ -39537,7 +39861,8 @@
         "system": 9,
         "sex": "M",
         "effects": [],
-        "id": "a:1862"
+        "id": "a:1862",
+        "effectsKnown": true
       },
       {
         "name": "Oh What a Dance",
@@ -39558,14 +39883,16 @@
         "system": 3,
         "sex": "M",
         "effects": [],
-        "id": "a:1865"
+        "id": "a:1865",
+        "effectsKnown": true
       },
       {
         "name": "Olden Times",
         "system": 14,
         "sex": "M",
         "effects": [],
-        "id": "a:1866"
+        "id": "a:1866",
+        "effectsKnown": true
       },
       {
         "name": "Olmec",
@@ -39796,7 +40123,8 @@
         "system": 7,
         "sex": "M",
         "effects": [],
-        "id": "a:1899"
+        "id": "a:1899",
+        "effectsKnown": true
       },
       {
         "name": "Pal Sinna",
@@ -39810,7 +40138,8 @@
         "system": 2,
         "sex": "F",
         "effects": [],
-        "id": "a:1901"
+        "id": "a:1901",
+        "effectsKnown": true
       },
       {
         "name": "Palestinian",
@@ -39915,14 +40244,16 @@
         "system": 9,
         "sex": "F",
         "effects": [],
-        "id": "a:1916"
+        "id": "a:1916",
+        "effectsKnown": true
       },
       {
         "name": "Pasadoble",
         "system": 13,
         "sex": "F",
         "effects": [],
-        "id": "a:1917"
+        "id": "a:1917",
+        "effectsKnown": true
       },
       {
         "name": "Pascha",
@@ -40125,7 +40456,8 @@
         "system": 11,
         "sex": "F",
         "effects": [],
-        "id": "a:1946"
+        "id": "a:1946",
+        "effectsKnown": true
       },
       {
         "name": "Personal Business",
@@ -40237,7 +40569,8 @@
         "system": 15,
         "sex": "F",
         "effects": [],
-        "id": "a:1962"
+        "id": "a:1962",
+        "effectsKnown": true
       },
       {
         "name": "Pink Dove",
@@ -40307,7 +40640,8 @@
         "system": 13,
         "sex": "M",
         "effects": [],
-        "id": "a:1972"
+        "id": "a:1972",
+        "effectsKnown": true
       },
       {
         "name": "Pleasant Tap",
@@ -40377,7 +40711,8 @@
         "system": 5,
         "sex": "M",
         "effects": [],
-        "id": "a:1982"
+        "id": "a:1982",
+        "effectsKnown": true
       },
       {
         "name": "Polish Precedent",
@@ -40433,7 +40768,8 @@
         "system": 1,
         "sex": "F",
         "effects": [],
-        "id": "a:1990"
+        "id": "a:1990",
+        "effectsKnown": true
       },
       {
         "name": "Ponte Vecchio",
@@ -40517,7 +40853,8 @@
         "system": 6,
         "sex": "F",
         "effects": [],
-        "id": "a:2002"
+        "id": "a:2002",
+        "effectsKnown": true
       },
       {
         "name": "Precious Feather",
@@ -40629,7 +40966,8 @@
         "system": 14,
         "sex": "F",
         "effects": [],
-        "id": "a:2018"
+        "id": "a:2018",
+        "effectsKnown": true
       },
       {
         "name": "Pride of Paris",
@@ -40657,7 +40995,8 @@
         "system": 3,
         "sex": "F",
         "effects": [],
-        "id": "a:2022"
+        "id": "a:2022",
+        "effectsKnown": true
       },
       {
         "name": "Prime Abord",
@@ -40832,7 +41171,8 @@
         "system": 13,
         "sex": "M",
         "effects": [],
-        "id": "a:2047"
+        "id": "a:2047",
+        "effectsKnown": true
       },
       {
         "name": "Pure Priz",
@@ -40902,7 +41242,8 @@
         "system": 12,
         "sex": "F",
         "effects": [],
-        "id": "a:2057"
+        "id": "a:2057",
+        "effectsKnown": true
       },
       {
         "name": "Queen Maud",
@@ -40937,7 +41278,8 @@
         "system": 3,
         "sex": "F",
         "effects": [],
-        "id": "a:2062"
+        "id": "a:2062",
+        "effectsKnown": true
       },
       {
         "name": "Queens Up",
@@ -41042,14 +41384,16 @@
         "system": 3,
         "sex": "F",
         "effects": [],
-        "id": "a:2077"
+        "id": "a:2077",
+        "effectsKnown": true
       },
       {
         "name": "Rainbow Quest",
         "system": 3,
         "sex": "M",
         "effects": [],
-        "id": "a:2078"
+        "id": "a:2078",
+        "effectsKnown": true
       },
       {
         "name": "Raise a Baby",
@@ -41098,7 +41442,8 @@
         "system": 9,
         "sex": "F",
         "effects": [],
-        "id": "a:2085"
+        "id": "a:2085",
+        "effectsKnown": true
       },
       {
         "name": "Raise Your Skirts",
@@ -41203,7 +41548,8 @@
         "system": 13,
         "sex": "F",
         "effects": [],
-        "id": "a:2100"
+        "id": "a:2100",
+        "effectsKnown": true
       },
       {
         "name": "Reagent",
@@ -41336,7 +41682,8 @@
         "system": 14,
         "sex": "M",
         "effects": [],
-        "id": "a:2119"
+        "id": "a:2119",
+        "effectsKnown": true
       },
       {
         "name": "Reliance",
@@ -41350,7 +41697,8 @@
         "system": 14,
         "sex": "F",
         "effects": [],
-        "id": "a:2121"
+        "id": "a:2121",
+        "effectsKnown": true
       },
       {
         "name": "Relish",
@@ -41476,7 +41824,8 @@
         "system": 13,
         "sex": "F",
         "effects": [],
-        "id": "a:2139"
+        "id": "a:2139",
+        "effectsKnown": true
       },
       {
         "name": "Ridge Pool",
@@ -41623,21 +41972,24 @@
         "system": 11,
         "sex": "F",
         "effects": [],
-        "id": "a:2160"
+        "id": "a:2160",
+        "effectsKnown": true
       },
       {
         "name": "Rock Garden",
-        "system": 2,
+        "system": 14,
         "sex": "F",
         "effects": [],
-        "id": "a:2161"
+        "id": "a:2161",
+        "effectsKnown": true
       },
       {
         "name": "Rockfest",
         "system": 13,
         "sex": "F",
         "effects": [],
-        "id": "a:2162"
+        "id": "a:2162",
+        "effectsKnown": true
       },
       {
         "name": "Roger Sez",
@@ -41756,7 +42108,8 @@
         "system": 15,
         "sex": "F",
         "effects": [],
-        "id": "a:2179"
+        "id": "a:2179",
+        "effectsKnown": true
       },
       {
         "name": "Rosetta Stone",
@@ -41784,7 +42137,8 @@
         "system": 6,
         "sex": "M",
         "effects": [],
-        "id": "a:2183"
+        "id": "a:2183",
+        "effectsKnown": true
       },
       {
         "name": "Rosy Legend",
@@ -41917,7 +42271,8 @@
         "system": 5,
         "sex": "F",
         "effects": [],
-        "id": "a:2202"
+        "id": "a:2202",
+        "effectsKnown": true
       },
       {
         "name": "Runaway Bride",
@@ -42109,14 +42464,16 @@
         "system": 13,
         "sex": "M",
         "effects": [],
-        "id": "a:2229"
+        "id": "a:2229",
+        "effectsKnown": true
       },
       {
         "name": "Salt Spring",
         "system": 13,
         "sex": "F",
         "effects": [],
-        "id": "a:2230"
+        "id": "a:2230",
+        "effectsKnown": true
       },
       {
         "name": "Salve",
@@ -42172,14 +42529,16 @@
         "system": 11,
         "sex": "F",
         "effects": [],
-        "id": "a:2238"
+        "id": "a:2238",
+        "effectsKnown": true
       },
       {
         "name": "Santa Quilla",
         "system": 11,
         "sex": "F",
         "effects": [],
-        "id": "a:2239"
+        "id": "a:2239",
+        "effectsKnown": true
       },
       {
         "name": "Saracen Miss",
@@ -42284,7 +42643,8 @@
         "system": 5,
         "sex": "M",
         "effects": [],
-        "id": "a:2254"
+        "id": "a:2254",
+        "effectsKnown": true
       },
       {
         "name": "Sceptical",
@@ -42438,7 +42798,8 @@
         "system": 6,
         "sex": "M",
         "effects": [],
-        "id": "a:2276"
+        "id": "a:2276",
+        "effectsKnown": true
       },
       {
         "name": "Sega Ville",
@@ -42466,7 +42827,8 @@
         "system": 6,
         "sex": "M",
         "effects": [],
-        "id": "a:2280"
+        "id": "a:2280",
+        "effectsKnown": true
       },
       {
         "name": "Selvi",
@@ -42515,7 +42877,8 @@
         "system": 1,
         "sex": "F",
         "effects": [],
-        "id": "a:2287"
+        "id": "a:2287",
+        "effectsKnown": true
       },
       {
         "name": "Sequoia",
@@ -42557,7 +42920,8 @@
         "system": 11,
         "sex": "F",
         "effects": [],
-        "id": "a:2293"
+        "id": "a:2293",
+        "effectsKnown": true
       },
       {
         "name": "Seximee",
@@ -42578,7 +42942,8 @@
         "system": 12,
         "sex": "F",
         "effects": [],
-        "id": "a:2296"
+        "id": "a:2296",
+        "effectsKnown": true
       },
       {
         "name": "Sham",
@@ -42634,14 +42999,16 @@
         "system": 5,
         "sex": "M",
         "effects": [],
-        "id": "a:2304"
+        "id": "a:2304",
+        "effectsKnown": true
       },
       {
         "name": "Sharon Brown",
         "system": 10,
         "sex": "F",
         "effects": [],
-        "id": "a:2305"
+        "id": "a:2305",
+        "effectsKnown": true
       },
       {
         "name": "Sharp Belle",
@@ -42669,7 +43036,8 @@
         "system": 13,
         "sex": "F",
         "effects": [],
-        "id": "a:2309"
+        "id": "a:2309",
+        "effectsKnown": true
       },
       {
         "name": "Sharpo",
@@ -42753,7 +43121,8 @@
         "system": 6,
         "sex": "F",
         "effects": [],
-        "id": "a:2321"
+        "id": "a:2321",
+        "effectsKnown": true
       },
       {
         "name": "Sherriff's Deputy",
@@ -42795,7 +43164,8 @@
         "system": 3,
         "sex": "M",
         "effects": [],
-        "id": "a:2327"
+        "id": "a:2327",
+        "effectsKnown": true
       },
       {
         "name": "Shirocco",
@@ -42851,14 +43221,16 @@
         "system": 3,
         "sex": "F",
         "effects": [],
-        "id": "a:2335"
+        "id": "a:2335",
+        "effectsKnown": true
       },
       {
         "name": "Shortley",
         "system": 14,
         "sex": "F",
         "effects": [],
-        "id": "a:2336"
+        "id": "a:2336",
+        "effectsKnown": true
       },
       {
         "name": "Shoshanna",
@@ -42921,7 +43293,8 @@
         "system": 13,
         "sex": "F",
         "effects": [],
-        "id": "a:2345"
+        "id": "a:2345",
+        "effectsKnown": true
       },
       {
         "name": "Silly Season",
@@ -42963,7 +43336,8 @@
         "system": 3,
         "sex": "F",
         "effects": [],
-        "id": "a:2351"
+        "id": "a:2351",
+        "effectsKnown": true
       },
       {
         "name": "Silver Saber",
@@ -42984,14 +43358,16 @@
         "system": 3,
         "sex": "M",
         "effects": [],
-        "id": "a:2354"
+        "id": "a:2354",
+        "effectsKnown": true
       },
       {
         "name": "Silver Star",
         "system": 6,
         "sex": "F",
         "effects": [],
-        "id": "a:2355"
+        "id": "a:2355",
+        "effectsKnown": true
       },
       {
         "name": "Silver True",
@@ -43166,7 +43542,8 @@
         "system": 4,
         "sex": "F",
         "effects": [],
-        "id": "a:2380"
+        "id": "a:2380",
+        "effectsKnown": true
       },
       {
         "name": "Slinkylady",
@@ -43187,7 +43564,8 @@
         "system": 12,
         "sex": "F",
         "effects": [],
-        "id": "a:2383"
+        "id": "a:2383",
+        "effectsKnown": true
       },
       {
         "name": "Smart Heiress",
@@ -43327,7 +43705,8 @@
         "system": 13,
         "sex": "F",
         "effects": [],
-        "id": "a:2403"
+        "id": "a:2403",
+        "effectsKnown": true
       },
       {
         "name": "Soldier Hollow",
@@ -43418,7 +43797,8 @@
         "system": 9,
         "sex": "F",
         "effects": [],
-        "id": "a:2416"
+        "id": "a:2416",
+        "effectsKnown": true
       },
       {
         "name": "サザンヘイロー",
@@ -43502,7 +43882,8 @@
         "system": 13,
         "sex": "M",
         "effects": [],
-        "id": "a:2428"
+        "id": "a:2428",
+        "effectsKnown": true
       },
       {
         "name": "Special Portion",
@@ -43558,7 +43939,8 @@
         "system": 8,
         "sex": "F",
         "effects": [],
-        "id": "a:2436"
+        "id": "a:2436",
+        "effectsKnown": true
       },
       {
         "name": "Spring Offensive",
@@ -43677,7 +44059,8 @@
         "system": 1,
         "sex": "F",
         "effects": [],
-        "id": "a:2453"
+        "id": "a:2453",
+        "effectsKnown": true
       },
       {
         "name": "Stately Princess",
@@ -43740,7 +44123,8 @@
         "system": 13,
         "sex": "F",
         "effects": [],
-        "id": "a:2462"
+        "id": "a:2462",
+        "effectsKnown": true
       },
       {
         "name": "Sticky Case",
@@ -43782,7 +44166,8 @@
         "system": 5,
         "sex": "M",
         "effects": [],
-        "id": "a:2468"
+        "id": "a:2468",
+        "effectsKnown": true
       },
       {
         "name": "Storminwinter",
@@ -43880,7 +44265,8 @@
         "system": 15,
         "sex": "F",
         "effects": [],
-        "id": "a:2482"
+        "id": "a:2482",
+        "effectsKnown": true
       },
       {
         "name": "Stymie",
@@ -43922,14 +44308,16 @@
         "system": 11,
         "sex": "F",
         "effects": [],
-        "id": "a:2488"
+        "id": "a:2488",
+        "effectsKnown": true
       },
       {
         "name": "Sugar Gold",
         "system": 6,
         "sex": "F",
         "effects": [],
-        "id": "a:2489"
+        "id": "a:2489",
+        "effectsKnown": true
       },
       {
         "name": "Suivez",
@@ -43943,7 +44331,8 @@
         "system": 1,
         "sex": "F",
         "effects": [],
-        "id": "a:2491"
+        "id": "a:2491",
+        "effectsKnown": true
       },
       {
         "name": "Sulemeif",
@@ -43999,14 +44388,16 @@
         "system": 13,
         "sex": "F",
         "effects": [],
-        "id": "a:2499"
+        "id": "a:2499",
+        "effectsKnown": true
       },
       {
         "name": "Sun Princess",
         "system": 7,
         "sex": "F",
         "effects": [],
-        "id": "a:2500"
+        "id": "a:2500",
+        "effectsKnown": true
       },
       {
         "name": "Sunbittern",
@@ -44097,7 +44488,8 @@
         "system": 9,
         "sex": "F",
         "effects": [],
-        "id": "a:2513"
+        "id": "a:2513",
+        "effectsKnown": true
       },
       {
         "name": "Surata",
@@ -44132,14 +44524,16 @@
         "system": 11,
         "sex": "M",
         "effects": [],
-        "id": "a:2518"
+        "id": "a:2518",
+        "effectsKnown": true
       },
       {
         "name": "Suspicious Native",
         "system": 6,
         "sex": "F",
         "effects": [],
-        "id": "a:2519"
+        "id": "a:2519",
+        "effectsKnown": true
       },
       {
         "name": "Swan",
@@ -44181,7 +44575,8 @@
         "system": 4,
         "sex": "F",
         "effects": [],
-        "id": "a:2525"
+        "id": "a:2525",
+        "effectsKnown": true
       },
       {
         "name": "Sweet Briar Too",
@@ -44202,7 +44597,8 @@
         "system": 5,
         "sex": "F",
         "effects": [],
-        "id": "a:2528"
+        "id": "a:2528",
+        "effectsKnown": true
       },
       {
         "name": "Sweet Romance",
@@ -44216,7 +44612,8 @@
         "system": 3,
         "sex": "F",
         "effects": [],
-        "id": "a:2530"
+        "id": "a:2530",
+        "effectsKnown": true
       },
       {
         "name": "Sweetest Chant",
@@ -44321,7 +44718,8 @@
         "system": 8,
         "sex": "F",
         "effects": [],
-        "id": "a:2545"
+        "id": "a:2545",
+        "effectsKnown": true
       },
       {
         "name": "T.V. Lark",
@@ -44342,7 +44740,8 @@
         "system": 14,
         "sex": "F",
         "effects": [],
-        "id": "a:2548"
+        "id": "a:2548",
+        "effectsKnown": true
       },
       {
         "name": "Take Away",
@@ -44377,7 +44776,8 @@
         "system": 5,
         "sex": "M",
         "effects": [],
-        "id": "a:2553"
+        "id": "a:2553",
+        "effectsKnown": true
       },
       {
         "name": "Tales to Tell",
@@ -44405,7 +44805,8 @@
         "system": 10,
         "sex": "M",
         "effects": [],
-        "id": "a:2557"
+        "id": "a:2557",
+        "effectsKnown": true
       },
       {
         "name": "Tananarive",
@@ -44440,14 +44841,16 @@
         "system": 6,
         "sex": "F",
         "effects": [],
-        "id": "a:2562"
+        "id": "a:2562",
+        "effectsKnown": true
       },
       {
         "name": "Tapit",
         "system": 3,
         "sex": "M",
         "effects": [],
-        "id": "a:2563"
+        "id": "a:2563",
+        "effectsKnown": true
       },
       {
         "name": "Tarfah",
@@ -44468,7 +44871,8 @@
         "system": 3,
         "sex": "F",
         "effects": [],
-        "id": "a:2566"
+        "id": "a:2566",
+        "effectsKnown": true
       },
       {
         "name": "Tejabo",
@@ -44545,14 +44949,16 @@
         "system": 10,
         "sex": "F",
         "effects": [],
-        "id": "a:2577"
+        "id": "a:2577",
+        "effectsKnown": true
       },
       {
         "name": "Terlingua",
         "system": 3,
         "sex": "F",
         "effects": [],
-        "id": "a:2578"
+        "id": "a:2578",
+        "effectsKnown": true
       },
       {
         "name": "Terpsichorist",
@@ -44622,7 +45028,8 @@
         "system": 5,
         "sex": "F",
         "effects": [],
-        "id": "a:2588"
+        "id": "a:2588",
+        "effectsKnown": true
       },
       {
         "name": "The Hess Express",
@@ -44636,7 +45043,8 @@
         "system": 5,
         "sex": "M",
         "effects": [],
-        "id": "a:2590"
+        "id": "a:2590",
+        "effectsKnown": true
       },
       {
         "name": "The Noble Player",
@@ -44650,7 +45058,8 @@
         "system": 5,
         "sex": "M",
         "effects": [],
-        "id": "a:2592"
+        "id": "a:2592",
+        "effectsKnown": true
       },
       {
         "name": "The Pruner",
@@ -44699,21 +45108,27 @@
         "system": 8,
         "sex": "F",
         "effects": [],
-        "id": "a:2599"
+        "id": "a:2599",
+        "effectsKnown": true
       },
       {
         "name": "Thong",
         "system": 3,
         "sex": "F",
-        "effects": [],
-        "id": "a:2600"
+        "effects": [
+          "速力",
+          "底力"
+        ],
+        "id": "a:2600",
+        "effectsKnown": true
       },
       {
         "name": "Tiepoletto",
         "system": 15,
         "sex": "M",
         "effects": [],
-        "id": "a:2601"
+        "id": "a:2601",
+        "effectsKnown": true
       },
       {
         "name": "Tights",
@@ -44832,7 +45247,8 @@
         "system": 8,
         "sex": "M",
         "effects": [],
-        "id": "a:2618"
+        "id": "a:2618",
+        "effectsKnown": true
       },
       {
         "name": "Tomorrowland",
@@ -44895,7 +45311,8 @@
         "system": 5,
         "sex": "F",
         "effects": [],
-        "id": "a:2627"
+        "id": "a:2627",
+        "effectsKnown": true
       },
       {
         "name": "Tourangeau",
@@ -44909,7 +45326,8 @@
         "system": 5,
         "sex": "F",
         "effects": [],
-        "id": "a:2629"
+        "id": "a:2629",
+        "effectsKnown": true
       },
       {
         "name": "Toute Belle",
@@ -44979,7 +45397,8 @@
         "system": 6,
         "sex": "M",
         "effects": [],
-        "id": "a:2639"
+        "id": "a:2639",
+        "effectsKnown": true
       },
       {
         "name": "Trensa",
@@ -44993,7 +45412,8 @@
         "system": 5,
         "sex": "F",
         "effects": [],
-        "id": "a:2641"
+        "id": "a:2641",
+        "effectsKnown": true
       },
       {
         "name": "Trevieres",
@@ -45007,14 +45427,16 @@
         "system": 8,
         "sex": "F",
         "effects": [],
-        "id": "a:2643"
+        "id": "a:2643",
+        "effectsKnown": true
       },
       {
         "name": "Tri Jet",
         "system": 8,
         "sex": "M",
         "effects": [],
-        "id": "a:2644"
+        "id": "a:2644",
+        "effectsKnown": true
       },
       {
         "name": "Triassic",
@@ -45077,7 +45499,8 @@
         "system": 3,
         "sex": "F",
         "effects": [],
-        "id": "a:2653"
+        "id": "a:2653",
+        "effectsKnown": true
       },
       {
         "name": "Troy",
@@ -45287,14 +45710,16 @@
         "system": 6,
         "sex": "M",
         "effects": [],
-        "id": "a:2683"
+        "id": "a:2683",
+        "effectsKnown": true
       },
       {
         "name": "Unbridled's Song",
         "system": 6,
         "sex": "M",
         "effects": [],
-        "id": "a:2684"
+        "id": "a:2684",
+        "effectsKnown": true
       },
       {
         "name": "Uncommitted",
@@ -45315,7 +45740,8 @@
         "system": 9,
         "sex": "M",
         "effects": [],
-        "id": "a:2687"
+        "id": "a:2687",
+        "effectsKnown": true
       },
       {
         "name": "Unfurled",
@@ -45378,14 +45804,16 @@
         "system": 6,
         "sex": "F",
         "effects": [],
-        "id": "a:2696"
+        "id": "a:2696",
+        "effectsKnown": true
       },
       {
         "name": "Utrillo",
         "system": 2,
         "sex": "M",
         "effects": [],
-        "id": "a:2697"
+        "id": "a:2697",
+        "effectsKnown": true
       },
       {
         "name": "Vaguely",
@@ -45539,7 +45967,8 @@
         "system": 6,
         "sex": "M",
         "effects": [],
-        "id": "a:2719"
+        "id": "a:2719",
+        "effectsKnown": true
       },
       {
         "name": "Via Milano",
@@ -45553,7 +45982,8 @@
         "system": 5,
         "sex": "M",
         "effects": [],
-        "id": "a:2721"
+        "id": "a:2721",
+        "effectsKnown": true
       },
       {
         "name": "Victoria Beauty",
@@ -45574,7 +46004,8 @@
         "system": 7,
         "sex": "F",
         "effects": [],
-        "id": "a:2724"
+        "id": "a:2724",
+        "effectsKnown": true
       },
       {
         "name": "Victorian Queen",
@@ -45609,7 +46040,8 @@
         "system": 11,
         "sex": "M",
         "effects": [],
-        "id": "a:2729"
+        "id": "a:2729",
+        "effectsKnown": true
       },
       {
         "name": "Vilette",
@@ -45798,7 +46230,8 @@
         "system": 3,
         "sex": "F",
         "effects": [],
-        "id": "a:2756"
+        "id": "a:2756",
+        "effectsKnown": true
       },
       {
         "name": "Well Decorated",
@@ -45826,7 +46259,8 @@
         "system": 11,
         "sex": "F",
         "effects": [],
-        "id": "a:2760"
+        "id": "a:2760",
+        "effectsKnown": true
       },
       {
         "name": "Whakilyric",
@@ -45979,11 +46413,12 @@
         "id": "a:2781"
       },
       {
-        "name": "Wind Cloud",
+        "name": "Wild Cloud",
         "system": 12,
         "sex": "F",
         "effects": [],
-        "id": "a:2782"
+        "id": "a:2782",
+        "effectsKnown": true
       },
       {
         "name": "Windfields",
@@ -45997,7 +46432,8 @@
         "system": 11,
         "sex": "F",
         "effects": [],
-        "id": "a:2784"
+        "id": "a:2784",
+        "effectsKnown": true
       },
       {
         "name": "Windy Answer",
@@ -46018,7 +46454,8 @@
         "system": 13,
         "sex": "F",
         "effects": [],
-        "id": "a:2787"
+        "id": "a:2787",
+        "effectsKnown": true
       },
       {
         "name": "Winters' Love",
@@ -46046,7 +46483,8 @@
         "system": 9,
         "sex": "F",
         "effects": [],
-        "id": "a:2791"
+        "id": "a:2791",
+        "effectsKnown": true
       },
       {
         "name": "Wising Up",
@@ -46101,8 +46539,11 @@
         "name": "Woodman",
         "system": 6,
         "sex": "M",
-        "effects": [],
-        "id": "a:2799"
+        "effects": [
+          "短距離"
+        ],
+        "id": "a:2799",
+        "effectsKnown": true
       },
       {
         "name": "Woodman's Girl",
@@ -46172,7 +46613,8 @@
         "system": 6,
         "sex": "F",
         "effects": [],
-        "id": "a:2809"
+        "id": "a:2809",
+        "effectsKnown": true
       },
       {
         "name": "Yearly Report",
@@ -46242,7 +46684,8 @@
         "system": 6,
         "sex": "M",
         "effects": [],
-        "id": "a:2819"
+        "id": "a:2819",
+        "effectsKnown": true
       },
       {
         "name": "Zahani",
@@ -46256,7 +46699,8 @@
         "system": 5,
         "sex": "F",
         "effects": [],
-        "id": "a:2821"
+        "id": "a:2821",
+        "effectsKnown": true
       },
       {
         "name": "Zameyla",
@@ -46354,7 +46798,8 @@
         "system": 3,
         "sex": "F",
         "effects": [],
-        "id": "a:2835"
+        "id": "a:2835",
+        "effectsKnown": true
       },
       {
         "name": "Zoustar",
@@ -46382,7 +46827,8 @@
         "system": 3,
         "sex": "F",
         "effects": [],
-        "id": "a:2839"
+        "id": "a:2839",
+        "effectsKnown": true
       },
       {
         "name": "アイリッシュダンス",
@@ -46501,7 +46947,8 @@
         "system": 3,
         "sex": "M",
         "effects": [],
-        "id": "a:2856"
+        "id": "a:2856",
+        "effectsKnown": true
       },
       {
         "name": "アドマイヤジャパン",
@@ -46522,7 +46969,8 @@
         "system": 5,
         "sex": "F",
         "effects": [],
-        "id": "a:2859"
+        "id": "a:2859",
+        "effectsKnown": true
       },
       {
         "name": "アドマイヤムーン",
@@ -46669,14 +47117,16 @@
         "system": 4,
         "sex": "F",
         "effects": [],
-        "id": "a:2880"
+        "id": "a:2880",
+        "effectsKnown": true
       },
       {
         "name": "イルドブルボン",
         "system": 5,
         "sex": "M",
         "effects": [],
-        "id": "a:2881"
+        "id": "a:2881",
+        "effectsKnown": true
       },
       {
         "name": "イングリッシュプリンス",
@@ -46802,7 +47252,8 @@
         "system": 3,
         "sex": "F",
         "effects": [],
-        "id": "a:2899"
+        "id": "a:2899",
+        "effectsKnown": true
       },
       {
         "name": "エイシンアポロン",
@@ -47012,7 +47463,8 @@
         "system": 6,
         "sex": "F",
         "effects": [],
-        "id": "a:2929"
+        "id": "a:2929",
+        "effectsKnown": true
       },
       {
         "name": "オールドヴィック",
@@ -47033,7 +47485,8 @@
         "system": 6,
         "sex": "F",
         "effects": [],
-        "id": "a:2932"
+        "id": "a:2932",
+        "effectsKnown": true
       },
       {
         "name": "オールフォーロンドン",
@@ -47047,14 +47500,16 @@
         "system": 13,
         "sex": "F",
         "effects": [],
-        "id": "a:2934"
+        "id": "a:2934",
+        "effectsKnown": true
       },
       {
         "name": "オーロラテルコ",
         "system": 3,
         "sex": "F",
         "effects": [],
-        "id": "a:2935"
+        "id": "a:2935",
+        "effectsKnown": true
       },
       {
         "name": "カウアイキング",
@@ -47110,7 +47565,8 @@
         "system": 3,
         "sex": "M",
         "effects": [],
-        "id": "a:2943"
+        "id": "a:2943",
+        "effectsKnown": true
       },
       {
         "name": "カーネギー",
@@ -47215,7 +47671,8 @@
         "system": 6,
         "sex": "M",
         "effects": [],
-        "id": "st:9"
+        "id": "st:9",
+        "effectsKnown": true
       },
       {
         "name": "キングズベスト",
@@ -47404,7 +47861,8 @@
         "system": 7,
         "sex": "F",
         "effects": [],
-        "id": "a:2985"
+        "id": "a:2985",
+        "effectsKnown": true
       },
       {
         "name": "コパノリチャード",
@@ -47425,7 +47883,8 @@
         "system": 4,
         "sex": "F",
         "effects": [],
-        "id": "a:2988"
+        "id": "a:2988",
+        "effectsKnown": true
       },
       {
         "name": "コロナ",
@@ -47474,7 +47933,8 @@
         "system": 11,
         "sex": "F",
         "effects": [],
-        "id": "a:2995"
+        "id": "a:2995",
+        "effectsKnown": true
       },
       {
         "name": "ゴールドアリュール",
@@ -47537,7 +47997,8 @@
         "system": 13,
         "sex": "F",
         "effects": [],
-        "id": "a:3004"
+        "id": "a:3004",
+        "effectsKnown": true
       },
       {
         "name": "サドラーズギャル",
@@ -47558,7 +48019,8 @@
         "system": 3,
         "sex": "F",
         "effects": [],
-        "id": "a:3007"
+        "id": "a:3007",
+        "effectsKnown": true
       },
       {
         "name": "サムライハート",
@@ -47648,8 +48110,12 @@
         "name": "シェリル",
         "system": 10,
         "sex": "F",
-        "effects": [],
-        "id": "a:3020"
+        "effects": [
+          "長距離",
+          "底力"
+        ],
+        "id": "a:3020",
+        "effectsKnown": true
       },
       {
         "name": "シザラ",
@@ -47691,7 +48157,8 @@
         "system": 1,
         "sex": "F",
         "effects": [],
-        "id": "a:3026"
+        "id": "a:3026",
+        "effectsKnown": true
       },
       {
         "name": "シャロン",
@@ -47782,7 +48249,8 @@
         "system": 13,
         "sex": "M",
         "effects": [],
-        "id": "a:3039"
+        "id": "a:3039",
+        "effectsKnown": true
       },
       {
         "name": "シンティレート",
@@ -47803,14 +48271,16 @@
         "system": 4,
         "sex": "M",
         "effects": [],
-        "id": "st:69"
+        "id": "st:69",
+        "effectsKnown": true
       },
       {
         "name": "シンボリルドルフ",
         "system": 15,
         "sex": "M",
         "effects": [],
-        "id": "st:w-8"
+        "id": "st:w-8",
+        "effectsKnown": true
       },
       {
         "name": "シンメイミネルバ",
@@ -47838,7 +48308,8 @@
         "system": 11,
         "sex": "F",
         "effects": [],
-        "id": "a:3047"
+        "id": "a:3047",
+        "effectsKnown": true
       },
       {
         "name": "ジェイドハンター",
@@ -47852,7 +48323,8 @@
         "system": 6,
         "sex": "M",
         "effects": [],
-        "id": "a:3049"
+        "id": "a:3049",
+        "effectsKnown": true
       },
       {
         "name": "ジムフレンチ",
@@ -47887,21 +48359,24 @@
         "system": 5,
         "sex": "F",
         "effects": [],
-        "id": "a:3054"
+        "id": "a:3054",
+        "effectsKnown": true
       },
       {
         "name": "ジョーユーチャリス",
         "system": 3,
         "sex": "F",
         "effects": [],
-        "id": "a:3055"
+        "id": "a:3055",
+        "effectsKnown": true
       },
       {
         "name": "ジョーバブーン",
         "system": 3,
         "sex": "F",
         "effects": [],
-        "id": "a:3056"
+        "id": "a:3056",
+        "effectsKnown": true
       },
       {
         "name": "ジーナロマンティカ",
@@ -47922,7 +48397,8 @@
         "system": 4,
         "sex": "F",
         "effects": [],
-        "id": "a:3059"
+        "id": "a:3059",
+        "effectsKnown": true
       },
       {
         "name": "スウィフトカレント",
@@ -48030,18 +48506,12 @@
         "id": "a:3074"
       },
       {
-        "name": "スターリングローズ ハンセル,",
-        "system": 6,
-        "sex": "M",
-        "effects": [],
-        "id": "a:3075"
-      },
-      {
         "name": "ステイゴールド",
         "system": 4,
         "sex": "M",
         "effects": [],
-        "id": "st:22"
+        "id": "st:22",
+        "effectsKnown": true
       },
       {
         "name": "ステラマドリッド",
@@ -48146,7 +48616,8 @@
         "system": 4,
         "sex": "M",
         "effects": [],
-        "id": "a:3091"
+        "id": "a:3091",
+        "effectsKnown": true
       },
       {
         "name": "スペシャルウィーク",
@@ -48244,7 +48715,8 @@
         "system": 4,
         "sex": "F",
         "effects": [],
-        "id": "a:3105"
+        "id": "a:3105",
+        "effectsKnown": true
       },
       {
         "name": "センジュウ",
@@ -48271,8 +48743,12 @@
         "name": "ソシアルバターフライ",
         "system": 11,
         "sex": "F",
-        "effects": [],
-        "id": "a:3109"
+        "effects": [
+          "パワー",
+          "底力"
+        ],
+        "id": "a:3109",
+        "effectsKnown": true
       },
       {
         "name": "ソニックグルーヴ",
@@ -48377,7 +48853,8 @@
         "system": 13,
         "sex": "M",
         "effects": [],
-        "id": "a:3124"
+        "id": "a:3124",
+        "effectsKnown": true
       },
       {
         "name": "タピッツフライ",
@@ -48411,15 +48888,20 @@
         "name": "ダイナサッシュ",
         "system": 5,
         "sex": "F",
-        "effects": [],
-        "id": "a:3129"
+        "effects": [
+          "速力",
+          "底力"
+        ],
+        "id": "a:3129",
+        "effectsKnown": true
       },
       {
         "name": "ダイナフェアリー",
         "system": 5,
         "sex": "F",
         "effects": [],
-        "id": "a:3130"
+        "id": "a:3130",
+        "effectsKnown": true
       },
       {
         "name": "ダイナレター",
@@ -48524,7 +49006,8 @@
         "system": 7,
         "sex": "F",
         "effects": [],
-        "id": "a:3145"
+        "id": "a:3145",
+        "effectsKnown": true
       },
       {
         "name": "ダンスチャーマー",
@@ -48608,7 +49091,8 @@
         "system": 6,
         "sex": "M",
         "effects": [],
-        "id": "a:3157"
+        "id": "a:3157",
+        "effectsKnown": true
       },
       {
         "name": "テイエムオペラオー",
@@ -48657,7 +49141,8 @@
         "system": 11,
         "sex": "M",
         "effects": [],
-        "id": "a:3164"
+        "id": "a:3164",
+        "effectsKnown": true
       },
       {
         "name": "ディクタット",
@@ -48692,7 +49177,8 @@
         "system": 4,
         "sex": "M",
         "effects": [],
-        "id": "st:1"
+        "id": "st:1",
+        "effectsKnown": true
       },
       {
         "name": "ディーマジェスティ",
@@ -48741,28 +49227,32 @@
         "system": 15,
         "sex": "F",
         "effects": [],
-        "id": "a:3176"
+        "id": "a:3176",
+        "effectsKnown": true
       },
       {
         "name": "トウカイテイオー",
         "system": 15,
         "sex": "M",
         "effects": [],
-        "id": "a:3177"
+        "id": "a:3177",
+        "effectsKnown": true
       },
       {
         "name": "トウカイナチュラル",
         "system": 5,
         "sex": "F",
         "effects": [],
-        "id": "a:3178"
+        "id": "a:3178",
+        "effectsKnown": true
       },
       {
         "name": "トウカイミドリ",
         "system": 3,
         "sex": "F",
         "effects": [],
-        "id": "a:3179"
+        "id": "a:3179",
+        "effectsKnown": true
       },
       {
         "name": "トキオリアリティー",
@@ -48783,7 +49273,8 @@
         "system": 3,
         "sex": "F",
         "effects": [],
-        "id": "a:3182"
+        "id": "a:3182",
+        "effectsKnown": true
       },
       {
         "name": "トサクイン",
@@ -48804,7 +49295,8 @@
         "system": 11,
         "sex": "M",
         "effects": [],
-        "id": "a:3185"
+        "id": "a:3185",
+        "effectsKnown": true
       },
       {
         "name": "トヨハタグモ",
@@ -48818,14 +49310,16 @@
         "system": 3,
         "sex": "M",
         "effects": [],
-        "id": "a:3187"
+        "id": "a:3187",
+        "effectsKnown": true
       },
       {
-        "name": "Try My Best",
+        "name": "トライマイベスト",
         "system": 5,
         "sex": "M",
         "effects": [],
-        "id": "a:3188"
+        "id": "a:3188",
+        "effectsKnown": true
       },
       {
         "name": "トラフィック",
@@ -48895,7 +49389,8 @@
         "system": 5,
         "sex": "M",
         "effects": [],
-        "id": "a:3198"
+        "id": "a:3198",
+        "effectsKnown": true
       },
       {
         "name": "ナイスレイズ",
@@ -48972,7 +49467,8 @@
         "system": 4,
         "sex": "M",
         "effects": [],
-        "id": "st:88"
+        "id": "st:88",
+        "effectsKnown": true
       },
       {
         "name": "ネバージョオー",
@@ -49084,7 +49580,8 @@
         "system": 15,
         "sex": "F",
         "effects": [],
-        "id": "a:3225"
+        "id": "a:3225",
+        "effectsKnown": true
       },
       {
         "name": "ハルーワスウィート",
@@ -49140,7 +49637,8 @@
         "system": 11,
         "sex": "F",
         "effects": [],
-        "id": "a:3233"
+        "id": "a:3233",
+        "effectsKnown": true
       },
       {
         "name": "ハードスパン",
@@ -49231,7 +49729,8 @@
         "system": 5,
         "sex": "F",
         "effects": [],
-        "id": "a:3246"
+        "id": "a:3246",
+        "effectsKnown": true
       },
       {
         "name": "バンブーアトラス",
@@ -49266,7 +49765,8 @@
         "system": 5,
         "sex": "F",
         "effects": [],
-        "id": "a:3251"
+        "id": "a:3251",
+        "effectsKnown": true
       },
       {
         "name": "パテントリークリア",
@@ -49294,7 +49794,8 @@
         "system": 3,
         "sex": "F",
         "effects": [],
-        "id": "a:3255"
+        "id": "a:3255",
+        "effectsKnown": true
       },
       {
         "name": "パーソロック",
@@ -49441,7 +49942,8 @@
         "system": 3,
         "sex": "M",
         "effects": [],
-        "id": "a:3276"
+        "id": "a:3276",
+        "effectsKnown": true
       },
       {
         "name": "ファルブラヴ",
@@ -49476,7 +49978,8 @@
         "system": 5,
         "sex": "F",
         "effects": [],
-        "id": "a:3281"
+        "id": "a:3281",
+        "effectsKnown": true
       },
       {
         "name": "フィダルゴ",
@@ -49539,7 +50042,8 @@
         "system": 5,
         "sex": "M",
         "effects": [],
-        "id": "a:3290"
+        "id": "a:3290",
+        "effectsKnown": true
       },
       {
         "name": "フサイチパンドラ",
@@ -49595,14 +50099,16 @@
         "system": 5,
         "sex": "M",
         "effects": [],
-        "id": "a:3298"
+        "id": "a:3298",
+        "effectsKnown": true
       },
       {
         "name": "フレンチリヴィエラ",
         "system": 5,
         "sex": "F",
         "effects": [],
-        "id": "a:3299"
+        "id": "a:3299",
+        "effectsKnown": true
       },
       {
         "name": "フロムビヨンド",
@@ -49672,7 +50178,8 @@
         "system": 7,
         "sex": "F",
         "effects": [],
-        "id": "a:3309"
+        "id": "a:3309",
+        "effectsKnown": true
       },
       {
         "name": "ブルーハワイ",
@@ -49721,7 +50228,8 @@
         "system": 5,
         "sex": "M",
         "effects": [],
-        "id": "a:3316"
+        "id": "a:3316",
+        "effectsKnown": true
       },
       {
         "name": "プレシャスライフ",
@@ -49770,7 +50278,8 @@
         "system": 4,
         "sex": "F",
         "effects": [],
-        "id": "a:3323"
+        "id": "a:3323",
+        "effectsKnown": true
       },
       {
         "name": "ベガ",
@@ -49865,17 +50374,19 @@
       },
       {
         "name": "ポインテッドパス",
-        "system": 13,
+        "system": 6,
         "sex": "F",
         "effects": [],
-        "id": "a:3337"
+        "id": "a:3337",
+        "effectsKnown": true
       },
       {
         "name": "ポイントフラッグ",
         "system": 15,
         "sex": "F",
         "effects": [],
-        "id": "a:3338"
+        "id": "a:3338",
+        "effectsKnown": true
       },
       {
         "name": "ポイントメーカー",
@@ -49959,7 +50470,8 @@
         "system": 4,
         "sex": "F",
         "effects": [],
-        "id": "a:3350"
+        "id": "a:3350",
+        "effectsKnown": true
       },
       {
         "name": "マクダヴィア",
@@ -50022,7 +50534,8 @@
         "system": 4,
         "sex": "M",
         "effects": [],
-        "id": "a:3359"
+        "id": "a:3359",
+        "effectsKnown": true
       },
       {
         "name": "マネーキャントバイミーラヴ",
@@ -50120,14 +50633,16 @@
         "system": 4,
         "sex": "M",
         "effects": [],
-        "id": "a:3373"
+        "id": "a:3373",
+        "effectsKnown": true
       },
       {
         "name": "マンファス",
         "system": 5,
         "sex": "F",
         "effects": [],
-        "id": "a:3374"
+        "id": "a:3374",
+        "effectsKnown": true
       },
       {
         "name": "マーチンミユキ",
@@ -50155,7 +50670,8 @@
         "system": 5,
         "sex": "F",
         "effects": [],
-        "id": "a:3378"
+        "id": "a:3378",
+        "effectsKnown": true
       },
       {
         "name": "ミススズラン",
@@ -50169,7 +50685,8 @@
         "system": 3,
         "sex": "M",
         "effects": [],
-        "id": "a:3380"
+        "id": "a:3380",
+        "effectsKnown": true
       },
       {
         "name": "ミズノコマチ",
@@ -50183,7 +50700,8 @@
         "system": 3,
         "sex": "F",
         "effects": [],
-        "id": "a:3382"
+        "id": "a:3382",
+        "effectsKnown": true
       },
       {
         "name": "ミツヨシ",
@@ -50281,7 +50799,8 @@
         "system": 2,
         "sex": "F",
         "effects": [],
-        "id": "a:3396"
+        "id": "a:3396",
+        "effectsKnown": true
       },
       {
         "name": "メガミゲラン",
@@ -50295,21 +50814,24 @@
         "system": 13,
         "sex": "F",
         "effects": [],
-        "id": "a:3398"
+        "id": "a:3398",
+        "effectsKnown": true
       },
       {
         "name": "メジロアサマ",
         "system": 15,
         "sex": "M",
         "effects": [],
-        "id": "a:3399"
+        "id": "a:3399",
+        "effectsKnown": true
       },
       {
         "name": "メジロオーロラ",
         "system": 10,
         "sex": "F",
         "effects": [],
-        "id": "a:3400"
+        "id": "a:3400",
+        "effectsKnown": true
       },
       {
         "name": "メジロクインシー",
@@ -50323,7 +50845,8 @@
         "system": 15,
         "sex": "M",
         "effects": [],
-        "id": "a:3402"
+        "id": "a:3402",
+        "effectsKnown": true
       },
       {
         "name": "メジロフランシス",
@@ -50414,7 +50937,8 @@
         "system": 13,
         "sex": "F",
         "effects": [],
-        "id": "a:3415"
+        "id": "a:3415",
+        "effectsKnown": true
       },
       {
         "name": "ヤマカツマリリン",
@@ -50463,7 +50987,8 @@
         "system": 5,
         "sex": "M",
         "effects": [],
-        "id": "a:3422"
+        "id": "a:3422",
+        "effectsKnown": true
       },
       {
         "name": "ライジングライト",
@@ -50519,7 +51044,8 @@
         "system": 5,
         "sex": "M",
         "effects": [],
-        "id": "a:3430"
+        "id": "a:3430",
+        "effectsKnown": true
       },
       {
         "name": "ラディガ",
@@ -50575,7 +51101,8 @@
         "system": 5,
         "sex": "F",
         "effects": [],
-        "id": "bm:69"
+        "id": "bm:69",
+        "effectsKnown": true
       },
       {
         "name": "ラークホイッスル",
@@ -50589,7 +51116,8 @@
         "system": 4,
         "sex": "M",
         "effects": [],
-        "id": "st:15"
+        "id": "st:15",
+        "effectsKnown": true
       },
       {
         "name": "リィフォー",
@@ -50652,7 +51180,8 @@
         "system": 10,
         "sex": "M",
         "effects": [],
-        "id": "a:3449"
+        "id": "a:3449",
+        "effectsKnown": true
       },
       {
         "name": "リュヌドール",
@@ -50785,7 +51314,8 @@
         "system": 11,
         "sex": "F",
         "effects": [],
-        "id": "a:3468"
+        "id": "a:3468",
+        "effectsKnown": true
       },
       {
         "name": "レーヴドスカー",
@@ -50810,10 +51340,11 @@
       },
       {
         "name": "ロイヤルサッシュ",
-        "system": 13,
+        "system": 3,
         "sex": "F",
         "effects": [],
-        "id": "a:3472"
+        "id": "a:3472",
+        "effectsKnown": true
       },
       {
         "name": "ロイヤルスキー",
@@ -52535,7 +53066,8 @@
         "system": 3,
         "sex": "M",
         "effects": [],
-        "id": "a:3718"
+        "id": "a:3718",
+        "effectsKnown": true
       },
       {
         "name": "Blue Tom",
@@ -53172,7 +53704,8 @@
         "system": 4,
         "sex": "F",
         "effects": [],
-        "id": "a:3809"
+        "id": "a:3809",
+        "effectsKnown": true
       },
       {
         "name": "Kendor",
@@ -53340,7 +53873,8 @@
         "system": 11,
         "sex": "M",
         "effects": [],
-        "id": "a:3833"
+        "id": "a:3833",
+        "effectsKnown": true
       },
       {
         "name": "Picture Light",
@@ -53802,35 +54336,40 @@
         "system": 6,
         "sex": "F",
         "effects": [],
-        "id": "a:3899"
+        "id": "a:3899",
+        "effectsKnown": true
       },
       {
         "name": "La Joconde",
         "system": 6,
         "sex": "F",
         "effects": [],
-        "id": "a:3900"
+        "id": "a:3900",
+        "effectsKnown": true
       },
       {
         "name": "Lust",
         "system": 3,
         "sex": "F",
         "effects": [],
-        "id": "a:3901"
+        "id": "a:3901",
+        "effectsKnown": true
       },
       {
         "name": "Electric Flash",
-        "system": null,
+        "system": 10,
         "sex": "F",
         "effects": [],
-        "id": "a:3902"
+        "id": "a:3902",
+        "effectsKnown": true
       },
       {
         "name": "Pato",
-        "system": null,
+        "system": 2,
         "sex": "F",
         "effects": [],
-        "id": "a:3903"
+        "id": "a:3903",
+        "effectsKnown": true
       },
       {
         "name": "Monticella",
@@ -54051,10 +54590,12 @@
       },
       {
         "name": "La Mesa",
-        "system": null,
+        "system": 13,
         "sex": "F",
         "effects": [],
-        "id": "a:3935"
+        "id": "a:3935",
+        "effectsKnown": true,
+        "sireId": "a:118"
       },
       {
         "name": "Northern Meteor (AUS)",
@@ -56987,6 +57528,102 @@
         "id": "bm:n-2",
         "name": "ヴァンフレーシュ",
         "system": 3,
+        "sex": "F",
+        "effects": [],
+        "effectsKnown": false
+      },
+      {
+        "id": "a:3937",
+        "name": "Storm Embrujado",
+        "system": 5,
+        "sex": "M",
+        "effects": [],
+        "effectsKnown": true
+      },
+      {
+        "id": "a:3938",
+        "name": "This Is Crazy",
+        "system": 5,
+        "sex": "F",
+        "effects": [],
+        "effectsKnown": true
+      },
+      {
+        "id": "a:3939",
+        "name": "Embobada Toss",
+        "system": 8,
+        "sex": "F",
+        "effects": [],
+        "effectsKnown": true
+      },
+      {
+        "id": "a:3940",
+        "name": "Crazy Fling",
+        "system": 6,
+        "sex": "F",
+        "effects": [],
+        "effectsKnown": true
+      },
+      {
+        "id": "a:3941",
+        "name": "Egg Toss",
+        "system": 8,
+        "sex": "M",
+        "effects": [],
+        "effectsKnown": true
+      },
+      {
+        "id": "a:3942",
+        "name": "Embelesante",
+        "system": 15,
+        "sex": "F",
+        "effects": [],
+        "effectsKnown": true
+      },
+      {
+        "id": "a:3943",
+        "name": "サムロマンス",
+        "system": 6,
+        "sex": "F",
+        "effects": [],
+        "effectsKnown": true
+      },
+      {
+        "id": "a:3944",
+        "name": "Eggy",
+        "system": 11,
+        "sex": "F",
+        "effects": [],
+        "effectsKnown": true
+      },
+      {
+        "id": "a:3945",
+        "name": "Practicante",
+        "system": 15,
+        "sex": "M",
+        "effects": [],
+        "effectsKnown": true
+      },
+      {
+        "id": "a:3946",
+        "name": "Emocional",
+        "system": 7,
+        "sex": "F",
+        "effects": [],
+        "effectsKnown": true
+      },
+      {
+        "id": "a:3947",
+        "name": "Zippy Do",
+        "system": 12,
+        "sex": "F",
+        "effects": [],
+        "effectsKnown": true
+      },
+      {
+        "id": "bm:n-4",
+        "name": "ドナブルーハ",
+        "system": 5,
         "sex": "F",
         "effects": [],
         "effectsKnown": false
@@ -61100,13 +61737,1177 @@
       [
         "a:2036",
         "a:2183"
+      ],
+      [
+        "st:72",
+        "st:165"
+      ],
+      [
+        "st:165",
+        "st:72"
+      ],
+      [
+        "a:34",
+        "a:34"
+      ],
+      [
+        "a:40",
+        "a:40"
+      ],
+      [
+        "a:68",
+        "a:68"
+      ],
+      [
+        "a:68",
+        "a:3049"
+      ],
+      [
+        "a:88",
+        "a:88"
+      ],
+      [
+        "a:89",
+        "a:89"
+      ],
+      [
+        "a:90",
+        "a:90"
+      ],
+      [
+        "a:90",
+        "a:3049"
+      ],
+      [
+        "a:106",
+        "a:106"
+      ],
+      [
+        "a:115",
+        "a:115"
+      ],
+      [
+        "a:122",
+        "a:122"
+      ],
+      [
+        "a:122",
+        "a:3049"
+      ],
+      [
+        "st:20",
+        "st:20"
+      ],
+      [
+        "st:w-9",
+        "st:w-9"
+      ],
+      [
+        "st:5",
+        "st:5"
+      ],
+      [
+        "a:186",
+        "a:186"
+      ],
+      [
+        "st:w-38",
+        "st:w-38"
+      ],
+      [
+        "a:206",
+        "a:206"
+      ],
+      [
+        "a:216",
+        "a:216"
+      ],
+      [
+        "a:262",
+        "a:262"
+      ],
+      [
+        "a:277",
+        "a:277"
+      ],
+      [
+        "a:324",
+        "a:324"
+      ],
+      [
+        "a:364",
+        "a:364"
+      ],
+      [
+        "a:365",
+        "a:365"
+      ],
+      [
+        "a:393",
+        "a:393"
+      ],
+      [
+        "a:412",
+        "a:412"
+      ],
+      [
+        "a:442",
+        "a:442"
+      ],
+      [
+        "a:452",
+        "a:452"
+      ],
+      [
+        "a:464",
+        "a:464"
+      ],
+      [
+        "a:475",
+        "a:475"
+      ],
+      [
+        "a:557",
+        "a:557"
+      ],
+      [
+        "st:w-27",
+        "st:w-27"
+      ],
+      [
+        "a:563",
+        "a:563"
+      ],
+      [
+        "a:567",
+        "a:567"
+      ],
+      [
+        "a:592",
+        "a:592"
+      ],
+      [
+        "a:594",
+        "a:594"
+      ],
+      [
+        "a:682",
+        "a:682"
+      ],
+      [
+        "a:689",
+        "a:689"
+      ],
+      [
+        "a:691",
+        "a:691"
+      ],
+      [
+        "a:728",
+        "a:728"
+      ],
+      [
+        "a:734",
+        "a:734"
+      ],
+      [
+        "a:763",
+        "a:763"
+      ],
+      [
+        "a:764",
+        "a:764"
+      ],
+      [
+        "a:793",
+        "a:793"
+      ],
+      [
+        "a:805",
+        "a:805"
+      ],
+      [
+        "a:817",
+        "a:817"
+      ],
+      [
+        "a:827",
+        "a:827"
+      ],
+      [
+        "a:850",
+        "a:850"
+      ],
+      [
+        "a:862",
+        "a:862"
+      ],
+      [
+        "a:868",
+        "a:868"
+      ],
+      [
+        "a:869",
+        "a:869"
+      ],
+      [
+        "a:880",
+        "a:880"
+      ],
+      [
+        "a:881",
+        "a:881"
+      ],
+      [
+        "a:898",
+        "a:898"
+      ],
+      [
+        "a:900",
+        "a:900"
+      ],
+      [
+        "a:940",
+        "a:940"
+      ],
+      [
+        "a:940",
+        "a:3049"
+      ],
+      [
+        "st:w-22",
+        "st:w-22"
+      ],
+      [
+        "a:998",
+        "a:998"
+      ],
+      [
+        "a:1015",
+        "a:1015"
+      ],
+      [
+        "a:1017",
+        "a:1017"
+      ],
+      [
+        "a:1048",
+        "a:1048"
+      ],
+      [
+        "a:1048",
+        "a:3049"
+      ],
+      [
+        "st:w-2",
+        "st:w-2"
+      ],
+      [
+        "a:1078",
+        "a:1078"
+      ],
+      [
+        "st:w-20",
+        "st:w-20"
+      ],
+      [
+        "a:1089",
+        "a:1089"
+      ],
+      [
+        "a:1094",
+        "a:1094"
+      ],
+      [
+        "a:1116",
+        "a:1116"
+      ],
+      [
+        "a:1127",
+        "a:1127"
+      ],
+      [
+        "a:1128",
+        "a:1128"
+      ],
+      [
+        "a:1142",
+        "a:1142"
+      ],
+      [
+        "a:1173",
+        "a:1173"
+      ],
+      [
+        "a:1175",
+        "a:1175"
+      ],
+      [
+        "a:1210",
+        "a:1210"
+      ],
+      [
+        "a:1280",
+        "a:1280"
+      ],
+      [
+        "a:1296",
+        "a:1296"
+      ],
+      [
+        "a:1299",
+        "a:1299"
+      ],
+      [
+        "a:1385",
+        "a:1385"
+      ],
+      [
+        "a:1389",
+        "a:1389"
+      ],
+      [
+        "st:w-15",
+        "st:w-15"
+      ],
+      [
+        "a:1398",
+        "a:1398"
+      ],
+      [
+        "a:1399",
+        "a:1399"
+      ],
+      [
+        "st:w-45",
+        "st:w-45"
+      ],
+      [
+        "a:1476",
+        "a:1476"
+      ],
+      [
+        "a:1541",
+        "a:1541"
+      ],
+      [
+        "a:1554",
+        "a:1554"
+      ],
+      [
+        "a:1554",
+        "a:3049"
+      ],
+      [
+        "a:1556",
+        "a:1556"
+      ],
+      [
+        "a:1580",
+        "a:1580"
+      ],
+      [
+        "a:1604",
+        "a:1604"
+      ],
+      [
+        "a:1628",
+        "a:1628"
+      ],
+      [
+        "a:1630",
+        "a:1630"
+      ],
+      [
+        "a:1689",
+        "a:1689"
+      ],
+      [
+        "a:1706",
+        "a:1706"
+      ],
+      [
+        "a:1724",
+        "a:1724"
+      ],
+      [
+        "a:1727",
+        "a:1727"
+      ],
+      [
+        "a:1728",
+        "a:1728"
+      ],
+      [
+        "a:1736",
+        "a:1736"
+      ],
+      [
+        "a:1737",
+        "a:1737"
+      ],
+      [
+        "a:1747",
+        "a:1747"
+      ],
+      [
+        "a:1770",
+        "a:1770"
+      ],
+      [
+        "a:1794",
+        "a:1794"
+      ],
+      [
+        "a:1840",
+        "a:1840"
+      ],
+      [
+        "a:1840",
+        "a:3049"
+      ],
+      [
+        "a:1846",
+        "a:1846"
+      ],
+      [
+        "a:1855",
+        "a:1855"
+      ],
+      [
+        "a:1865",
+        "a:1865"
+      ],
+      [
+        "a:1874",
+        "a:1874"
+      ],
+      [
+        "a:1878",
+        "a:1878"
+      ],
+      [
+        "a:1883",
+        "a:1883"
+      ],
+      [
+        "a:1892",
+        "a:1892"
+      ],
+      [
+        "a:1936",
+        "a:1936"
+      ],
+      [
+        "a:1967",
+        "a:1967"
+      ],
+      [
+        "a:1995",
+        "a:1995"
+      ],
+      [
+        "a:2009",
+        "a:2009"
+      ],
+      [
+        "a:2049",
+        "a:2049"
+      ],
+      [
+        "a:2078",
+        "a:2078"
+      ],
+      [
+        "a:2108",
+        "a:2108"
+      ],
+      [
+        "a:2112",
+        "a:2112"
+      ],
+      [
+        "a:2183",
+        "a:2183"
+      ],
+      [
+        "a:2276",
+        "a:2276"
+      ],
+      [
+        "a:2347",
+        "a:2347"
+      ],
+      [
+        "a:2350",
+        "a:2350"
+      ],
+      [
+        "a:2360",
+        "a:2360"
+      ],
+      [
+        "a:2361",
+        "a:2361"
+      ],
+      [
+        "st:w-7",
+        "st:w-7"
+      ],
+      [
+        "a:2456",
+        "a:2456"
+      ],
+      [
+        "a:2476",
+        "a:2476"
+      ],
+      [
+        "a:2484",
+        "a:2484"
+      ],
+      [
+        "a:2496",
+        "a:2496"
+      ],
+      [
+        "a:2508",
+        "a:2508"
+      ],
+      [
+        "a:2553",
+        "a:2553"
+      ],
+      [
+        "a:2563",
+        "a:2563"
+      ],
+      [
+        "a:2612",
+        "a:2612"
+      ],
+      [
+        "a:2615",
+        "a:2615"
+      ],
+      [
+        "a:2684",
+        "a:2684"
+      ],
+      [
+        "a:2719",
+        "a:2719"
+      ],
+      [
+        "a:2799",
+        "a:2799"
+      ],
+      [
+        "a:2819",
+        "a:2819"
+      ],
+      [
+        "a:2823",
+        "a:2823"
+      ],
+      [
+        "a:2832",
+        "a:2832"
+      ],
+      [
+        "a:2845",
+        "a:2845"
+      ],
+      [
+        "st:151",
+        "st:151"
+      ],
+      [
+        "a:2856",
+        "a:2856"
+      ],
+      [
+        "a:2858",
+        "a:2858"
+      ],
+      [
+        "a:2861",
+        "a:2861"
+      ],
+      [
+        "a:2862",
+        "a:2862"
+      ],
+      [
+        "a:2865",
+        "a:2865"
+      ],
+      [
+        "st:7",
+        "st:7"
+      ],
+      [
+        "st:170",
+        "st:170"
+      ],
+      [
+        "a:2897",
+        "a:2897"
+      ],
+      [
+        "st:155",
+        "st:155"
+      ],
+      [
+        "st:8",
+        "st:8"
+      ],
+      [
+        "a:2910",
+        "a:2910"
+      ],
+      [
+        "a:2912",
+        "a:2912"
+      ],
+      [
+        "a:2917",
+        "a:2917"
+      ],
+      [
+        "a:2924",
+        "a:2924"
+      ],
+      [
+        "st:32",
+        "st:32"
+      ],
+      [
+        "a:2943",
+        "a:2943"
+      ],
+      [
+        "a:2944",
+        "a:2944"
+      ],
+      [
+        "a:2960",
+        "a:2960"
+      ],
+      [
+        "st:42",
+        "st:42"
+      ],
+      [
+        "st:94",
+        "st:94"
+      ],
+      [
+        "st:133",
+        "st:133"
+      ],
+      [
+        "a:2990",
+        "a:2990"
+      ],
+      [
+        "a:2997",
+        "a:2997"
+      ],
+      [
+        "a:2999",
+        "a:2999"
+      ],
+      [
+        "a:3001",
+        "a:3001"
+      ],
+      [
+        "a:3002",
+        "a:3002"
+      ],
+      [
+        "a:3010",
+        "a:3010"
+      ],
+      [
+        "st:69",
+        "st:69"
+      ],
+      [
+        "st:w-8",
+        "st:w-8"
+      ],
+      [
+        "a:3049",
+        "a:68"
+      ],
+      [
+        "a:3049",
+        "a:90"
+      ],
+      [
+        "a:3049",
+        "a:122"
+      ],
+      [
+        "a:3049",
+        "a:940"
+      ],
+      [
+        "a:3049",
+        "a:1048"
+      ],
+      [
+        "a:3049",
+        "a:1554"
+      ],
+      [
+        "a:3049",
+        "a:1840"
+      ],
+      [
+        "a:3049",
+        "a:3049"
+      ],
+      [
+        "a:3049",
+        "a:3275"
+      ],
+      [
+        "st:134",
+        "st:134"
+      ],
+      [
+        "st:21",
+        "st:21"
+      ],
+      [
+        "st:87",
+        "st:87"
+      ],
+      [
+        "a:3074",
+        "a:3074"
+      ],
+      [
+        "st:22",
+        "st:22"
+      ],
+      [
+        "a:3082",
+        "a:3082"
+      ],
+      [
+        "st:136",
+        "st:136"
+      ],
+      [
+        "a:3092",
+        "a:3092"
+      ],
+      [
+        "a:3116",
+        "a:3116"
+      ],
+      [
+        "a:3118",
+        "a:3118"
+      ],
+      [
+        "a:3120",
+        "a:3120"
+      ],
+      [
+        "a:3140",
+        "a:3140"
+      ],
+      [
+        "a:3142",
+        "a:3142"
+      ],
+      [
+        "a:3157",
+        "a:3157"
+      ],
+      [
+        "a:3165",
+        "a:3165"
+      ],
+      [
+        "st:1",
+        "st:1"
+      ],
+      [
+        "st:102",
+        "st:102"
+      ],
+      [
+        "st:139",
+        "st:139"
+      ],
+      [
+        "a:3188",
+        "a:3188"
+      ],
+      [
+        "st:103",
+        "st:103"
+      ],
+      [
+        "st:13",
+        "st:13"
+      ],
+      [
+        "st:105",
+        "st:105"
+      ],
+      [
+        "a:3200",
+        "a:3200"
+      ],
+      [
+        "a:3212",
+        "a:3212"
+      ],
+      [
+        "st:14",
+        "st:14"
+      ],
+      [
+        "st:w-19",
+        "st:w-19"
+      ],
+      [
+        "a:3249",
+        "a:3249"
+      ],
+      [
+        "st:62",
+        "st:62"
+      ],
+      [
+        "a:3275",
+        "a:3049"
+      ],
+      [
+        "a:3275",
+        "a:3275"
+      ],
+      [
+        "a:3277",
+        "a:3277"
+      ],
+      [
+        "a:3290",
+        "a:442"
+      ],
+      [
+        "a:3290",
+        "a:3290"
+      ],
+      [
+        "a:3292",
+        "a:3292"
+      ],
+      [
+        "st:111",
+        "st:111"
+      ],
+      [
+        "st:w-28",
+        "st:w-28"
+      ],
+      [
+        "st:38",
+        "st:38"
+      ],
+      [
+        "a:3305",
+        "a:3305"
+      ],
+      [
+        "a:3320",
+        "a:3320"
+      ],
+      [
+        "a:3345",
+        "a:3345"
+      ],
+      [
+        "st:41",
+        "st:41"
+      ],
+      [
+        "a:3389",
+        "a:3389"
+      ],
+      [
+        "a:3422",
+        "a:3422"
+      ],
+      [
+        "a:3430",
+        "a:3430"
+      ],
+      [
+        "a:3431",
+        "a:3431"
+      ],
+      [
+        "st:84",
+        "st:84"
+      ],
+      [
+        "st:15",
+        "st:15"
+      ],
+      [
+        "a:3442",
+        "a:3442"
+      ],
+      [
+        "st:120",
+        "st:120"
+      ],
+      [
+        "st:31",
+        "st:31"
+      ],
+      [
+        "a:3476",
+        "a:3476"
+      ],
+      [
+        "a:3482",
+        "a:3482"
+      ],
+      [
+        "a:3493",
+        "a:3493"
+      ],
+      [
+        "a:3507",
+        "a:3507"
+      ],
+      [
+        "a:3508",
+        "a:3508"
+      ],
+      [
+        "st:w-42",
+        "st:w-42"
+      ],
+      [
+        "a:3597",
+        "a:3597"
+      ],
+      [
+        "a:3731",
+        "a:3731"
+      ],
+      [
+        "a:3805",
+        "a:3805"
+      ],
+      [
+        "a:3865",
+        "a:3865"
+      ],
+      [
+        "st:4",
+        "st:4"
+      ],
+      [
+        "st:12",
+        "st:12"
+      ],
+      [
+        "st:16",
+        "st:16"
+      ],
+      [
+        "st:29",
+        "st:29"
+      ],
+      [
+        "st:43",
+        "st:43"
+      ],
+      [
+        "st:50",
+        "st:50"
+      ],
+      [
+        "st:52",
+        "st:52"
+      ],
+      [
+        "st:58",
+        "st:58"
+      ],
+      [
+        "st:59",
+        "st:59"
+      ],
+      [
+        "st:72",
+        "st:72"
+      ],
+      [
+        "st:76",
+        "st:76"
+      ],
+      [
+        "st:77",
+        "st:77"
+      ],
+      [
+        "st:80",
+        "st:80"
+      ],
+      [
+        "st:82",
+        "st:82"
+      ],
+      [
+        "st:91",
+        "st:91"
+      ],
+      [
+        "st:96",
+        "st:96"
+      ],
+      [
+        "st:98",
+        "st:98"
+      ],
+      [
+        "st:99",
+        "st:99"
+      ],
+      [
+        "st:100",
+        "st:100"
+      ],
+      [
+        "st:107",
+        "st:107"
+      ],
+      [
+        "st:118",
+        "st:118"
+      ],
+      [
+        "st:126",
+        "st:126"
+      ],
+      [
+        "st:128",
+        "st:128"
+      ],
+      [
+        "st:129",
+        "st:129"
+      ],
+      [
+        "st:130",
+        "st:130"
+      ],
+      [
+        "st:135",
+        "st:135"
+      ],
+      [
+        "st:138",
+        "st:138"
+      ],
+      [
+        "st:142",
+        "st:142"
+      ],
+      [
+        "st:145",
+        "st:145"
+      ],
+      [
+        "st:146",
+        "st:146"
+      ],
+      [
+        "st:147",
+        "st:147"
+      ],
+      [
+        "st:148",
+        "st:148"
+      ],
+      [
+        "st:156",
+        "st:156"
+      ],
+      [
+        "st:157",
+        "st:157"
+      ],
+      [
+        "st:158",
+        "st:158"
+      ],
+      [
+        "st:159",
+        "st:159"
+      ],
+      [
+        "st:161",
+        "st:161"
+      ],
+      [
+        "st:164",
+        "st:164"
+      ],
+      [
+        "st:165",
+        "st:165"
+      ],
+      [
+        "st:166",
+        "st:166"
+      ],
+      [
+        "st:171",
+        "st:171"
+      ],
+      [
+        "st:172",
+        "st:172"
+      ],
+      [
+        "st:173",
+        "st:173"
+      ],
+      [
+        "st:175",
+        "st:175"
+      ],
+      [
+        "st:w-26",
+        "st:w-26"
+      ],
+      [
+        "st:w-50",
+        "st:w-50"
+      ],
+      [
+        "st:w-53",
+        "st:w-53"
       ]
     ],
     "nicks": [
       {
         "sire": "サンデーサイレンス",
         "dam": "ストームキャット",
-        "level": 1
+        "level": 3
       },
       {
         "sire": "サンデーサイレンス",
@@ -61246,6 +63047,66 @@
       {
         "sire": "ロベルト",
         "dam": "ヘイロー",
+        "level": 0
+      },
+      {
+        "sire": "サドラーズウェルズ",
+        "dam": "ストームキャット",
+        "level": 1
+      },
+      {
+        "sire": "ミスタープロスペクター",
+        "dam": "ストームキャット",
+        "level": 0
+      },
+      {
+        "sire": "ダンチヒ",
+        "dam": "ストームキャット",
+        "level": 0
+      },
+      {
+        "sire": "ロベルト",
+        "dam": "ストームキャット",
+        "level": 0
+      },
+      {
+        "sire": "プリンスリーギフト",
+        "dam": "ストームキャット",
+        "level": 0
+      },
+      {
+        "sire": "ヴァイスリージェント",
+        "dam": "ストームキャット",
+        "level": 0
+      },
+      {
+        "sire": "ゼダーン",
+        "dam": "ストームキャット",
+        "level": 0
+      },
+      {
+        "sire": "ノーザンダンサー",
+        "dam": "ストームキャット",
+        "level": 0
+      },
+      {
+        "sire": "ニアークティック",
+        "dam": "ストームキャット",
+        "level": 0
+      },
+      {
+        "sire": "ボールドルーラー",
+        "dam": "ストームキャット",
+        "level": 0
+      },
+      {
+        "sire": "レッドゴッド",
+        "dam": "ストームキャット",
+        "level": 0
+      },
+      {
+        "sire": "ストームキャット",
+        "dam": "ストームキャット",
         "level": 0
       }
     ]

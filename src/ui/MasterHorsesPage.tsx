@@ -44,7 +44,7 @@ export function MasterHorsesPage({ kind, initialHorseKey }: { kind: MasterHorse[
       <div className="master-catalog-actions"><button type="button" onClick={() => requestCapture(kind === 'stallion' ? ['種牡馬', '種付け'] : [label])}>写真から登録</button><button type="button" className="primary" onClick={() => setCreating(true)}>＋ {label}を追加</button></div>
     </div>
     <DataMaintenanceFilters options={[['added', '追加した馬'], ['edited', '修正あり'], ['hidden', '非表示']]} selected={maintenance} onChange={setMaintenance} />
-    <div className="master-catalog-caption small muted"><span>金額：万円　— 未確認</span><span>{sortLabel} {sort.direction === 'desc' ? '↓ 降順' : '↑ 昇順'}</span></div>
+    <div className="master-catalog-caption small muted"><span>金額：万円　— 未確認　<a href="#/data?tab=sources&guide=breeding">能力・評価の見方</a></span><span>{sortLabel} {sort.direction === 'desc' ? '↓ 降順' : '↑ 昇順'}</span></div>
     <div className="table-wrap master-catalog-scroll"><table className="master-catalog" aria-label={`${label}の能力比較`}>
       <thead><tr>{columns.map(c => <th key={c.key} className={c.numeric ? 'num' : ''} aria-sort={sort.key === c.key ? sort.direction === 'asc' ? 'ascending' : 'descending' : 'none'}><button type="button" onClick={() => setSort({ key: c.key, direction: sort.key === c.key ? sort.direction === 'asc' ? 'desc' : 'asc' : ['name', 'grown'].includes(c.key) ? 'asc' : 'desc' })}>{c.label}<span aria-hidden="true">{sort.key === c.key ? sort.direction === 'asc' ? ' ↑' : ' ↓' : ' ↕'}</span></button></th>)}<th aria-label="詳細" /></tr></thead>
       <tbody>{list.map(h => { const e = edits.get(h.id); return <tr key={h.id} className={selectedId === h.id ? 'selected' : ''} onClick={() => setSelectedId(h.id)}>

@@ -15,7 +15,7 @@ import { toRecords } from '../src/store/sync';
 const M = { ...baseMaster, stallions: baseMaster.stallions.map(h => ({ ...h, price: h.price + 321 })) };
 const catalog = { revision: 'test-master', data: { master: M, races: [], searchAliases: [] } };
 const request: SearchRequest = {
-  startMare: M.broodmares[0].id, stallionPool: M.stallions.slice(0, 12).map((s) => s.id), intermediateStallion: null, finalStallion: null, finalPool: null,
+  startMares: [M.broodmares[0].id], stallionPool: M.stallions.slice(0, 12).map((s) => s.id), intermediateStallion: null, finalStallion: null, finalPool: null,
   minMatings: 1, maxMatings: 2, goals: [{ type: 'notDangerous' }], maxCost: null, maxEvaluations: 1_000_000, allowRepeatStallion: true,
 };
 const wait = (ms: number) => new Promise((r) => setTimeout(r, ms));

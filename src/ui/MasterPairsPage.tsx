@@ -10,6 +10,7 @@ import { nameSearch } from './name-search';
 import { DataMaintenanceFilters } from './DataMaintenanceFilters';
 import { matchesMaintenance } from './data-maintenance';
 import './MasterHorsesPage.css';
+import { Tip } from './Tip';
 
 
 // ---------------------------------------------------------------- 凝ったペア表
@@ -64,7 +65,7 @@ export function KottaPairsPage() {
     <div className="pairs-tools">
       <input aria-label="凝ったペアを検索" placeholder="馬名で検索（父側でも母側でも）" value={q} onChange={(e) => setQ(e.target.value)} />
       <select aria-label="血統への登場で絞り込み" value={pedigree} onChange={(e) => setPedigree(e.target.value)}><option value="">血統への登場：すべて</option><option value="included">両方が収録馬の血統に含まれる</option><option value="missing">収録馬の血統に含まれない馬がある</option></select>
-      <span className="small muted" role="status">{shown}組</span>
+      <span className="small muted" role="status">{shown}組<Tip label="凝ったペアの見方">チップ: 追加＝青、実機で確認＝緑枠、無効化＝取り消し線。薄い文字は収録馬の血統表に現れない組。チップを押すと確認・無効化・取り消し、＋でその父側の馬に組を追加。向きは区別し、逆向きの組は別の行に出る。</Tip></span>
       <button type="button" className="primary" onClick={() => { setTarget('new'); setMessage(''); }}>＋ 組を追加</button>
     </div>
     <DataMaintenanceFilters options={[['added', '追加した組'], ['confirmed', '確認済み'], ['disabled', '無効']]} selected={maintenance} onChange={setMaintenance} />
@@ -81,7 +82,6 @@ export function KottaPairsPage() {
         <button type="button" className="pairs-chip add" aria-label={`父側 ${label(g.sire)} に組を追加`} onClick={() => { setTarget({ sire: g.sire }); setMessage(''); }}>＋</button>
       </div>
     </section>)}</div>
-    <p className="small muted">チップ: 追加＝青、実機で確認＝緑枠、無効化＝取り消し線。薄い文字は収録馬の血統表に現れない組。チップを押すと確認・無効化・取り消し、＋でその父側の馬に組を追加。向きは区別し、逆向きの組は別の行に出る。</p>
   </div>;
 }
 
@@ -98,7 +98,6 @@ function KottaSheet({ row, initialSire, onDone, onCancel }: { row: KottaRow | nu
   const save = () => {
     const s = sire.trim(), d = dam.trim();
     if (!s || !d) { setError('父側と母側の名前を入力してください'); return; }
-    if (s === d) { setError('同じ馬同士は登録できません'); return; }
     if (!row && app.master.kotta.some(([a, b]) => a === s && b === d)) { setError('同じ組が登録済みです'); return; }
     store.saveKottaEdit({ sire: s, dam: d, active: row?.inBase ? active : true, source, note: note.trim() });
     onDone(row ? '保存しました' : '組を追加しました');
@@ -119,11 +118,10 @@ function KottaSheet({ row, initialSire, onDone, onCancel }: { row: KottaRow | nu
     <div className="master-fields pairs-fields">
       <label className="field">父側の馬<HorseSelect options={options} value={sire} onChange={setSire} disabled={!!row} /></label>
       <label className="field">母側の馬<HorseSelect options={options} value={dam} onChange={setDam} disabled={!!row} /></label>
-      <label className="field">出典<select value={source} onChange={(e) => setSource(e.target.value as PairSource)}>{PAIR_SOURCES.map((s) => <option key={s} value={s}>{s}</option>)}</select></label>
+      <div className="field"><span>出典<Tip label="出典">父馬・母馬それぞれを1代目とする4代血統にこの2頭がいて、危険な配合でなければ凝った配合になります。種付け画面では原因となる祖先ペアまでは分からないため、実機確認は他に該当するペアがない場合に記録してください。</Tip></span><select aria-label="出典" value={source} onChange={(e) => setSource(e.target.value as PairSource)}>{PAIR_SOURCES.map((s) => <option key={s} value={s}>{s}</option>)}</select></div>
       {row?.inBase ? <label className="master-hidden"><input type="checkbox" checked={!active} onChange={(e) => setActive(!e.target.checked)} />この組を無効にする（判定に使わない）</label> : <span />}
       <label className="field pairs-note">備考<input value={note} onChange={(e) => setNote(e.target.value)} placeholder="例: 種付け画面で凝った配合を確認（父名×母名）。他に該当する組なし" /></label>
     </div>
-    <p className="small muted">父側4代以内と母側4代以内にこの2頭がいると凝った配合。種付け画面のアイコンは父×母の成立しか示さず、どの祖先の組が原因かは分からないので、実機確認はその配合で他に該当する組がない時だけ記録する。</p>
     <div role={error ? 'alert' : 'status'} className={error ? 'sheet-error' : 'sheet-save-status'}>{error}</div>
   </form>;
 }
@@ -171,7 +169,7 @@ export function NicksPage() {
     <div className="pairs-tools">
       <input aria-label="ニックスを検索" placeholder="小系統で検索（父でも母でも）" value={q} onChange={(e) => setQ(e.target.value)} />
       <select aria-label="ニックスの段階で絞り込み" value={level} onChange={(e) => setLevel(e.target.value)}><option value="">段階：すべて</option><option value="1">★以上</option><option value="2">★★以上</option><option value="3">★★★</option><option value="0">なし（0）</option></select>
-      <span className="small muted" role="status">{shown}組</span>
+      <span className="small muted" role="status">{shown}組<Tip label="ニックスの見方">チップ: 追加＝青、訂正あり＝桃、同じ段階を実機で確認＝緑枠。0 はニックスなしを確認した組で、表にない（未確認）と区別する。チップを押すと訂正・取り消し、＋でその父系に組を追加。「種付け画面から登録」は、繁殖牝馬を選んで種付け画面を送ると、種牡馬ごとの★を父小系統の組として記録する。</Tip></span>
       <div className="pairs-actions">
         <button type="button" onClick={() => requestCapture(['種付け'])}>種付け画面から登録</button>
         <button type="button" className="primary" onClick={() => { setTarget('new'); setMessage(''); }}>＋ 組を追加</button>
@@ -191,7 +189,6 @@ export function NicksPage() {
         <button type="button" className="pairs-chip add" aria-label={`父 ${g.sire}系 に組を追加`} onClick={() => { setTarget({ sire: g.sire }); setMessage(''); }}>＋</button>
       </div>
     </section>)}</div>
-    <p className="small muted">チップ: 追加＝青、訂正あり＝桃、同じ段階を実機で確認＝緑枠。0 はニックスなしを確認した組で、表にない（未確認）と区別する。チップを押すと訂正・取り消し、＋でその父系に組を追加。「種付け画面から登録」は、繁殖牝馬を選んで種付け画面を送ると、種牡馬ごとの★を父小系統の組として記録する。</p>
   </div>;
 }
 
@@ -235,7 +232,7 @@ function NicksSheet({ row, initialSire, onDone, onCancel }: { row: NicksRow | nu
       <label className="field">父の小系統<input list="nicks-systems" value={sire} disabled={!!row} onChange={(e) => setSire(e.target.value)} /></label>
       <label className="field">母の小系統<input list="nicks-systems" value={dam} disabled={!!row} onChange={(e) => setDam(e.target.value)} /></label>
       <div className="field"><span>段階</span><div className="segmented nicks-levels" role="radiogroup" aria-label="段階">{[0, 1, 2, 3].map((l) => <button key={l} type="button" role="radio" aria-checked={level === l} className={level === l ? 'primary' : ''} onClick={() => setLevel(l)}>{l === 0 ? '0（なし）' : '★'.repeat(l)}</button>)}</div></div>
-      <label className="field">出典<select value={source} onChange={(e) => setSource(e.target.value as PairSource)}>{PAIR_SOURCES.map((s) => <option key={s} value={s}>{s}</option>)}</select></label>
+      <div className="field"><span>出典<Tip label="出典">種付け画面に表示されたニックスの星の数を、父の小系統と母の小系統の組み合わせとして記録します。父側と母側は区別します。</Tip></span><select aria-label="出典" value={source} onChange={(e) => setSource(e.target.value as PairSource)}>{PAIR_SOURCES.map((s) => <option key={s} value={s}>{s}</option>)}</select></div>
       <label className="field pairs-note">備考<input value={note} onChange={(e) => setNote(e.target.value)} placeholder="例: 種付け画面で ★★ を確認（父名×母名）" /></label>
     </div>
     {!row && <datalist id="nicks-systems">{systems.map((n) => <option key={n} value={n} />)}</datalist>}

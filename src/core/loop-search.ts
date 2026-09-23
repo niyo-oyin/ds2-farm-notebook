@@ -1,10 +1,10 @@
 // 凝った配合ループの探索: 種牡馬を決まった順で回し、毎世代の産駒牝馬に次の種牡馬を付け続けても目標が成立し続ける周期を探す。
 // 定常状態（元の繁殖牝馬が4代の外へ抜けた後）では、母側の血統は直近の種牡馬だけで決まるので、周期の列だけで判定できる。
-import type { HorseKey, HorseRecord, Verdict } from './types';
+import type { HorseKey, HorseRecord, Judgement, Verdict } from './types';
 import { makeFoalRecord, unknownRecord } from './pedigree';
 import { isMasterKey } from './horse-identity';
 import { judge } from './judge';
-import { goalVerdict, summarize, type JudgementSummary, type SearchEnv, type SearchGoal, type SearchHooks, type SearchResult, type SearchStatus } from './search';
+import { goalVerdict, summarize, type JudgementSummary, type SearchEnv, type SearchGoal, type SearchHooks, type SearchResult, type SearchStatus, type SearchStep } from './search';
 
 export interface LoopRequest {
   stallionPool: HorseKey[];
@@ -138,22 +138,120 @@ export async function searchLoops(env: SearchEnv, req: LoopRequest, hooks: Searc
   return report;
 }
 
-/** 選んだ繁殖牝馬から周期を1周した実際の経路（計画として保存する用） */
-export function loopFromMare(env: SearchEnv, mareKey: HorseKey, cycle: HorseKey[], goals: SearchGoal[]): SearchResult {
+/** 起点の血が抜けるまでに周期を付ける回数。5代血統の外へ出るまで、ただし1周は必ず含める */
+const entrySpan = (length: number) => Math.max(length, 5);
+
+type Mating = { sire: HorseRecord; dam: HorseRecord; judgement: Judgement };
+
+const foalOf = (env: SearchEnv, start: HorseRecord, s: HorseRecord, m: HorseRecord, i: number) =>
+  makeFoalRecord(s, m, { key: `p:loop${i}:${s.key}`, name: `${start.name}の${i + 1}代目（${s.name}産駒）`, sex: 'F', kind: 'planned' }, env.rules);
+
+/** 導入の配合（offset 回）を付けた後の牝馬から、周期を rotation 番目の種牡馬で入った区間が目標を満たせば、各世代の配合を返す */
+function tryRotation(env: SearchEnv, start: HorseRecord, mare: HorseRecord, offset: number, cycle: HorseRecord[], rotation: number, goals: SearchGoal[], count: () => boolean): Mating[] | null {
+  const matings: Mating[] = [];
+  let m = mare;
+  for (let n = 0; n < entrySpan(cycle.length); n++) {
+    const s = cycle[(rotation + n) % cycle.length];
+    if (!count()) return null;
+    const j = judge(s, m, env.ctx);
+    if (goals.some((g) => goalVerdict(j, g) !== '成立')) return null;
+    matings.push({ sire: s, dam: m, judgement: j });
+    m = foalOf(env, start, s, m, offset + n);
+  }
+  return matings;
+}
+
+function toResult(env: SearchEnv, start: HorseRecord, matings: Mating[], goals: SearchGoal[]): SearchResult {
+  const steps: SearchStep[] = matings.map(({ sire, dam, judgement }, i) => ({
+    sire: sire.key, sireName: sire.name, dam: dam.key, damName: dam.name, cost: sire.price,
+    foalName: foalOf(env, start, sire, dam, i).name, judgement: summarize(judgement), constraints: [...sire.constraints, ...(i === 0 ? start.constraints : [])],
+  }));
+  return { steps, matings: steps.length, cost: steps.reduce((c, s) => c + s.cost, 0), goals: goals.map((goal) => ({ goal, verdict: '成立' as Verdict })) };
+}
+
+const resolveEntry = (env: SearchEnv, mareKey: HorseKey, cycleKeys: HorseKey[]) => {
   const start = env.resolve(mareKey);
   if (!start) throw new Error('起点の繁殖牝馬が見つかりません');
-  const sires = cycle.map((k) => env.resolve(k)).filter((r): r is HorseRecord => !!r);
-  if (sires.length !== cycle.length) throw new Error('種牡馬が見つかりません');
-  let mare = start;
-  const steps: SearchResult['steps'] = [];
-  // 1周目は元の牝馬の血統が残るので、定常状態と違って目標が崩れる世代があり得る。世代ごとの最悪の判定を返す
-  const verdicts = goals.map((g) => ({ goal: g, verdict: '成立' as Verdict }));
-  sires.forEach((s, i) => {
-    const j = judge(s, mare, env.ctx);
-    for (const v of verdicts) { const r = goalVerdict(j, v.goal); if (r === '不成立' || (r === '未確定' && v.verdict === '成立')) v.verdict = r; }
-    const foal = makeFoalRecord(s, mare, { key: `p:loop${i}:${s.key}`, name: `${mare.name}の${i + 1}代目（${s.name}産駒）`, sex: 'F', kind: 'planned' }, env.rules);
-    steps.push({ sire: s.key, sireName: s.name, dam: mare.key, damName: mare.name, cost: s.price, foalName: foal.name, judgement: summarize(j), constraints: [...s.constraints, ...(i === 0 ? mare.constraints : [])] });
-    mare = foal;
-  });
-  return { steps, matings: steps.length, cost: steps.reduce((c, s) => c + s.cost, 0), goals: verdicts };
+  const cycle = cycleKeys.map((k) => env.resolve(k)).filter((r): r is HorseRecord => !!r);
+  if (cycle.length !== cycleKeys.length) throw new Error('種牡馬が見つかりません');
+  return { start, cycle };
+};
+
+export interface LoopEntryRequest {
+  mare: HorseKey;
+  /** 周期の種牡馬の並び */
+  cycle: HorseKey[];
+  goals: SearchGoal[];
+  /** 導入に使う種牡馬の候補 */
+  bridgePool: HorseKey[];
+  /** 導入の配合の最大回数 */
+  maxBridge: number;
+  maxEvaluations: number;
+}
+export interface LoopEntryReport {
+  status: SearchStatus;
+  /** 導入の配合と周期の区間を合わせた経路。見つからなければ null */
+  result: SearchResult | null;
+  /** 経路のうち導入の配合の回数 */
+  bridge: number;
+  evaluated: number;
+  elapsedMs: number;
+}
+
+/**
+ * 起点の繁殖牝馬から周期に入る実際の経路（計画として保存する用）。
+ * 起点の血が5代の外へ抜けるまでは定常状態と判定が違うので、その区間（周期が5以上なら1周）の全世代で目標を確かめる。
+ * 周期の入り方（どの種牡馬から付け始めるか）をすべて試し、どの入り方でも崩れるときは周期の前に導入の配合を挟む。
+ * 導入の回数が少ない経路を優先し、同じ回数では導入の種付料が最も安い経路を採る。
+ * 導入の配合そのものには目標を課さないが、危険な配合を避ける目標があれば導入でも避ける。
+ */
+export async function searchLoopEntry(env: SearchEnv, req: LoopEntryRequest, hooks: SearchHooks<never> = {}): Promise<LoopEntryReport> {
+  const t0 = Date.now();
+  const { start, cycle } = resolveEntry(env, req.mare, req.cycle);
+  const pool = req.bridgePool.map((k) => env.resolve(k)).filter((r): r is HorseRecord => !!r);
+  const wantSafe = req.goals.some((g) => g.type === 'notDangerous');
+  const report: LoopEntryReport = { status: '完了', result: null, bridge: 0, evaluated: 0, elapsedMs: 0 };
+  let sinceYield = 0, stopped = false;
+  const yieldEvery = hooks.yieldEvery ?? 2000;
+  const count = () => {
+    if (report.evaluated >= req.maxEvaluations) { stopped = true; report.status = '判定回数上限'; }
+    if (stopped) return false;
+    report.evaluated++;
+    return true;
+  };
+  const tick = async () => {
+    if (++sinceYield < yieldEvery) return;
+    sinceYield = 0;
+    await hooks.onProgress?.({ evaluated: report.evaluated, pruned: 0, found: 0, depth: 0 });
+    if (hooks.shouldStop?.()) { stopped = true; report.status = '中止'; }
+  };
+  let best: { matings: Mating[]; bridgeCost: number } | null = null;
+  const rec = async (mare: HorseRecord, bridge: Mating[], remaining: number, cost: number): Promise<void> => {
+    if (stopped || (best && best.bridgeCost <= cost)) return;
+    if (remaining === 0) {
+      for (let r = 0; r < cycle.length && !stopped; r++) {
+        await tick();
+        const matings = tryRotation(env, start, mare, bridge.length, cycle, r, req.goals, count);
+        if (matings) { best = { matings: [...bridge, ...matings], bridgeCost: cost }; return; }
+      }
+      return;
+    }
+    for (const s of pool) {
+      if (stopped) return;
+      if (best && best.bridgeCost <= cost + s.price) continue;
+      if (!count()) return;
+      await tick();
+      const j = judge(s, mare, env.ctx);
+      if (wantSafe && j.dangerous.verdict !== '不成立') continue;
+      await rec(foalOf(env, start, s, mare, bridge.length), [...bridge, { sire: s, dam: mare, judgement: j }], remaining - 1, cost + s.price);
+    }
+  };
+  for (let b = 0; b <= req.maxBridge && !stopped && !best; b++) await rec(start, [], b, 0);
+  const found = best as { matings: Mating[] } | null;
+  if (found) {
+    report.result = toResult(env, start, found.matings, req.goals);
+    report.bridge = found.matings.length - entrySpan(cycle.length);
+  }
+  report.elapsedMs = Date.now() - t0;
+  return report;
 }

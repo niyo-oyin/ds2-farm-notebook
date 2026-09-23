@@ -3,7 +3,7 @@ import type { CardReading, PedigreeReading } from './core/owned-horse';
 import type { BreedingReading, MasterReading } from './core/master-edits';
 import type { SearchRequest, SearchResult, SearchStatus } from './core/search';
 import type { LoopRequest, LoopResult } from './core/loop-search';
-import { checkWorkspace, workspaceGeneration } from './store/workspace';
+import { workspaceGeneration } from './store/workspace';
 import { getCatalog } from './data/catalog';
 const TOKEN_KEY = 'ds2tool.apitoken';
 export const getToken = () => localStorage.getItem(TOKEN_KEY) ?? '';
@@ -40,25 +40,33 @@ export type ScreenReading = CardScreen | PedigreeScreen | MasterScreen | Breedin
 export interface EncodedImage { image: string; mediaType: 'image/jpeg' }
 /**
  * 画像を縮小して JPEG の base64 にする（アップロード量とトークンを抑える）。box を渡すとその範囲（比率）だけを切り出す。
+ * EXIFの向きを反映し、rotation の回数だけ右へ90度回転する。
  * square なら切り出し範囲を正方形に広げる（馬の画像は正方形の枠に収めるので、欠けないように短い辺を伸ばす。画像の端では反対側へずらす）
  */
-export async function imageToBase64(file: File | Blob, maxSide = 1600, box?: CardBox, pad = 0, square = false): Promise<EncodedImage> {
-  const bitmap = await createImageBitmap(file);
-  const clamp = (v: number) => Math.min(1, Math.max(0, v));
-  let sx = box ? clamp(box.x0 - pad) * bitmap.width : 0, sy = box ? clamp(box.y0 - pad) * bitmap.height : 0;
-  let sw = box ? clamp(box.x1 + pad) * bitmap.width - sx : bitmap.width, sh = box ? clamp(box.y1 + pad) * bitmap.height - sy : bitmap.height;
-  if (square) {
-    const side = Math.min(Math.max(sw, sh), bitmap.width, bitmap.height);
-    sx = Math.min(Math.max(0, sx + (sw - side) / 2), bitmap.width - side);
-    sy = Math.min(Math.max(0, sy + (sh - side) / 2), bitmap.height - side);
-    sw = side; sh = side;
-  }
-  const scale = Math.min(1, maxSide / Math.max(sw, sh));
-  const canvas = document.createElement('canvas');
-  canvas.width = Math.max(1, Math.round(sw * scale)); canvas.height = Math.max(1, Math.round(sh * scale));
-  canvas.getContext('2d')!.drawImage(bitmap, sx, sy, sw, sh, 0, 0, canvas.width, canvas.height);
-  const dataUrl = canvas.toDataURL('image/jpeg', 0.85);
-  return { image: dataUrl.split(',')[1], mediaType: 'image/jpeg' };
+export async function imageToBase64(file: File | Blob, maxSide = 1600, box?: CardBox, pad = 0, square = false, rotation = 0): Promise<EncodedImage> {
+  const bitmap = await createImageBitmap(file, { imageOrientation: 'from-image' });
+  try {
+    const clamp = (v: number) => Math.min(1, Math.max(0, v));
+    let sx = box ? clamp(box.x0 - pad) * bitmap.width : 0, sy = box ? clamp(box.y0 - pad) * bitmap.height : 0;
+    let sw = box ? clamp(box.x1 + pad) * bitmap.width - sx : bitmap.width, sh = box ? clamp(box.y1 + pad) * bitmap.height - sy : bitmap.height;
+    if (square) {
+      const side = Math.min(Math.max(sw, sh), bitmap.width, bitmap.height);
+      sx = Math.min(Math.max(0, sx + (sw - side) / 2), bitmap.width - side);
+      sy = Math.min(Math.max(0, sy + (sh - side) / 2), bitmap.height - side);
+      sw = side; sh = side;
+    }
+    const scale = Math.min(1, maxSide / Math.max(sw, sh));
+    const canvas = document.createElement('canvas');
+    const width = Math.max(1, Math.round(sw * scale)), height = Math.max(1, Math.round(sh * scale));
+    const turns = ((rotation % 4) + 4) % 4;
+    canvas.width = turns % 2 ? height : width; canvas.height = turns % 2 ? width : height;
+    const ctx = canvas.getContext('2d')!;
+    ctx.translate(canvas.width / 2, canvas.height / 2);
+    ctx.rotate(turns * Math.PI / 2);
+    ctx.drawImage(bitmap, sx, sy, sw, sh, -width / 2, -height / 2, width, height);
+    const dataUrl = canvas.toDataURL('image/jpeg', 0.85);
+    return { image: dataUrl.split(',')[1], mediaType: 'image/jpeg' };
+  } finally { bitmap.close(); }
 }
 export const hasBox = (box: CardBox | undefined) => !!box && box.x1 - box.x0 > 0.02 && box.y1 - box.y0 > 0.02;
 
@@ -69,10 +77,8 @@ export interface ImportJob {
   result?: ScreenReading; model?: string; error?: string;
 }
 /** 写真を送ってジョブに登録する。解析はサーバが順次行う。scope は判別の候補にする画面の種類。targetHorseId を渡すと反映先を固定する（種付け画面では選んだ繁殖牝馬のキー） */
-export async function createJob(file: File, scope: ScreenType[], targetHorseId?: string): Promise<ImportJob> {
+export async function createJob(img: EncodedImage, scope: ScreenType[], targetHorseId?: string): Promise<ImportJob> {
   const generation = workspaceGeneration();
-  const img = await imageToBase64(file);
-  checkWorkspace(generation);
   return (await api<{ job: ImportJob }>('/api/jobs', { method: 'POST', body: JSON.stringify({ ...img, scope, targetHorseId, generation }) })).job;
 }
 export const listJobs = async () => (await api<{ jobs: ImportJob[] }>('/api/jobs')).jobs;

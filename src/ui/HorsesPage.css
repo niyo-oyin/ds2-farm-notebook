@@ -20,7 +20,6 @@
 .horse-list-item:last-child { border-bottom: 0; }
 .horse-list-item.selected { background: var(--hover); border-left-color: var(--accent); }
 .horse-list-thumb { width: 48px; height: 48px; }
-.horse-list-thumb .portrait-empty { font-size: 10px; }
 .horse-list-body { display: grid; gap: 2px; min-width: 0; }
 /* 馬名の右にバッジを並べ、1頭を2行（名前行・父母行）に収める */
 .horse-list-title { display: flex; align-items: center; flex-wrap: wrap; gap: 4px 6px; min-width: 0; }
@@ -59,4 +58,24 @@
   .horses-page input:not([type=checkbox]), .horses-page select, .horses-page textarea { font-size: 16px; }
   .horse-list-filters select { font-size: 16px; }
   .horse-plan-options label { min-height: 52px; }
+}
+/* データの繁殖牝馬から追加: 検索欄と、ダイアログの中でスクロールするチェックボックスの一覧 */
+.master-mare-search { width: 100%; }
+.master-mare-list { max-height: min(50dvh, 420px); overflow: auto; margin: 8px 0 0; padding: 0; list-style: none; border: 1px solid var(--rule); border-radius: var(--r-sm); }
+.master-mare-list li + li { border-top: 1px solid var(--rule); }
+.master-mare-list label { display: flex; align-items: center; gap: 10px; min-height: 40px; padding: 6px 10px; cursor: pointer; }
+.master-mare-list label:hover { background: var(--hover); }
+.master-mare-list label.selected { background: var(--highlight); }
+.master-mare-list input { flex: none; width: 16px; height: 16px; min-height: 0; margin: 0; }
+.master-mare-name { flex: 1; min-width: 0; }
+.master-mare-sub { flex: none; font-size: 12px; color: var(--ink-muted); }
+@media (max-width: 720px) {
+  /* 見出しの操作は3つあるので、2列に並べて登録を下の段に広げる */
+  .horses-page .page-heading-actions { width: 100%; display: grid; grid-template-columns: 1fr 1fr; }
+  .horses-page .page-heading-actions button { font-size: 12px; padding-inline: 6px; }
+  .horses-page .page-heading-actions .primary { grid-column: 1 / -1; }
+  /* 馬名を折り返さないよう、系統・価格は馬名の下の段に置く */
+  .master-mare-list label { display: grid; grid-template-columns: auto minmax(0, 1fr); column-gap: 10px; row-gap: 0; }
+  .master-mare-list input { grid-row: span 2; }
+  .master-mare-name { white-space: nowrap; }
 }

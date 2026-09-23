@@ -28,6 +28,9 @@ export interface MasterHorse {
 export interface AncestorInfo {
   id: string;
   name: string;
+  /** 収録馬の血統表より先の世代も辿るための親ID。 */
+  sireId?: string;
+  damId?: string;
   system: number | null;   // 1..15
   sex: Sex | null;
   effects: string[];       // クロス効果名
@@ -76,7 +79,7 @@ export interface RaceEntry {
   going?: '良' | '稍重' | '重' | '不良';
 }
 /** ゲーム画面からの読み取り履歴 */
-export interface Observation { at: string; screen: string; age?: number; source: 'photo' | 'manual' }
+export interface Observation { at: string; screen: string; age?: number; source: 'photo' | 'manual'; importJobId?: string }
 /** 区分ごとの能力記録。未入力の項目はキーを持たない。区分を変えても他の記録は消さない。 */
 export interface HorseAbilities {
   broodmare?: BroodmareAbilities;
@@ -102,6 +105,11 @@ interface UserHorseBase {
 /** 実際に登録した個体。計画馬から種類を書き換えて作らない。 */
 export interface OwnedHorse extends UserHorseBase {
   kind: 'owned';
+  /**
+   * データの繁殖牝馬（実在馬）を所有している場合、その馬のキー（bm:…）。
+   * 名前・性別・血統・系統・能力はデータの値を使い、配合・探索・計画でもこのキーで扱う。父母は持たない。
+   */
+  masterKey?: HorseKey;
   category: HorseCategory;
   excludeFromSearch?: boolean;
   profile?: {

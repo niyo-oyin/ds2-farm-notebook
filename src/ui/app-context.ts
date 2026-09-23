@@ -5,7 +5,7 @@ import type { RuleOptions } from '../core/rules';
 import type { JudgeContext } from '../core/judge';
 import type { HorseResolver } from '../core/pedigree';
 import type { UserData } from '../store/userdata';
-import { pedigreeIssue } from '../core/owned-horse';
+import { breedingKey, pedigreeIssue } from '../core/owned-horse';
 
 export interface AppCtx { master: MasterData; rules: RuleOptions; ctx: JudgeContext; resolver: HorseResolver; data: UserData; }
 export const AppContext = createContext<AppCtx | null>(null);
@@ -29,6 +29,12 @@ export interface OptionFilter {
 /** 探索の相手の候補に計画馬を入れるか（設定 excludePlannedFromSearch。未設定は除外） */
 export const includePlannedInSearch = (app: AppCtx) => app.data.settings.excludePlannedFromSearch === false;
 const ownedOk = (h: UserData['horses'][number], f: OptionFilter) => (!f.onlyAvailable || (!h.excludeFromSearch && h.category !== '引退')) && (!f.requirePedigree || !pedigreeIssue(h));
+/** 所有馬の父母のキー。データの繁殖牝馬を所有している場合は、その馬の血統から */
+export function ownedParentKeys(app: AppCtx, h: UserData['horses'][number]): { sire: string; dam: string } {
+  if (!h.masterKey) return { sire: h.sireKey, dam: h.damKey };
+  const rec = app.resolver.get(h.masterKey);
+  return { sire: rec?.nodes[2] ?? '', dam: rec?.nodes[3] ?? '' };
+}
 /** 父候補: 種牡馬 + 牡の所有馬 + 種牡馬予定の計画馬 */
 export function sireOptions(app: AppCtx, { onlyAvailable = false, includePlanned = true, requirePedigree = false, includeOverseas = true }: OptionFilter = {}): HorseOption[] {
   const master = app.master.stallions
@@ -43,12 +49,15 @@ export function sireOptions(app: AppCtx, { onlyAvailable = false, includePlanned
 }
 /** 母候補: 繁殖牝馬 + 牝の所有馬 + 繁殖牝馬予定の計画馬 */
 export function damOptions(app: AppCtx, { onlyAvailable = false, includePlanned = true, requirePedigree = false }: OptionFilter = {}): HorseOption[] {
+  // 所有馬として持っているデータの繁殖牝馬は、所有馬の側に1回だけ出す
+  const owned = new Set(app.data.horses.flatMap((h) => (h.masterKey ? [h.masterKey] : [])));
   const master = app.master.broodmares
+    .filter((b) => !owned.has(b.id))
     .filter((b) => !(onlyAvailable && app.data.settings.hidePurchase && b.purchasePrice))
     .map((b) => ({ key: b.id, name: b.name, group: '繁殖牝馬', sub: `${b.smallSystem ?? '-'}系${b.purchasePrice ? ` / ${b.purchasePrice.toLocaleString()}万` : b.priceUnknown ? ' / 購入価格未確認' : ''}` }));
   const own = [...app.data.horses, ...(includePlanned ? app.data.plannedHorses : [])]
     .filter((h) => (h.kind === 'owned' ? h.sex === 'F' : h.role === 'broodmare' || h.desiredSex === 'F'))
     .filter((h) => (h.kind === 'owned' ? ownedOk(h, { onlyAvailable, requirePedigree }) : !onlyAvailable || h.status !== '探索対象外'))
-    .map((h) => ({ key: h.id, name: h.name, group: h.kind === 'owned' ? '所有馬' : '計画馬', sub: h.kind === 'owned' ? h.category : h.status }));
+    .map((h) => ({ key: h.kind === 'owned' ? breedingKey(h) : h.id, name: h.name, group: h.kind === 'owned' ? '所有馬' : '計画馬', sub: h.kind === 'owned' ? h.category : h.status }));
   return [...own, ...master];
 }

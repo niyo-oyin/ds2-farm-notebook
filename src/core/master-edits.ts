@@ -1,7 +1,7 @@
 // データ（種牡馬・繁殖牝馬）への利用者の追加・修正・非表示。
 import type { AncestorInfo, MasterData, MasterHorse, OwnedHorse, PlannedHorse } from './types';
 import { parseFoalName, parseManYen } from './owned-horse';
-import { horseIdentities, newAncestorId, uniqueHorseNamed } from './horse-identity';
+import { horseIdentities, horseNameKey, newAncestorId, uniqueHorseNamed } from './horse-identity';
 import { nodePath } from './pedigree';
 
 export interface MasterEdit {
@@ -28,7 +28,7 @@ export interface KottaEdit { sire: string; dam: string; active: boolean; source:
 export interface NicksEdit { sire: string; dam: string; level: number; source: PairSource; note: string; updatedAt: string }
 export const pairKey = (sire: string, dam: string) => `${sire}|${dam}`;
 
-/** 本馬と4代以内の祖先のうち凝ったペア表に載る馬と、その相手（種牡馬は父側として、繁殖牝馬は母側として引く） */
+/** 本馬を1代目とする対象世代内の牡馬から、凝ったペアを引く（種牡馬は父側、繁殖牝馬は母側）。 */
 export function kottaHints(horse: Pick<MasterHorse, 'id' | 'ancestors' | 'kind'>, kotta: [string, string][], generations = 4): { name: string; path: string; partners: string[] }[] {
   const own = horse.kind === 'stallion' ? [{ name: horse.id, path: '本馬' }] : [];
   for (let i = 0; i < horse.ancestors.length; i++) {
@@ -102,7 +102,7 @@ export function applyMasterEdits(base: MasterData, edits: MasterEdit[], ancestor
   if (!edits.length && !ancestorEdits.length && !kottaEdits.length && !nicksEdits.length) return base;
   const ancestors = ancestorEdits.length ? (() => {
     const byId = new Map(ancestorEdits.map((e) => [e.id, e]));
-    const merged = base.ancestors.map((a) => { const e = byId.get(a.id); return e ? { id: a.id, name: e.name, system: e.system, sex: e.sex, effects: [...e.effects], ...(e.effectsKnown === false ? { effectsKnown: false } : {}) } : a; });
+    const merged = base.ancestors.map((a) => { const e = byId.get(a.id); return e ? { ...a, name: e.name, system: e.system, sex: e.sex, effects: [...e.effects], effectsKnown: e.effectsKnown !== false } : a; });
     const known = new Set(base.ancestors.map((a) => a.id));
     return [...merged, ...ancestorEdits.filter((e) => !known.has(e.id)).map((e) => ({ id: e.id, name: e.name, system: e.system, sex: e.sex, effects: [...e.effects], ...(e.effectsKnown === false ? { effectsKnown: false } : {}) }))];
   })() : base.ancestors;
@@ -305,7 +305,7 @@ export function prepareReadingAncestors(master: MasterData, reading: Pick<Master
     const name = reading[field].trim();
     if (!name) continue;
     if (selected[field] && identities.has(selected[field]!)) { parentIds[field] = selected[field]; continue; }
-    const matches = [...identities.values()].filter(h => normName(h.name) === normName(name));
+    const matches = [...identities.values()].filter(h => horseNameKey(h.name) === horseNameKey(name));
     if (matches.length > 1) { ambiguous.push(field); continue; }
     if (matches.length === 1) { parentIds[field] = matches[0].id; continue; }
     const ancestor: AncestorInfo = { id: newAncestorId(), name, sex: field === 'dam' ? 'F' : 'M', system: null, effects: [], effectsKnown: false };
@@ -363,10 +363,11 @@ export function compareAncestorFactors(read: { name: string; factors: string[] }
   const seen = new Set<string>();
   for (const a of read) {
     const name = a.name.trim();
-    if (!name || seen.has(name)) continue;
-    seen.add(name);
+    const nameKey = horseNameKey(name);
+    if (!nameKey || seen.has(nameKey)) continue;
+    seen.add(nameKey);
     const factors = [...new Set(a.factors)];
-    const matches = [...identities.values()].filter(a => a.name === name);
+    const matches = [...identities.values()].filter(a => horseNameKey(a.name) === nameKey);
     if (matches.length > 1 && !matches.some(a => a.id === selected[name])) { rows.push({ id: null, name, factors, known: null, status: '要選択' }); continue; }
     const identity = matches.find(a => a.id === selected[name]) ?? matches[0];
     const info = identity ? ancestorMaster.get(identity.id) : undefined;

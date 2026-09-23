@@ -1,0 +1,11 @@
+.ancestor-references-search { width: min(320px, 100%); }
+.ancestor-reference-groups { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 20px; }
+.ancestor-reference-groups h4 { display: flex; align-items: baseline; gap: 8px; margin: 14px 0 8px; }
+.ancestor-reference-list { list-style: none; margin: 0; padding: 0; max-height: 300px; overflow: auto; overscroll-behavior: contain; }
+.ancestor-reference-list li + li { border-top: 1px solid var(--rule); }
+.ancestor-reference-list button { display: grid; grid-template-columns: minmax(0, 1fr) auto; gap: 3px 8px; width: 100%; padding: 8px; border: 0; border-radius: 0; text-align: left; white-space: normal; background: transparent; }
+.ancestor-reference-list button:hover { background: var(--hover); }
+.ancestor-reference-name { color: var(--accent); overflow-wrap: anywhere; }
+.ancestor-reference-position { grid-row: 2; font-size: 11px; color: var(--ink-muted); overflow-wrap: anywhere; }
+.ancestor-reference-list button > :last-child { grid-column: 2; grid-row: 1 / 3; align-self: center; color: var(--ink-muted); }
+@media (max-width: 600px) { .ancestor-reference-groups { grid-template-columns: minmax(0, 1fr); gap: 0; } }

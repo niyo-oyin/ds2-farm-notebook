@@ -4,6 +4,9 @@ import { horseIdentities, type HorseIdentity } from './horse-identity';
 import { horseUnlockConditions } from './master-horse';
 import type { RuleOptions } from './rules';
 
+/** 種付料が未確認の種牡馬に付ける制約。探索結果の表にはこの札だけを出す */
+export const COST_UNKNOWN = '種付料は未確認（合計費用に含まれません）';
+
 export const UNKNOWN = '';
 export const SYS_CHARS = 'abcdefghijklmno';
 
@@ -36,7 +39,7 @@ export function masterToRecord(h: MasterHorse, identities: Map<string, HorseIden
     nodes, labels, isHomebred: false, missingSlots: missing,
     constraints: [
       ...horseUnlockConditions(h).map(c => `解禁条件: ${c}`),
-      ...(h.priceUnknown ? [h.kind === 'stallion' ? '種付料は未確認（合計費用に含まれません）' : '購入価格は未確認'] : []),
+      ...(h.priceUnknown ? [h.kind === 'stallion' ? COST_UNKNOWN : '購入価格は未確認'] : []),
       ...(h.purchasePrice ? [`購入が必要: ${h.purchasePrice.toLocaleString()}万`] : []),
     ],
   };
@@ -85,6 +88,8 @@ export class HorseResolver {
   private masterById = new Map<string, MasterHorse>();
   private identities: Map<string, HorseIdentity>;
   private users = new Map<string, UserHorse>();
+  /** 所有馬として持っているデータの繁殖牝馬。購入の制約を付けない */
+  private ownedMasters = new Set<string>();
   private cache = new Map<string, HorseRecord | null>();
   private rules: RuleOptions;
 
@@ -94,7 +99,10 @@ export class HorseResolver {
     for (const h of [...master.stallions, ...master.broodmares]) {
       this.masterById.set(h.id, h);
     }
-    for (const u of userHorses) this.users.set(u.id, u);
+    for (const u of userHorses) {
+      this.users.set(u.id, u);
+      if (u.kind === 'owned' && u.masterKey) this.ownedMasters.add(u.masterKey);
+    }
   }
 
   has(key: HorseKey): boolean { return this.masterById.has(key) || this.users.has(key); }
@@ -107,10 +115,15 @@ export class HorseResolver {
     if (this.cache.has(key)) return this.cache.get(key)!;
     let rec: HorseRecord | null = null;
     const m = this.masterById.get(key);
-    if (m) rec = masterToRecord(m, this.identities);
+    if (m) {
+      rec = masterToRecord(m, this.identities);
+      if (this.ownedMasters.has(key)) rec = { ...rec, constraints: rec.constraints.filter((c) => !c.startsWith('購入')) };
+    }
     else {
       const u = this.users.get(key);
-      if (u) {
+      // データの繁殖牝馬を所有している場合は、データの馬そのもの
+      if (u?.kind === 'owned' && u.masterKey) rec = this.get(u.masterKey, stack);
+      else if (u) {
         if (stack.has(key)) throw new Error('親子関係が循環しています: ' + u.name);
         stack.add(key);
         const sire = u.sireKey ? this.get(u.sireKey, stack) : null;

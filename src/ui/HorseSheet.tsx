@@ -1,14 +1,16 @@
 import { type CSSProperties, forwardRef, useEffect, useImperativeHandle, useId, useMemo, useRef, useState } from 'react';
+import { createPortal } from 'react-dom';
 import { checkWorkspace, workspaceGeneration } from '../store/workspace';
 import type { HorseAbilities, HorseCategory, HorseRecord, OwnedHorse, RaceEntry, Sex } from '../core/types';
-import { HORSE_CATEGORIES, horseAge, isUnnamedHorse, pedigreeEffectCounts, pedigreeIssue, sexAgeLabel } from '../core/owned-horse';
+import { HORSE_CATEGORIES, breedingKey, horseAge, isUnnamedHorse, pedigreeEffectCounts, pedigreeIssue, sexAgeLabel } from '../core/owned-horse';
 import { canReadHorseStory } from '../core/horse-story';
 import { HorseNameSuggestions } from './HorseNameSuggestions';
 import { PORTRAIT_MAX_SIDE, deleteImage, imageToBase64, imageUrl, uploadImage } from '../api';
 import { foalNodes, makeFoalRecord, nodePath, unknownRecord } from '../core/pedigree';
 import { allUserHorses, horsePlanLinks, store } from '../store/userdata';
 import { requestCapture } from '../store/jobs';
-import { useApp, sireOptions, damOptions, type HorseOption } from './app-context';
+import { useApp, sireOptions, damOptions, ownedParentKeys, type HorseOption } from './app-context';
+import { HorseDialog } from './HorseDialog';
 import { HorseSelect, type HorseSelectHandle } from './HorseSelect';
 import { EFFECT_CHIP, EffectChips, SystemBadge } from './Pedigree';
 import { navigate } from './router';
@@ -18,6 +20,7 @@ import { applyRaceEdits } from '../core/races';
 import { baseRaces } from '../data/races';
 import { RaceResultsEditor } from './RaceResultsEditor';
 import './HorseSheet.css';
+import { HorsePlaceholder } from './HorsePlaceholder';
 
 const COAT_COLORS = ['鹿毛', '黒鹿毛', '青鹿毛', '青毛', '栗毛', '栃栗毛', '芦毛', '白毛'];
 type SheetForm = {
@@ -29,14 +32,21 @@ type SheetForm = {
   /** 画像: 既存のID。差し替えは portrait、削除は imageId を空にする */
   imageId: string; portrait: { file: File; url: string } | null;
 };
-/** 上段の帯の最小高さ（px）。要約列の最小内容がこれに収まるよう CSS 側の寸法と合わせる */
-const BAND_MIN = 200;
+/**
+ * 上段の帯の最小高さ（px）。未命名の馬に出る「命名候補を生成」の分まで含めた名前側の高さで、
+ * 命名の有無や写真の有無で写真枠の大きさが変わらないようにする。CSS 側の既定値と合わせる
+ */
+const BAND_MIN = 236;
 export interface HorseSheetHandle { canLeave: () => boolean }
 
 export const HorseSheet = forwardRef<HorseSheetHandle, {
   horse?: OwnedHorse; initialPlannedId: string | null; initialParents?: { sire: string; dam: string }; onSave: (horse: OwnedHorse) => void; onCancel: () => void; onRemove?: () => void;
 }>(function HorseSheet({ horse, initialPlannedId, initialParents, onSave, onCancel, onRemove }, ref) {
   const app = useApp();
+  // データの繁殖牝馬を所有している場合は、名前・性別・血統・系統・能力をデータの値で表示し、編集しない
+  const masterRec = horse?.masterKey ? app.resolver.get(horse.masterKey) : null;
+  const masterHorse = horse?.masterKey ? app.master.broodmares.find((b) => b.id === horse.masterKey) : undefined;
+  const [masterDetail, setMasterDetail] = useState(false);
   const planned = app.data.plannedHorses.find((h) => h.id === initialPlannedId);
   const originalLinks = horse ? horsePlanLinks(app.data, horse.id) : [];
   const actualParent = (key = '') => {
@@ -66,6 +76,7 @@ export const HorseSheet = forwardRef<HorseSheetHandle, {
   const [linkEditing, setLinkEditing] = useState(false);
   // 馬名は表示が基本。ペンで編集欄に切り替え、確定（Enter・欄外）で表示に戻す。新規登録は最初から編集欄
   const [nameEditing, setNameEditing] = useState(!horse);
+  const parents = horse?.masterKey ? ownedParentKeys(app, horse) : { sire: form.sireKey, dam: form.damKey };
   const nameInput = useRef<HTMLInputElement>(null);
   useEffect(() => { if (nameEditing) nameInput.current?.focus(); }, [nameEditing]);
   const [tab, setTab] = useState('basic');
@@ -121,7 +132,7 @@ export const HorseSheet = forwardRef<HorseSheetHandle, {
     const plan = app.data.plans.find((p) => p.steps.some((s) => s.foalId === id));
     return [{ foal, plan, stepIndex: plan?.steps.findIndex((s) => s.foalId === id) ?? -1 }];
   });
-  const usages = horse ? app.data.plans.filter((p) => p.startKey === horse.id || p.steps.some((s) => s.sire === horse.id || s.dam === horse.id)) : [];
+  const usages = horse ? app.data.plans.filter((p) => [p.startKey, ...p.steps.flatMap((s) => [s.sire, s.dam])].includes(breedingKey(horse))) : [];
 
   const formGeneration = useRef(workspaceGeneration());
   const save = async () => {
@@ -187,8 +198,9 @@ export const HorseSheet = forwardRef<HorseSheetHandle, {
     <div className="sheet-toolbar">
       <div role={error ? 'alert' : 'status'} className={error ? 'sheet-error' : 'sheet-save-status'}>{error || (saving ? '保存中…' : horse && dirty ? '入力中…' : saved ? '保存しました' : '')}</div>
       {horse ? <div className="sheet-toolbar-actions">
-        <span className="sheet-action-wrap" title={actionBlock ?? undefined}><button type="button" disabled={!!actionBlock} onClick={() => navigate('/mating', horse.sex === 'M' ? { sire: horse.id } : { dam: horse.id })}>配合確認</button></span>
-        <span className="sheet-action-wrap" title={actionBlock ?? undefined}><button type="button" disabled={!!actionBlock} onClick={() => navigate('/search', horse.sex === 'M' ? { stallion: horse.id, mode: 'one' } : { mare: horse.id })}>配合探索</button></span>
+        <span className="sheet-action-wrap" title={actionBlock ?? undefined}><button type="button" disabled={!!actionBlock} onClick={() => navigate('/mating', horse.sex === 'M' ? { sire: breedingKey(horse) } : { dam: breedingKey(horse) })}>配合確認</button></span>
+        <span className="sheet-action-wrap" title={actionBlock ?? undefined}><button type="button" disabled={!!actionBlock} onClick={() => navigate('/search', horse.sex === 'M' ? { stallion: breedingKey(horse), mode: 'one' } : { mare: breedingKey(horse) })}>配合探索</button></span>
+        {masterRec && <button type="button" className="sheet-data-button" onClick={() => setMasterDetail(true)}>データを確認</button>}
         {canReadHorseStory(horse, app.data.settings.gameYear) && <button type="button" disabled={saving || dirty} title={dirty ? "入力内容の保存後に開けます" : undefined} onClick={() => navigate('/horses/story', { id: horse.id })}>{horse.story ? '愛馬の一篇を読む' : '愛馬の一篇'}</button>}
         <details className="sheet-more">
           <summary aria-label="その他の操作" title="その他の操作">…</summary>
@@ -201,7 +213,7 @@ export const HorseSheet = forwardRef<HorseSheetHandle, {
     </div>
     <div className="sheet-overview" style={{ '--band-height': `${bandHeight}px` } as CSSProperties}>
       <div className="sheet-portrait">
-        <div className="portrait">{portraitUrl ? <img src={portraitUrl} alt={`${form.name || '所有馬'}の画像`} /> : <span className="portrait-empty">画像なし</span>}
+        <div className="portrait">{portraitUrl ? <img src={portraitUrl} alt={`${form.name || '所有馬'}の画像`} /> : <HorsePlaceholder category={form.category} sex={form.sex || null} />}
           {portraitUrl && <button type="button" className="sheet-portrait-remove" aria-label="写真を外す" title="写真を外す" onClick={() => { if (confirm('この馬の写真を外しますか？')) change({ portrait: null, imageId: '' }); }}><svg viewBox="0 0 12 12" width="12" height="12" aria-hidden="true"><path d="M2 2l8 8M10 2l-8 8" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" /></svg></button>}
           <div className="sheet-portrait-bar">
             <label><input type="file" accept="image/*" onChange={(e) => { choosePortrait(e.target.files?.[0]); e.target.value = ''; }} />写真を変更</label>
@@ -210,34 +222,36 @@ export const HorseSheet = forwardRef<HorseSheetHandle, {
       </div>
       <section className="sheet-identity" aria-label="主な基本情報">
         <div className="sheet-identity-main" ref={identityMain}>
-          <div className="sheet-identity-badges"><span className={`pill cat-${form.category}`}>{form.category}</span>{form.rank && <span className="pill rank">{form.rank}</span>}{!horse && <span className="small muted">新しい所有馬</span>}</div>
+          <div className="sheet-identity-badges"><span className={`pill cat-${form.category}`}>{form.category}</span>{form.rank && <span className="pill rank">{form.rank}</span>}{!horse && <span className="small muted">新しい所有馬</span>}{masterRec && <span className="small muted">データの繁殖牝馬</span>}</div>
           {nameEditing
             ? <div className="sheet-name editing"><input ref={nameInput} aria-label="馬名" required value={form.name} placeholder="馬名を入力" onChange={(e) => change({ name: e.target.value })} onBlur={() => { if (horse && form.name.trim()) setNameEditing(false); }} onKeyDown={(e) => { if (e.key === 'Enter') { e.preventDefault(); if (form.name.trim()) setNameEditing(false); } }} /></div>
-            : <div className="sheet-name"><h2>{form.name || '（馬名未設定）'}</h2><button type="button" className="sheet-name-edit" aria-label="馬名を編集" title="馬名を編集" onClick={() => setNameEditing(true)}>✎</button></div>}
+            : <div className="sheet-name"><h2>{form.name || '（馬名未設定）'}</h2>{!masterRec && <button type="button" className="sheet-name-edit" aria-label="馬名を編集" title="馬名を編集" onClick={() => setNameEditing(true)}>✎</button>}</div>}
           {isUnnamedHorse(form.name) && <HorseNameSuggestions key={JSON.stringify([form.name, form.sex, form.sireKey, form.damKey, form.color, app.data.settings.farm])} name={form.name} sex={form.sex} color={form.color} sireKey={form.sireKey} damKey={form.damKey} onSelect={name => { change({ name }); setNameEditing(false); }} />}
           <div className="sheet-identity-meta">
             <span className={`pill sex-${form.sex || 'none'}`}>{sexAgeLabel(form.sex || null, horseAge(form.birthYear ? Number(form.birthYear) : undefined, app.data.settings.gameYear))}</span>
-            <span className="pill">{form.color || '毛色未登録'}</span>
-            <span className="pill">{form.birthYear ? `${form.birthYear}年生` : '生年未登録'}</span>
+            <span className="pill">{(masterRec ? masterHorse?.color : form.color) || '毛色未登録'}</span>
+            {!masterRec && <span className="pill">{form.birthYear ? `${form.birthYear}年生` : '生年未登録'}</span>}
             {form.category === '現役' && form.record && <span className="pill">{form.record}</span>}
           </div>
           <dl className="sheet-parents-summary">
-            <div className="sire"><dt>父</dt><dd>{form.sireKey ? app.resolver.label(form.sireKey) : '未登録'}</dd></div>
-            <div className="dam"><dt>母</dt><dd>{form.damKey ? app.resolver.label(form.damKey) : '未登録'}</dd></div>
+            <div className="sire"><dt>父</dt><dd>{parents.sire ? app.resolver.label(parents.sire) : '未登録'}</dd></div>
+            <div className="dam"><dt>母</dt><dd>{parents.dam ? app.resolver.label(parents.dam) : '未登録'}</dd></div>
           </dl>
         </div>
       </section>
-      <aside className="sheet-context" aria-label="戦績の要約・メモ">
-        <div className="sheet-card-row">
+      <aside className={'sheet-context' + (masterRec ? ' memo-only' : '')} aria-label="戦績の要約・メモ">
+        {!masterRec && <div className="sheet-card-row">
           <section className="sheet-card"><div className="sheet-card-heading"><h3>総賞金</h3></div><p className={'sheet-card-value' + (form.earnings ? '' : ' muted')}>{form.earnings ? `${Number(form.earnings).toLocaleString()}万円` : '未登録'}</p></section>
           <section className="sheet-card"><div className="sheet-card-heading"><h3>主な勝ち鞍</h3></div><p className={'sheet-card-value sheet-card-clamp' + (form.wins ? '' : ' muted')} title={form.wins || undefined}>{form.wins || '未登録'}</p></section>
-        </div>
+        </div>}
         <section className="sheet-card sheet-memo">
           <div className="sheet-card-heading"><h3><label htmlFor={`${tabId}-memo`}>メモ</label></h3></div>
           <textarea id={`${tabId}-memo`} value={form.memo} placeholder="この馬について残しておきたいこと" onChange={(e) => change({ memo: e.target.value })} />
         </section>
       </aside>
     </div>
+    {/* データの繁殖牝馬は中身がすべてデータの値なので、詳細のタブを出さない（右上の「データを確認」で見る） */}
+    {!masterRec && <>
     <div className="sheet-tabs" role="tablist" aria-label="所有馬の詳細">
       {tabs.map((t, i) => <button type="button" role="tab" key={t.id} id={`${tabId}-${t.id}`} aria-controls={`${tabId}-${t.id}-panel`} aria-selected={tab === t.id} tabIndex={tab === t.id ? 0 : -1} onClick={() => setTab(t.id)} onKeyDown={(e) => {
         const next = e.key === 'ArrowRight' ? (i + 1) % tabs.length : e.key === 'ArrowLeft' ? (i + tabs.length - 1) % tabs.length : e.key === 'Home' ? 0 : e.key === 'End' ? tabs.length - 1 : null;
@@ -311,6 +325,9 @@ export const HorseSheet = forwardRef<HorseSheetHandle, {
         {usages.length > 0 && <div className="sheet-plan-usage"><h4>この馬を配合に使う計画</h4>{usages.map((p) => <a key={p.id} href={`#/plans?id=${encodeURIComponent(p.id)}`}>{p.name}</a>)}</div>}
       </section>
     </div>
+    </>}
+    {/* 編集画面は form なので、ダイアログは入れ子にせず body に出す */}
+    {masterDetail && masterRec && createPortal(<HorseDialog horseKey={masterRec.key} kind="broodmare" onClose={() => setMasterDetail(false)} />, document.body)}
   </form>;
 });
 

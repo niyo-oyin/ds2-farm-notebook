@@ -225,7 +225,6 @@ function HorseDetails({ kind, horse, onDone, onClose, sequence, mode }: { mode: 
       </section>
       {editing && <details className="sheet-section"><summary>系統コードを編集</summary>
         <div className="sheet-section-heading"><h3>系統コード</h3><button type="button" onClick={() => change({ omoshiro: derived.omoshiro.split(''), migoto: derived.migoto.split('') })}>祖先マスターから導出</button></div>
-        <p className="small muted">面白い配合・見事な配合の判定に使う大系統。祖先が祖先マスターにあれば導出できる。導出できない位置は手で選ぶ。</p>
         <h4 className="master-code-title">面白用（本馬・父母父・母父・母母父）</h4>
         {codeSelect('omoshiro', OMOSHIRO_SLOTS)}
         {kind === 'stallion' && <><h4 className="master-code-title">見事用（父父母父・父母母父・母父母父・母母母父）</h4>{codeSelect('migoto', MIGOTO_SLOTS)}</>}

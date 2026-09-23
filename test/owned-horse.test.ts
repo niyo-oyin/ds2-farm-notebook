@@ -66,3 +66,30 @@ describe('所有馬の血統内の因子数', () => {
     expect(pedigreeEffectCounts(nodes, context).unknown).toBe(27);
   });
 });
+
+describe('データの繁殖牝馬を所有馬にする', () => {
+  it('所有馬として引いてもデータの馬そのものとして判定し、購入の制約を付けない', async () => {
+    const { baseMaster: M } = await import('../src/data/base-master');
+    const { HorseResolver } = await import('../src/core/pedigree');
+    const { DEFAULT_RULES } = await import('../src/core/rules');
+    const mare = M.broodmares.find((b) => b.purchasePrice)!;
+    const plain = new HorseResolver(M, [], DEFAULT_RULES).get(mare.id)!;
+    const resolver = new HorseResolver(M, [owned('u:mare', { name: mare.name, category: '繁殖牝馬', masterKey: mare.id })], DEFAULT_RULES);
+    const viaOwned = resolver.get('u:mare')!;
+    expect(viaOwned.key).toBe(mare.id);
+    expect(viaOwned.nodes).toEqual(plain.nodes);
+    expect(viaOwned.omoshiro).toBe(plain.omoshiro);
+    expect(plain.constraints.some((c) => c.startsWith('購入が必要'))).toBe(true);
+    expect(resolver.get(mare.id)!.constraints.some((c) => c.startsWith('購入'))).toBe(false);
+  });
+
+  it('同じ繁殖牝馬を二重に登録できず、牡としては登録できない', async () => {
+    vi.resetModules(); vi.stubGlobal('localStorage', memoryStorage());
+    (await import('../src/data/catalog')).initializeCatalog(testCatalog);
+    const { store } = await import('../src/store/userdata');
+    store.addHorse(owned('u:a', { category: '繁殖牝馬', masterKey: 'bm:1' }));
+    expect(() => store.addHorse(owned('u:b', { category: '繁殖牝馬', masterKey: 'bm:1' }))).toThrow();
+    expect(() => store.addHorse(owned('u:c', { sex: 'M', category: '現役', masterKey: 'bm:2' }))).toThrow();
+    expect(() => store.updateHorse('u:a', { masterKey: 'bm:3' })).toThrow();
+  });
+});
