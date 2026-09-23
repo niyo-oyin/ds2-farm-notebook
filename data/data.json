@@ -1,8 +1,8 @@
 {
   "master": {
     "meta": {
-      "dataVersion": "2026-09-22-17",
-      "createdAt": "2026-09-22T14:00:23.199Z",
+      "dataVersion": "2026-09-23-03",
+      "createdAt": "2026-09-23T01:13:14.633Z",
       "bigSystems": [
         "Ec",
         "Ph",
@@ -25906,6 +25906,61 @@
           "kenko": null,
           "kisyo": null,
           "type": null
+        }
+      },
+      {
+        "id": "bm:n-3",
+        "kind": "broodmare",
+        "name": "ジョリージョコンド",
+        "sex": "F",
+        "price": 0,
+        "color": "鹿毛",
+        "bigSystem": "Ne",
+        "smallSystem": "ノーザンダンサー",
+        "omoshiro": "emff",
+        "migoto": null,
+        "ancestors": [
+          "a:1604",
+          "a:3899",
+          "a:3430",
+          "a:983",
+          "a:2183",
+          "a:3900",
+          "a:3188",
+          "a:1655",
+          "a:336",
+          "a:2760",
+          "a:1689",
+          "a:2627",
+          "a:2719",
+          "a:3901",
+          "a:89",
+          "a:207",
+          "a:77",
+          "a:1305",
+          "a:118",
+          "a:2482",
+          "a:3833",
+          "a:3902",
+          "a:79",
+          "a:1246",
+          "a:1211",
+          "a:1320",
+          "a:1556",
+          "a:3809",
+          "a:3718",
+          "a:3903"
+        ],
+        "unlock": null,
+        "purchasePrice": null,
+        "attrs": {
+          "speed": null,
+          "stamina": null,
+          "power": null,
+          "dirt": null,
+          "kenko": null,
+          "kisyo": null,
+          "type": 0
         }
       }
     ],
@@ -52071,7 +52126,7 @@
       },
       {
         "name": "Crystal Lady",
-        "system": null,
+        "system": 4,
         "sex": "F",
         "effects": [],
         "id": "a:3660"
@@ -52092,7 +52147,7 @@
       },
       {
         "name": "Voodoo Lily",
-        "system": null,
+        "system": 5,
         "sex": "F",
         "effects": [],
         "id": "a:3663"
@@ -52176,7 +52231,7 @@
       },
       {
         "name": "Ouija",
-        "system": null,
+        "system": 8,
         "sex": "F",
         "effects": [],
         "id": "a:3675"
@@ -52302,7 +52357,7 @@
       },
       {
         "name": "Frozen Expression",
-        "system": null,
+        "system": 3,
         "sex": "F",
         "effects": [],
         "id": "a:3693"
@@ -61041,6 +61096,10 @@
       [
         "st:12",
         "a:3442"
+      ],
+      [
+        "a:2036",
+        "a:2183"
       ]
     ],
     "nicks": [

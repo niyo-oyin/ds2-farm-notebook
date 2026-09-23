@@ -31,7 +31,7 @@ export interface AncestorInfo {
   system: number | null;   // 1..15
   sex: Sex | null;
   effects: string[];       // クロス効果名
-  effectsKnown?: boolean; // false は馬名だけの登録で、因子は未確認
+  effectsKnown?: boolean; // false は因子未確認。true または省略時は確認済み
 }
 
 export interface MasterData {
