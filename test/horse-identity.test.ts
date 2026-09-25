@@ -1,4 +1,4 @@
-import { describe, expect, it } from 'vitest';
+import { describe, expect, it, vi } from 'vitest';
 import type { MasterData, MasterHorse } from '../src/core/types';
 import { HorseResolver } from '../src/core/pedigree';
 import { judge, makeContext } from '../src/core/judge';
@@ -10,7 +10,7 @@ import { uniqueHorseNamed } from '../src/core/horse-identity';
 function fixture() {
   const horse = (id: string, sex: 'M' | 'F'): MasterHorse => ({
     id, name: '同じ馬名', sex, kind: sex === 'M' ? 'stallion' : 'broodmare', price: 0, color: null, bigSystem: null, smallSystem: null,
-    omoshiro: 'aaaa', migoto: 'aaaa', ancestors: Array.from({ length: 30 }, (_, i) => `a:${id}-${i}`), attrs: {},
+    ancestors: Array.from({ length: 30 }, (_, i) => `a:${id}-${i}`), attrs: {},
   });
   const sire = horse('st:1', 'M'), dam = horse('bm:1', 'F');
   const master: MasterData = {
@@ -83,5 +83,21 @@ describe('馬の個体ID', () => {
     const saved = applyMasterEdits(master, [], pending.additions.map(a => ({ ...a, updatedAt: '1' })));
     expect(saved.ancestors.find(a => a.id === pending.additions[0].id)).toMatchObject({ name: '新しい母', effectsKnown: false });
     expect(compareAncestorFactors([{ name: '同じ馬名', factors: ['底力'] }], master)[0]).toMatchObject({ id: null, status: '要選択' });
+  });
+
+  it('HTTP接続でrandomUUIDが使えなくても、新しい父母を別個体として登録できる', () => {
+    const getRandomValues = crypto.getRandomValues.bind(crypto);
+    vi.stubGlobal('crypto', { getRandomValues });
+    try {
+      const { master } = fixture();
+      const prepared = prepareReadingAncestors(master, { sire: '新しい父', dam: '新しい母', dam_sire: '' });
+      expect(prepared.additions).toHaveLength(2);
+      expect(prepared.parentIds.sire).not.toBe(prepared.parentIds.dam);
+      const saved = applyMasterEdits(master, [], prepared.additions.map(a => ({ ...a, updatedAt: '1' })));
+      expect(uniqueHorseNamed(saved.ancestors, '新しい父')?.id).toBe(prepared.parentIds.sire);
+      expect(uniqueHorseNamed(saved.ancestors, '新しい母')?.id).toBe(prepared.parentIds.dam);
+    } finally {
+      vi.unstubAllGlobals();
+    }
   });
 });

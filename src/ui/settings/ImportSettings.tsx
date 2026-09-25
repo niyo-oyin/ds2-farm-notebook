@@ -1,10 +1,18 @@
 import { store } from '../../store/userdata';
 import { useApp } from '../app-context';
-import { SettingSwitch } from './SettingRow';
+import { SettingRow, SettingSwitch } from './SettingRow';
 
 export function ImportSettings() {
   const { data: { settings } } = useApp();
   return <>
+    <section className="settings-section">
+      <div className="settings-section-heading"><h4>写真の向き</h4></div>
+      <SettingRow label="縦長の写真を自動回転" description="取り込み時に縦長の写真だけを90度回転します。送信前に手動でも向きを直せます。">{(id, descriptionId) =>
+        <select id={id} aria-describedby={descriptionId} value={settings.importPortraitRotation ?? ''} onChange={e => store.setSettings({ importPortraitRotation: (e.target.value || undefined) as 'left' | 'right' | undefined })}>
+          <option value="">回転しない</option><option value="left">左に90度</option><option value="right">右に90度</option>
+        </select>
+      }</SettingRow>
+    </section>
     <section className="settings-section">
       <div className="settings-section-heading"><h4>解析後の確認</h4></div>
       <SettingSwitch label="確認画面を自動で開く" description="入力中や別のダイアログの表示中は待ちます。" checked={!!settings.importAutoOpen} onChange={(importAutoOpen) => store.setSettings({ importAutoOpen })} />

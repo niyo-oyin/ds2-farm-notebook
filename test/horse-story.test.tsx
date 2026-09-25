@@ -11,7 +11,7 @@ import { normalizeUserData, emptyUserData } from '../src/store/model';
 import { toRecords } from '../src/store/sync';
 import { userDataFromRecords } from '../server/user-data';
 import { owned } from './horse-fixtures';
-import type { HorseStory, StoryRequest } from '../src/shared/horse-story';
+import { normalizeStoryContent, StoryContentSchema, type HorseStory, type StoryRequest } from '../src/shared/horse-story';
 
 const horse = owned('u:story', { name: 'アオイキセキ', sireKey: baseMaster.stallions[0].id, damKey: baseMaster.broodmares[0].id,
   profile: { record: '12戦4勝', races: [{ date: '4.3', race: '皐月賞', place: '中山', grade: 'GⅠ', distance: 2000, surface: '芝', finish: '2' }], birthYear: 27 }, memo: '初勝利まで時間がかかった。' });
@@ -85,6 +85,23 @@ describe('愛馬の一篇', () => {
     const html = renderToStaticMarkup(<HorseStoryArticle story={story} />);
     expect(html).toContain('&lt;script&gt;'); expect(html).not.toContain('<script>');
     expect(html).toContain('12戦4勝'); expect(html).toContain('登録した戦績 1戦');
+  });
+  it('導入の再掲を除き、編集・保存・HTML出力でも本文の順序と異なる段落を保つ', () => {
+    const story = makeStory(request);
+    story.content.chapters = [
+      { paragraphs: [story.content.lead, '初勝利を挙げた。'] },
+      { paragraphs: [' 初勝利を挙げた。\n', '初勝利を挙げた。その後は重賞へ進んだ。'] },
+      { paragraphs: [story.content.closing] },
+    ];
+    const draft = normalizeStoryContent(story.content);
+    expect(draft.chapters.flatMap(c => c.paragraphs)).toEqual(['初勝利を挙げた。', '初勝利を挙げた。その後は重賞へ進んだ。']);
+    expect(StoryContentSchema.safeParse(draft).success).toBe(true);
+    expect(normalizeStoryContent(draft)).toEqual(draft);
+    for (const html of [renderToStaticMarkup(<HorseStoryArticle story={story} />), horseStoryHtml(story, 'data:image/svg+xml;base64,PHN2Zy8+')]) {
+      expect(html.split(`<p>${story.content.lead}</p>`)).toHaveLength(2);
+      expect(html.split(`<p>${story.content.closing}</p>`)).toHaveLength(2);
+      expect(html).toContain('<p>初勝利を挙げた。</p><p>初勝利を挙げた。その後は重賞へ進んだ。</p>');
+    }
   });
   it('保存用HTMLは画像を内包し、馬名や本文をHTMLとして実行しない', () => {
     const story = makeStory(request);

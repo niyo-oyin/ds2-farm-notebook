@@ -87,3 +87,46 @@ it('保存失敗後には再試行でき、セーブロードをまたいだ読�
   await expect(pending).rejects.toThrow('ロード');
   expect((await import('../src/store/userdata')).getUserData().horses).toHaveLength(1);
 });
+
+it('仮名の母を所有馬・マスターから補完し、登録済みの父母は維持する', async () => {
+  const { applyCardJob } = await import('../src/ui/import-apply');
+  const { store } = await import('../src/store/userdata');
+  const mare = testCatalog.data.master.broodmares[0];
+  const fromMaster = { ...reading, card: { ...reading.card, name: `${mare.name}の３２` } };
+  const child = await applyCardJob(job, fromMaster, undefined, false);
+  expect(child.damKey).toBe(mare.id);
+  expect(child.profile?.birthYear).toBe(32);
+  const mother = store.addHorse(owned('u:mother', { name: '母馬', category: '引退' }));
+  const updated = await applyCardJob({ ...job, id: 'job:update' }, reading, child, false);
+  expect(updated.damKey).toBe(mare.id);
+  const father = testCatalog.data.master.stallions[0].id;
+  const partial = store.addHorse(owned('u:partial', { sireKey: father }));
+  const completed = await applyCardJob({ ...job, id: 'job:partial' }, reading, partial, false);
+  expect(completed).toMatchObject({ sireKey: father, damKey: mother.id });
+});
+
+it('母が見つからない・同名で特定できない取り込みは自動反映せず、確認画面で知らせる', async () => {
+  const { autoDecision, applyCardJob } = await import('../src/ui/import-apply');
+  const { getUserData, store, allUserHorses } = await import('../src/store/userdata');
+  const { AppContext } = await import('../src/ui/app-context');
+  const { ImportJobCard } = await import('../src/ui/ImportJobCard');
+  const { HorseResolver } = await import('../src/core/pedigree');
+  const { makeContext } = await import('../src/core/judge');
+  const { DEFAULT_RULES: rules } = await import('../src/core/rules');
+  const { createElement } = await import('react');
+  const { renderToStaticMarkup } = await import('react-dom/server');
+  const context = () => {
+    const data = getUserData(), master = testCatalog.data.master, horses = allUserHorses(data);
+    return { data, master, rules, resolver: new HorseResolver(master, horses, rules), ctx: makeContext(master, rules, horses) };
+  };
+  const render = () => renderToStaticMarkup(createElement(AppContext.Provider, { value: context() }, createElement(ImportJobCard, { job, onDismiss() {}, onRetry() {} })));
+  store.setSettings({ importAutoApply: true });
+  expect(autoDecision(context(), job)).toBeNull();
+  expect(render()).toContain('母「母馬」はデータに見つかりません。');
+  const mother = store.addHorse(owned('u:mother', { name: '母馬' }));
+  expect(autoDecision(context(), job)?.kind).toBe('card');
+  store.addHorse(owned('u:same-name', { name: mother.name }));
+  expect(autoDecision(context(), job)).toBeNull();
+  expect(render()).toContain('母「母馬」の候補が複数あり、特定できません。');
+  expect((await applyCardJob(job, reading, undefined, false)).damKey).toBe('');
+});

@@ -21,7 +21,7 @@ export function unknownRecord(key = '?:unknown', name = '（未定）'): HorseRe
   };
 }
 
-export function masterToRecord(h: MasterHorse, identities: Map<string, HorseIdentity>): HorseRecord {
+function masterToRecord(h: MasterHorse, identities: Map<string, HorseIdentity>, systems: Map<string, string>): HorseRecord {
   const nodes: string[] = Array(32).fill(UNKNOWN);
   const labels: Record<string, string> = {};
   nodes[1] = h.id;
@@ -35,7 +35,8 @@ export function masterToRecord(h: MasterHorse, identities: Map<string, HorseIden
   return {
     key: h.id, name: h.name, sex: h.sex, kind: h.kind, price: h.kind === 'stallion' && !h.priceUnknown ? h.price : 0, priceUnknown: h.kind === 'stallion' && h.priceUnknown,
     smallSystem: h.smallSystem, smallSystemSource: h.smallSystem ? 'マスターデータ' : '不明',
-    omoshiro: h.omoshiro ?? '????', migoto: h.migoto ?? '????',
+    omoshiro: [h.id, h.ancestors[8], h.ancestors[4], h.ancestors[12]].map(id => systems.get(id) ?? '?').join(''),
+    migoto: [16, 20, 24, 28].map(i => systems.get(h.ancestors[i]) ?? '?').join(''),
     nodes, labels, isHomebred: false, missingSlots: missing,
     constraints: [
       ...horseUnlockConditions(h).map(c => `解禁条件: ${c}`),
@@ -87,6 +88,7 @@ export function makeFoalRecord(
 export class HorseResolver {
   private masterById = new Map<string, MasterHorse>();
   private identities: Map<string, HorseIdentity>;
+  private systems = new Map<string, string>();
   private users = new Map<string, UserHorse>();
   /** 所有馬として持っているデータの繁殖牝馬。購入の制約を付けない */
   private ownedMasters = new Set<string>();
@@ -96,8 +98,10 @@ export class HorseResolver {
   constructor(master: MasterData, userHorses: UserHorse[], rules: RuleOptions) {
     this.rules = rules;
     this.identities = horseIdentities(master);
+    for (const a of master.ancestors) if (a.system) this.systems.set(a.id, SYS_CHARS[a.system - 1]);
     for (const h of [...master.stallions, ...master.broodmares]) {
       this.masterById.set(h.id, h);
+      this.systems.set(h.id, h.bigSystem ? SYS_CHARS[master.meta.bigSystems.indexOf(h.bigSystem)] ?? '?' : '?');
     }
     for (const u of userHorses) {
       this.users.set(u.id, u);
@@ -116,7 +120,7 @@ export class HorseResolver {
     let rec: HorseRecord | null = null;
     const m = this.masterById.get(key);
     if (m) {
-      rec = masterToRecord(m, this.identities);
+      rec = masterToRecord(m, this.identities, this.systems);
       if (this.ownedMasters.has(key)) rec = { ...rec, constraints: rec.constraints.filter((c) => !c.startsWith('購入')) };
     }
     else {

@@ -81,7 +81,8 @@
 .sheet-pedigree-notice > span { flex: 1; }
 .sheet-pedigree-notice > button { flex: 0 0 auto; font-size: 12px; min-height: 32px; }
 .sheet-tab-count { margin-left: 5px; padding: 0 6px; border-radius: 999px; background: var(--hover); font-size: 11px; }
-.sheet-tabs { display: flex; gap: 16px; border-bottom: 1px solid var(--rule-strong); }
+.sheet-tabs { display: flex; gap: 16px; overflow-x: auto; border-bottom: 1px solid var(--rule-strong); }
+.sheet-tabs > button { flex-shrink: 0; white-space: nowrap; }
 .sheet-tabs > button { padding: 12px 18px; margin-bottom: -1px; border: 0; border-bottom: 3px solid transparent; border-radius: 0; background: transparent; color: var(--ink-muted); }
 .sheet-tabs > button[aria-selected="true"] { color: var(--accent); border-bottom-color: var(--accent); font-weight: 600; }
 .sheet-tab-panel { padding-top: 16px; }
@@ -161,6 +162,10 @@
 .sheet-ancestor-factors > p { font-size: 11px; margin: 10px 0 0; }
 .sheet-record-fields { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 12px; max-width: 640px; }
 .sheet-record-fields .sheet-wins { grid-column: 1 / -1; }
+.sheet-offspring { width: 100%; border-collapse: collapse; font-size: 13px; }
+.sheet-offspring th { position: static; background: transparent; text-align: left; font-weight: 500; font-size: 11px; color: var(--ink-muted); }
+.sheet-offspring th, .sheet-offspring td { padding: 8px; border-bottom: 1px solid var(--rule); white-space: nowrap; }
+.sheet-offspring .numeric { text-align: right; font-variant-numeric: tabular-nums; }
 .sheet-observations { margin-top: 20px; padding-top: 12px; border-top: 1px dashed var(--rule); }
 .sheet-observations h4 { margin: 0 0 6px; font-size: 12px; color: var(--ink-muted); font-weight: 400; }
 .sheet-observations ul { margin: 0; padding-left: 18px; font-size: 12px; }
@@ -212,4 +217,12 @@
   .race-abilities { grid-template-columns: repeat(4, minmax(0, 1fr)); }
   .race-traits { grid-template-columns: repeat(2, minmax(0, 1fr)); }
   .horse-sheet .race-mark select, .horse-sheet .race-mark input { min-height: 40px; font-size: 16px; }
+}
+
+.sheet-mother-comment { display: flex; align-items: center; gap: 8px; margin-top: 12px; min-height: 36px; font-size: 13px; }
+.sheet-mating-info { margin-top: 16px; }
+.sheet-mother-comment input { width: 16px; height: 16px; flex: 0 0 16px; }
+.sheet-search-exclude:has(input:disabled) { color: var(--ink-muted); }
+@media (max-width: 720px) {
+  .sheet-mother-comment { min-height: 44px; }
 }

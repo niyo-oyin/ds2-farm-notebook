@@ -60,7 +60,7 @@ function theoryCards(j: Judgement): { id: string; title: string; label: string; 
 }
 
 /** 先頭に置く結論: 因子・ニトロ、成立配合、クロス、種付料 */
-export function SummaryStrip({ j }: { j: Judgement }) {
+export function SummaryStrip({ j, showCost = true }: { j: Judgement; showCost?: boolean }) {
   const danger = j.dangerous.verdict === '成立';
   const counts = j.crosses.reduce<Record<string, number>>((m, c) => { for (const e of c.effects) m[e] = (m[e] ?? 0) + 1; return m; }, {});
   const unknownEffects = j.crosses.filter((c) => !c.effectsKnown).length;
@@ -82,7 +82,7 @@ export function SummaryStrip({ j }: { j: Judgement }) {
             ))}
           </span>
         )}
-        <span className="cost-tag">種付料 <b>{j.costUnknown ? '未確認' : j.cost.toLocaleString()}</b>{!j.costUnknown && '万円'}</span>
+        {showCost && <span className="cost-tag">種付料 <b>{j.costUnknown ? '未確認' : j.cost.toLocaleString()}</b>{!j.costUnknown && '万円'}</span>}
       </div>
       <div className="result-line">
         <span className="label">クロス</span>

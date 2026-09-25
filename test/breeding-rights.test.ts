@@ -72,9 +72,9 @@ describe('種付け権と種付料の分離', () => {
     expect(judge(r.get(base.id)!, r.get(master.broodmares[0].id)!, ctx).costUnknown).toBe(true);
     const reading = { fee: '無料', age: -1, sex: '牡' } as MasterReading;
     for (const key of ['name', 'color', 'sire', 'dam', 'dam_sire', 'big_system', 'small_system', 'price', 'distance', 'growth', 'dirt', 'kenko', 'kisyo', 'jisseki', 'konjo', 'antei'] as const) reading[key] = '';
-    const next = masterFromReading('stallion', reading, base, master, new Map(master.ancestors.map(a => [a.id, a])));
+    const next = masterFromReading('stallion', reading, base, master);
     expect(next.breedingRightPrice).toBe(180000);
-    expect(masterDiffRows(base, next, master.meta.bigSystems, id => r.label(id))).toContainEqual({ key: 'price', label: '種付料（万円）', before: '未確認', after: '0' });
+    expect(masterDiffRows(base, next, id => r.label(id))).toContainEqual({ key: 'price', label: '種付料（万円）', before: '未確認', after: '0' });
     const applied = applyMasterFields(base, next, ['price']);
     expect(applied.priceUnknown).toBe(false);
     expect(applied.breedingRightPrice).toBe(180000);

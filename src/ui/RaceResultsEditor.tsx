@@ -1,4 +1,6 @@
-import { useMemo, useState } from 'react';
+import { type ReactNode, useMemo, useState } from 'react';
+import { DragDropProvider } from '@dnd-kit/react';
+import { isSortable, useSortable } from '@dnd-kit/react/sortable';
 import { createPortal } from 'react-dom';
 import { raceSchedule, sortRaces, type Race } from '../core/races';
 import type { RaceEntry } from '../core/types';
@@ -12,23 +14,72 @@ const COMMON_RACES = ['新馬戦', '未勝利戦', '1勝クラス', '2勝クラ�
 
 export function RaceResultsEditor({ value, races, onChange }: { value: RaceEntry[]; races: Race[]; onChange: (value: RaceEntry[]) => void }) {
   const [target, setTarget] = useState<number | 'new' | null>(null);
+  const move = (index: number, to: number) => {
+    if (index === to || index < 0 || index >= value.length || to < 0 || to >= value.length) return;
+    const next = [...value];
+    const [entry] = next.splice(index, 1);
+    next.splice(to, 0, entry);
+    onChange(next);
+  };
   return <>
     <div className="sheet-section-heading sheet-races-heading"><h4>競走成績</h4><button type="button" onClick={() => setTarget('new')}>＋ レースを選んで追加</button></div>
-    {value.length ? <div className="table-wrap"><table className="sheet-races">
-      <thead><tr><th>月.週</th><th>競馬場</th><th>レース名</th><th>距離</th><th>馬場</th><th>着順</th><th aria-label="操作" /></tr></thead>
-      <tbody>{value.map((entry, i) => <tr key={i}>
-        <td>{entry.date || '—'}</td><td>{entry.place || '—'}</td>
-        <td className="sheet-race-name"><button type="button" onClick={() => setTarget(i)} aria-label={`${entry.race || '戦績'}を編集`}>{entry.grade && entry.grade === entry.race ? <RaceGradeBadge grade={entry.grade} /> : entry.race || '名称未入力'}</button>{entry.grade && entry.grade !== entry.race && <RaceGradeBadge grade={entry.grade} />}</td>
-        <td>{[entry.surface, entry.distance == null ? '' : `${entry.distance.toLocaleString()}m`].filter(Boolean).join(' ') || '—'}</td>
-        <td>{entry.going || '—'}</td><td><RaceFinishBadge finish={entry.finish} /></td>
-        <td><button type="button" onClick={() => setTarget(i)}>編集</button><button type="button" aria-label={`${entry.race || 'この行'}を削除`} onClick={() => onChange(value.filter((_, j) => j !== i))}>削除</button></td>
-      </tr>)}</tbody>
-    </table></div> : <p className="small muted">競走成績はまだありません。</p>}
+    <RaceResultsTable entries={value} onMove={move} onEdit={setTarget} onDelete={(i) => onChange(value.filter((_, j) => j !== i))} />
     {target !== null && <RaceResultDialog races={races} initial={target === 'new' ? undefined : value[target]} onClose={() => setTarget(null)} onSave={(entry) => {
       onChange(target === 'new' ? [entry, ...value] : value.map((row, i) => i === target ? entry : row));
       setTarget(null);
     }} />}
   </>;
+}
+
+type RaceTableProps = {
+  entries: RaceEntry[];
+  onMove?: (from: number, to: number) => void;
+  onEdit?: (index: number) => void;
+  onDelete?: (index: number) => void;
+};
+
+export function RaceResultsTable({ entries, onEdit, onDelete, onMove }: RaceTableProps) {
+  const rows = useMemo(() => {
+    const occurrences = new Map<string, number>();
+    return entries.map((entry) => {
+      const key = JSON.stringify([entry.date, entry.place, entry.race]);
+      const occurrence = occurrences.get(key) ?? 0;
+      occurrences.set(key, occurrence + 1);
+      return { entry, id: `${key}:${occurrence}` };
+    });
+  }, [entries]);
+  if (!entries.length) return <p className="small muted">競走成績はまだありません。</p>;
+  const table = <div className="table-wrap"><table className="sheet-races">
+    <thead><tr>{onMove && <th className="sheet-race-order" aria-label="並べ替え" />}<th>月.週</th><th>競馬場</th><th>レース名</th><th>距離</th><th>馬場</th><th>頭数</th><th>人気</th><th>着順</th><th>騎手</th><th>負担重量</th><th>馬体重</th><th>作戦</th>{onEdit && <th aria-label="操作" />}</tr></thead>
+    <tbody>{rows.map(({ entry, id }, i) => {
+      const cells = <>
+        <td>{entry.date || '—'}</td><td>{entry.place || '—'}</td>
+        <td className="sheet-race-name"><button type="button" disabled={!onEdit} onClick={() => onEdit?.(i)} aria-label={`${entry.race || '戦績'}を編集`}>{entry.grade && entry.grade === entry.race ? <RaceGradeBadge grade={entry.grade} /> : entry.race || '名称未入力'}</button>{entry.grade && entry.grade !== entry.race && <RaceGradeBadge grade={entry.grade} />}</td>
+        <td>{[entry.surface, entry.distance == null ? '' : `${entry.distance.toLocaleString()}m`].filter(Boolean).join(' ') || '—'}</td>
+        <td>{entry.going || '—'}</td><td>{entry.runners ?? '—'}</td><td>{entry.popularity ?? '—'}</td><td><RaceFinishBadge finish={entry.finish} /></td>
+        <td>{entry.jockey || '—'}</td><td>{entry.carriedWeight == null ? '—' : `${entry.carriedWeight}kg`}</td><td>{entry.bodyWeight == null ? '—' : `${entry.bodyWeight}kg`}</td><td>{entry.strategy || '—'}</td>
+        {onEdit && <td><button type="button" onClick={() => onEdit(i)}>編集</button><button type="button" aria-label={`${entry.race || 'この行'}を削除`} onClick={() => onDelete?.(i)}>削除</button></td>}
+      </>;
+      return onMove ? <SortableRaceRow key={id} id={id} index={i} label={entry.race || 'この行'}>{cells}</SortableRaceRow> : <tr key={id}>{cells}</tr>;
+    })}</tbody>
+  </table></div>;
+  return onMove ? <DragDropProvider onDragEnd={(event) => {
+    if (event.canceled) return;
+    const { source } = event.operation;
+    if (isSortable(source)) onMove(source.initialIndex, source.index);
+  }}>{table}</DragDropProvider> : table;
+}
+
+function SortableRaceRow({ id, index, label, children }: {
+  id: string; index: number; label: string; children: ReactNode;
+}) {
+  const { ref, handleRef, isDragging } = useSortable({ id, index });
+  return <tr ref={ref} className={isDragging ? 'sheet-race-dragging' : undefined}>
+    <td className="sheet-race-order">
+      <button type="button" ref={handleRef} className="sheet-race-drag-handle" aria-label={`${label}をドラッグして並べ替え`} title="ドラッグで移動（Spaceでつかむ・矢印で移動・Escで取消）">⠿</button>
+    </td>
+    {children}
+  </tr>;
 }
 
 function raceDetails(race: Race) {
@@ -48,6 +99,7 @@ function RaceResultDialog({ races, initial, onClose, onSave }: { races: Race[]; 
     setSelected(race);
     setPicking(false);
     setEntry({
+      ...entry,
       race: race?.name ?? name, place: race?.venue ?? '', finish: entry?.finish ?? '',
       date: initial ? entry?.date ?? initial.date : race?.month == null ? entry?.date ?? '' : `${race.month}${race.week === null ? '' : `.${race.week}`}`,
       grade: race?.grade || (COMMON_RACES.includes(name) ? name : undefined),
@@ -77,7 +129,13 @@ function RaceResultDialog({ races, initial, onClose, onSave }: { races: Race[]; 
         <label className="field">芝・ダート<select value={entry.surface ?? ''} onChange={(e) => change({ surface: e.target.value as RaceEntry['surface'] || undefined })}><option value="">未入力</option><option>芝</option><option>ダート</option></select></label>
         <label className="field">距離（m）<input type="number" min="1" max="100000" step="1" value={entry.distance ?? ''} placeholder="例：1600" onChange={(e) => change({ distance: e.target.value === '' ? undefined : Number(e.target.value) })} /></label>
         <label className="field">馬場状態<select value={entry.going ?? ''} onChange={(e) => change({ going: e.target.value as RaceEntry['going'] || undefined })}><option value="">未入力</option>{['良', '稍重', '重', '不良'].map((going) => <option key={going}>{going}</option>)}</select></label>
+        <label className="field">頭数<input type="number" min="1" step="1" value={entry.runners ?? ''} onChange={(e) => change({ runners: e.target.value === '' ? undefined : Number(e.target.value) })} /></label>
+        <label className="field">人気<input type="number" min="1" step="1" value={entry.popularity ?? ''} onChange={(e) => change({ popularity: e.target.value === '' ? undefined : Number(e.target.value) })} /></label>
         <label className="field">着順<input value={entry.finish} placeholder="1、取消 など" autoFocus={!!initial || !!selected} onChange={(e) => change({ finish: e.target.value })} /></label>
+        <label className="field">騎手<input value={entry.jockey ?? ''} onChange={(e) => change({ jockey: e.target.value || undefined })} /></label>
+        <label className="field">負担重量（kg）<input type="number" min="0.5" step="0.5" value={entry.carriedWeight ?? ''} onChange={(e) => change({ carriedWeight: e.target.value === '' ? undefined : Number(e.target.value) })} /></label>
+        <label className="field">馬体重（kg）<input type="number" min="1" step="1" value={entry.bodyWeight ?? ''} onChange={(e) => change({ bodyWeight: e.target.value === '' ? undefined : Number(e.target.value) })} /></label>
+        <label className="field">作戦<select value={entry.strategy ?? ''} onChange={(e) => change({ strategy: e.target.value as RaceEntry['strategy'] || undefined })}><option value="">未入力</option>{['逃', '先', '差', '追'].map((strategy) => <option key={strategy}>{strategy}</option>)}</select></label>
       </div>
       <div className="action-dialog-actions"><button type="button" onClick={onClose}>キャンセル</button><button type="submit" className="primary" disabled={!entry.race.trim()}>{initial ? '変更を反映' : '戦績に追加'}</button></div>
     </form> : <>

@@ -4,6 +4,7 @@ import { HorseResolver } from '../src/core/pedigree';
 import { judge, makeContext } from '../src/core/judge';
 import { DEFAULT_RULES } from '../src/core/rules';
 import { owned } from './horse-fixtures';
+import { applyMasterEdits } from '../src/core/master-edits';
 
 const M = baseMaster;
 const ctx = makeContext(M);
@@ -11,8 +12,16 @@ const resolver = new HorseResolver(M, [], DEFAULT_RULES);
 
 describe('自家製馬と不明枠', () => {
   it('産駒は父母の系統と血統を引き継ぎ、父との配合は危険と判定される', () => {
-    const st = { ...M.stallions[0], omoshiro: 'abcd' }, bm = { ...M.broodmares[0], omoshiro: 'efgh' };
-    const r = new HorseResolver({ ...M, stallions: [st], broodmares: [bm] }, [
+    const st = { ...M.stallions[0], bigSystem: 'Ec', ancestors: [...M.stallions[0].ancestors] }, bm = { ...M.broodmares[0], bigSystem: 'Ne', ancestors: [...M.broodmares[0].ancestors] };
+    const ancestors = [...M.ancestors];
+    for (const [horse, systems] of [[st, [2, 3, 4]], [bm, [6, 7, 8]]] as const) {
+      [8, 4, 12].forEach((slot, i) => {
+        const id = `a:test-${horse.id}-${slot}`;
+        horse.ancestors[slot] = id;
+        ancestors.push({ id, name: id, sex: 'M', system: systems[i], effects: [] });
+      });
+    }
+    const r = new HorseResolver({ ...M, stallions: [st], broodmares: [bm], ancestors }, [
       owned('u:1', { name: 'テスト牝馬', sireKey: st.id, damKey: bm.id, category: '繁殖牝馬' }),
     ], DEFAULT_RULES);
     const rec = r.get('u:1')!;
@@ -30,6 +39,23 @@ describe('自家製馬と不明枠', () => {
     expect(j.dangerous.verdict).toBe('成立');
     expect(j.dangerous.causes.some((c) => c.startsWith('1×N'))).toBe(true);
     expect(j.kotta.verdict).not.toBe('成立');
+  });
+  it('祖先の系統や母の大系統の編集が見事判定に反映される', () => {
+    const ancestor = { id: 'a:shared-system', name: '共通の父系', sex: 'M' as const, system: 5, effects: [] };
+    const sire = { ...M.stallions[0], ancestors: [...M.stallions[0].ancestors] };
+    const dam = { ...M.broodmares[0], bigSystem: 'Ne', ancestors: [...M.broodmares[0].ancestors] };
+    for (const slot of [16, 20, 24, 28]) sire.ancestors[slot] = ancestor.id;
+    for (const slot of [8, 4, 12]) dam.ancestors[slot] = ancestor.id;
+    const master = { ...M, stallions: [sire], broodmares: [dam], ancestors: [...M.ancestors, ancestor] };
+    const verdict = (m: typeof master) => {
+      const r = new HorseResolver(m, [], DEFAULT_RULES);
+      return judge(r.get(sire.id)!, r.get(dam.id)!, makeContext(m)).migoto.verdict;
+    };
+    expect(verdict(master)).toBe('成立');
+    const updated = applyMasterEdits(master, [], [{ ...ancestor, system: 3, updatedAt: '2026-09-24T00:00:00Z' }]);
+    expect(verdict(updated)).toBe('不成立');
+    const matched = applyMasterEdits(updated, [{ id: dam.id, kind: 'broodmare', added: false, data: { bigSystem: 'Ns' }, updatedAt: '2026-09-24T00:00:00Z' }]);
+    expect(verdict(matched)).toBe('成立');
   });
   it('親が未登録なら未確定になる', () => {
     const r = new HorseResolver(M, [owned('u:2', { name: '親不明', damKey: M.broodmares[0].id })], DEFAULT_RULES);

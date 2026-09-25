@@ -13,10 +13,26 @@ export const StoryRequestSchema = z.object({ facts: StoryFactsSchema, direction:
 export const StoryContentSchema = z.object({
   title: text(70).min(1), subtitle: text(180).min(1), lead: text(600).min(1), signature: text(100).min(1),
   palette: z.enum(['navy', 'forest', 'burgundy']),
-  chapters: z.array(z.object({ paragraphs: z.array(text(1200).min(1)).min(1).max(3) })).min(3).max(5),
+  chapters: z.array(z.object({ paragraphs: z.array(text(1200).min(1)).min(1).max(3) })).max(5),
   closing: text(500).min(1),
 });
 export type StoryFacts = z.infer<typeof StoryFactsSchema>;
 export type StoryRequest = z.infer<typeof StoryRequestSchema>;
 export type StoryContent = z.infer<typeof StoryContentSchema>;
 export interface HorseStory { id: string; createdAt: string; model: string; request: StoryRequest; content: StoryContent }
+
+/** 導入・結びの再掲と、本文内で完全に重複した段落を除く。 */
+export function normalizeStoryContent(content: StoryContent): StoryContent {
+  const key = (text: string) => text.replace(/\s+/gu, '');
+  const seen = new Set([key(content.lead), key(content.closing)]);
+  const chapters = content.chapters.flatMap(chapter => {
+    const paragraphs = chapter.paragraphs.filter(paragraph => {
+      const value = key(paragraph);
+      if (seen.has(value)) return false;
+      seen.add(value);
+      return true;
+    });
+    return paragraphs.length ? [{ ...chapter, paragraphs }] : [];
+  });
+  return { ...content, chapters };
+}

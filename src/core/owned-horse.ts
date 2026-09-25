@@ -4,18 +4,20 @@ export const HORSE_CATEGORIES: HorseCategory[] = ['繁殖牝馬', '種牡馬', '
 export const ABILITY_RANKS = ['A', 'B', 'C'] as const;
 export const DIRT_APTITUDES = ['◎', '○', '△'] as const;
 export const GROWTH_TYPES = ['持続', '普通', '早熟', '晩成'] as const;
-/** 現役馬のカードに表示される評価印。 */
-export const CARD_MARKS = ['◎', '○', '△'] as const;
+// ◉は基本能力欄のピンク色の最上位印を表す。
+const ABILITY_MARKS = ['◉', '◎', '○'] as const;
+const CARD_MARKS = ['◎', '○', '△'] as const;
+const FOUR_LEVEL_MARKS = [...CARD_MARKS, '×'] as const;
 export interface CardField<K extends string> { key: K; label: string; marks: readonly string[] }
 export const RACE_ABILITY_FIELDS: CardField<RaceAbilityKey>[] = [
-  { key: 'speed', label: 'スピード', marks: CARD_MARKS }, { key: 'stamina', label: 'スタミナ', marks: CARD_MARKS }, { key: 'power', label: 'パワー', marks: CARD_MARKS },
-  { key: 'guts', label: '根性', marks: CARD_MARKS }, { key: 'temperament', label: '気性', marks: CARD_MARKS }, { key: 'turf', label: '芝', marks: CARD_MARKS }, { key: 'dirt', label: 'ダート', marks: CARD_MARKS },
+  { key: 'speed', label: 'スピード', marks: ABILITY_MARKS }, { key: 'stamina', label: 'スタミナ', marks: ABILITY_MARKS }, { key: 'power', label: 'パワー', marks: ABILITY_MARKS },
+  { key: 'guts', label: '根性', marks: ABILITY_MARKS }, { key: 'temperament', label: '気性', marks: CARD_MARKS }, { key: 'turf', label: '芝', marks: CARD_MARKS }, { key: 'dirt', label: 'ダート', marks: ['◉', ...FOUR_LEVEL_MARKS] },
 ];
 /** 成長は区分、コーナーは 右○／左○／両○ の文字で表す */
 export const RACE_TRAIT_FIELDS: CardField<RaceTraitKey>[] = [
   { key: 'growth', label: '成長', marks: GROWTH_TYPES }, { key: 'start', label: 'スタート', marks: CARD_MARKS }, { key: 'corner', label: 'コーナー', marks: ['両○', '右○', '左○'] },
-  { key: 'heavyTrack', label: '重馬場', marks: CARD_MARKS }, { key: 'roughTrack', label: '荒れ馬場', marks: CARD_MARKS }, { key: 'fastTrack', label: '高速馬場', marks: CARD_MARKS },
-  { key: 'health', label: '体質', marks: CARD_MARKS }, { key: 'legs', label: '脚元', marks: CARD_MARKS }, { key: 'concentration', label: '集中力', marks: CARD_MARKS },
+  { key: 'heavyTrack', label: '重馬場', marks: FOUR_LEVEL_MARKS }, { key: 'roughTrack', label: '荒れ馬場', marks: FOUR_LEVEL_MARKS }, { key: 'fastTrack', label: '高速馬場', marks: FOUR_LEVEL_MARKS },
+  { key: 'health', label: '体質', marks: FOUR_LEVEL_MARKS }, { key: 'legs', label: '脚元', marks: FOUR_LEVEL_MARKS }, { key: 'concentration', label: '集中力', marks: CARD_MARKS },
   { key: 'timid', label: 'こわがり', marks: CARD_MARKS }, { key: 'soundReaction', label: '音反応', marks: CARD_MARKS }, { key: 'reaction', label: '反応', marks: CARD_MARKS },
 ];
 /** 配合確認・探索・計画で使う馬のキー。データの繁殖牝馬を所有している場合はその馬のキー */
@@ -70,8 +72,8 @@ export interface CardReading {
   abilities: Record<string, string>; traits: Record<string, string>;
   record: string; earnings_current: string; earnings_total: string; races: RaceEntry[];
 }
-const CARD_ABILITY_KEYS: Record<string, RaceAbilityKey> = { speed: 'speed', stamina: 'stamina', power: 'power', guts: 'guts', temperament: 'temperament', turf: 'turf', dirt: 'dirt' };
-const CARD_TRAIT_KEYS: Record<string, RaceTraitKey> = {
+export const CARD_ABILITY_KEYS: Record<string, RaceAbilityKey> = { speed: 'speed', stamina: 'stamina', power: 'power', guts: 'guts', temperament: 'temperament', turf: 'turf', dirt: 'dirt' };
+export const CARD_TRAIT_KEYS: Record<string, RaceTraitKey> = {
   growth: 'growth', start: 'start', corner: 'corner', heavy_track: 'heavyTrack', rough_track: 'roughTrack', fast_track: 'fastTrack',
   constitution: 'health', legs: 'legs', concentration: 'concentration', timid: 'timid', sound_reaction: 'soundReaction', reaction: 'reaction',
 };
@@ -88,7 +90,7 @@ export function parseManYen(text: string): number | undefined {
 
 /** 未命名馬の仮名「母名の27」から母名と生年を取り出す */
 export function parseFoalName(name: string): { damName: string; birthYear: number } | null {
-  const m = name.trim().match(/^(.+?)の(\d{2,4})$/);
+  const m = name.normalize('NFKC').trim().match(/^(.+?)の(\d{2,4})$/);
   return m ? { damName: m[1], birthYear: Number(m[2]) } : null;
 }
 
@@ -155,9 +157,19 @@ export function pedigreeMatchCandidates(reading: PedigreeReading, horses: OwnedH
 const sameRace = (a: RaceEntry, b: RaceEntry) => a.date === b.date && a.place === b.place && a.race === b.race;
 /** 競走成績を統合する。新しい行を先頭に足し、既存行は見えている列だけ埋める。 */
 export function mergeRaces(existing: RaceEntry[] = [], incoming: RaceEntry[] = []): RaceEntry[] {
-  const kept = existing.map((e) => { const hit = incoming.find((r) => sameRace(r, e)); return hit ? { ...e, finish: hit.finish || e.finish } : e; });
-  const added = incoming.filter((r) => (r.date || r.race) && !existing.some((e) => sameRace(r, e)));
-  return [...added, ...kept];
+  const results = incoming.filter((r) => {
+    const cells = [r.place, r.race, r.finish, r.jockey ?? ''].map((v) => v.trim());
+    return !!r.race.trim() && !cells.some((v) => /出走予定|(?:誕生|入厩|転厩|放牧|帰厩|引退|購入|売却)(?:[\s（(].*)?$/.test(v));
+  });
+  const rows = existing.map((e) => ({ ...e }));
+  const added: RaceEntry[] = [];
+  for (const result of results) {
+    const hit = [...rows, ...added].find((r) => sameRace(r, result));
+    const visible = Object.fromEntries(Object.entries(result).filter(([, v]) => v !== undefined && v !== null && v !== ''));
+    if (hit) Object.assign(hit, visible);
+    else added.push({ ...result });
+  }
+  return [...added, ...rows];
 }
 
 export type CardPatch = Pick<OwnedHorse, 'name' | 'sex' | 'category' | 'profile' | 'abilities' | 'observations'>;
@@ -212,7 +224,9 @@ export function cardPatchDiff(horse: OwnedHorse | undefined, patch: CardPatch): 
   const p = horse?.profile ?? {}, q = patch.profile ?? {};
   push('毛色', p.color, q.color); push('生年', p.birthYear, q.birthYear); push('クラス', p.rank, q.rank); push('所属', p.stable, q.stable); push('馬体重', p.weight, q.weight);
   push('戦績', p.record, q.record); push('収得賞金（万円）', p.earningsCurrent, q.earningsCurrent); push('総賞金（万円）', p.earnings, q.earnings);
-  push('競走成績', (p.races ?? []).length ? `${p.races!.length}行` : '', (q.races ?? []).length ? `${q.races!.length}行` : '');
+  const racesChanged = JSON.stringify(p.races ?? []) !== JSON.stringify(q.races ?? []);
+  const sameCount = p.races?.length === q.races?.length;
+  push('競走成績', p.races?.length ? `${p.races.length}行` : '', q.races?.length ? `${q.races.length}行${racesChanged && sameCount ? '（内容更新）' : ''}` : '');
   const r = horse?.abilities?.race ?? {}, n = patch.abilities?.race ?? {};
   push('距離適性', r.distance, n.distance);
   for (const { key, label } of [...RACE_ABILITY_FIELDS, ...RACE_TRAIT_FIELDS]) push(label, r[key], n[key]);

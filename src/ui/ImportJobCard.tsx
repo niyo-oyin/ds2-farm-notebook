@@ -6,9 +6,10 @@ import { useApp, sireOptions, damOptions } from './app-context';
 import { HorseSelect } from './HorseSelect';
 import type { OwnedHorse } from '../core/types';
 import { PEDIGREE_SLOTS, RACE_ABILITY_FIELDS, RACE_TRAIT_FIELDS, applyCardReading, cardMatchCandidates, cardPatchDiff, inferredGameYear, pedigreeMatchCandidates, type MatchCandidate } from '../core/owned-horse';
-import { addMasterJob, applyCardJob, applyMasterJob, applyPedigreeJob, matchName, toCardReading, type AppliedInfo } from './import-apply';
+import { addMasterJob, applyCardJob, applyMasterJob, applyPedigreeJob, inferCardDam, matchName, toCardReading, type AppliedInfo } from './import-apply';
 import { applyMasterFields, compareAncestorFactors, homebredBlockReason, masterDiffRows, masterFromReading, prepareReadingAncestors, type MasterFieldKey } from '../core/master-edits';
 import { BreedingResult } from './BreedingResult';
+import { RaceResultsTable } from './RaceResultsEditor';
 import { store } from '../store/userdata';
 
 const STATUS: Record<ImportJob['status'], string> = { queued: '待機中', running: '解析中', done: '完了', failed: '失敗' };
@@ -67,6 +68,7 @@ function CardResult({ job, reading, onDone }: { job: ImportJob; reading: CardScr
   const [busy, setBusy] = useState(false);
   const [err, setErr] = useState('');
   const target = app.data.horses.find((h) => h.id === targetId);
+  const inferredDam = inferCardDam(app, card.name, target);
   const gameYear = app.data.settings.gameYear;
   const patch = applyCardReading(target, card, new Date().toISOString(), gameYear);
   const diff = cardPatchDiff(target, patch);
@@ -84,8 +86,12 @@ function CardResult({ job, reading, onDone }: { job: ImportJob; reading: CardScr
     <div className="import-card-marks">{RACE_ABILITY_FIELDS.map(({ key, label }) => <div key={key} className={c.abilities[key] !== '-' ? 'known' : ''}><span>{label}</span><b>{c.abilities[key] || '-'}</b></div>)}</div>
     <div className="import-card-marks traits">{RACE_TRAIT_FIELDS.map(({ key, label }, i) => <div key={key} className={traitValues[i] !== '-' ? 'known' : ''}><span>{label}</span><b>{traitValues[i] || '-'}</b></div>)}</div>
     {(c.record || c.earnings_total || c.stable) && <div className="small">{[c.record, c.earnings_current && `収得 ${c.earnings_current}`, c.earnings_total && `総賞金 ${c.earnings_total}`, c.stable].filter(Boolean).join(' · ')}</div>}
+    {c.races.length > 0 && <details><summary>読み取った競走成績（{c.races.length}件）</summary><RaceResultsTable entries={c.races} /></details>}
     {reading.notes && <div className="small muted">読み取りメモ: {reading.notes}</div>}
-    <TargetPicker name={`${job.id}-target`} value={targetId} onChange={setTargetId} candidates={candidates} allowNew newHint="登録後に血統表から父母を設定" fixed={fixed} />
+    <TargetPicker name={`${job.id}-target`} value={targetId} onChange={setTargetId} candidates={candidates} allowNew newHint="未設定の父母は登録後に血統表から設定" fixed={fixed} />
+    {inferredDam && (inferredDam.key
+      ? <p className="small">母: <b>{app.resolver.label(inferredDam.key)}</b>（馬名から補完）</p>
+      : <p className="error" role="alert">{inferredDam.ambiguous ? `母「${inferredDam.name}」の候補が複数あり、特定できません。` : `母「${inferredDam.name}」はデータに見つかりません。`}母は未設定で登録されます。登録後に血統表から設定してください。</p>)}
     {target && <p className="small muted">{target.name} の続きとして重ねます。{patch.name !== target.name ? `名前は「${patch.name}」に変わります。` : ''}「-」の項目は今の値を保ちます。</p>}
     {diff.length ? <table className="import-diff"><tbody>{diff.map((d) => <tr key={d.label}><th>{d.label}</th><td className="muted">{d.before}</td><td>→</td><td>{d.after}</td></tr>)}{yearAdvance !== undefined && <tr><th>ゲーム内の年</th><td className="muted">{gameYear !== undefined ? `${gameYear}年` : '未設定'}</td><td>→</td><td>{yearAdvance}年（{c.name}が{c.age}歳のため）</td></tr>}</tbody></table> : <p className="small muted">変わる項目はありません。</p>}
     <div className="import-apply">
@@ -159,10 +165,10 @@ function MasterResult({ reading, onDone }: { reading: MasterScreen; onDone: (inf
   const existing = candidates.length === 1 ? candidates[0] : candidates.find(h => h.id === targetId);
   const [parentIds, setParentIds] = useState<Partial<Record<'sire' | 'dam' | 'dam_sire', string>>>({});
   const prepared = useMemo(() => prepareReadingAncestors(app.master, m, parentIds), [app.master, m, parentIds]);
-  const next = masterFromReading(kind, m, existing ?? null, prepared.master, app.ctx.ancestors, prepared.parentIds);
+  const next = masterFromReading(kind, m, existing ?? null, prepared.master, prepared.parentIds);
   const identityLabel = (id: string) => prepared.additions.find(a => a.id === id)?.name ?? app.resolver.label(id);
   const needsSelection = candidates.length > 1 && !existing || prepared.ambiguous.length > 0;
-  const rows = masterDiffRows(existing ?? null, next, app.master.meta.bigSystems, identityLabel);
+  const rows = masterDiffRows(existing ?? null, next, identityLabel);
   // 更新のときは項目ごとに反映するか選べる（既定は全部）
   const [excluded, setExcluded] = useState<Set<MasterFieldKey>>(() => new Set());
   const selected = rows.map((r) => r.key).filter((k) => !excluded.has(k));

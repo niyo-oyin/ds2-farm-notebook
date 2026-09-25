@@ -184,3 +184,11 @@ tr.result-expanded-row > td { background: var(--paper); }
 .loop-detail h4 { margin: 12px 0 4px; font: 600 13px/1.5 var(--font-display); }
 .loop-detail h4:first-child { margin-top: 0; }
 .result-card-actions { display: flex; justify-content: flex-end; }
+
+.season-mare-results { padding-top: 8px; }
+.season-mare-results + .season-mare-results { border-top: 1px solid var(--rule); padding-top: 16px; margin-top: 20px; }
+.season-mare-heading { cursor: pointer; padding: 4px 0; }
+.season-mare-heading .small { margin-left: 12px; }
+.season-mare-name { font-weight: 600; }
+.season-mare-results[open] > .season-mare-heading { margin-bottom: 12px; }
+.season-choice { padding: 12px 14px 0; }

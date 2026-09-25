@@ -8,7 +8,12 @@
 .sheet-races td:last-child { white-space: nowrap; }
 .sheet-races button { min-height: 28px; padding: 2px 6px; font-size: 12px; border: 0; background: transparent; color: var(--ink-muted); }
 .sheet-races .sheet-race-name button { padding-left: 0; color: var(--accent); font-size: 13px; text-align: left; white-space: normal; }
-.sheet-races button:hover { text-decoration: underline; }
+.sheet-races button:hover:not(:disabled) { text-decoration: underline; }
+.sheet-races .sheet-race-order { width: 36px; padding-inline: 4px; white-space: nowrap; }
+.sheet-race-order button { width: 28px; }
+.sheet-races .sheet-race-drag-handle { cursor: grab; touch-action: none; user-select: none; font-size: 20px; }
+.sheet-races .sheet-race-drag-handle:active { cursor: grabbing; }
+.sheet-races .sheet-race-dragging { background: var(--paper-raised); outline: 2px solid var(--accent); box-shadow: 0 4px 12px rgb(0 0 0 / .15); }
 .race-result-dialog { width: min(640px, calc(100vw - 32px)); }
 .race-picker-common { min-width: 0; margin: 0 0 20px; padding: 0; border: 0; }
 .race-picker-common legend { padding: 0; margin-bottom: 8px; font-size: 12px; color: var(--ink-muted); }

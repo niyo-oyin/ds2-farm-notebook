@@ -40,10 +40,10 @@ export type ScreenReading = CardScreen | PedigreeScreen | MasterScreen | Breedin
 export interface EncodedImage { image: string; mediaType: 'image/jpeg' }
 /**
  * 画像を縮小して JPEG の base64 にする（アップロード量とトークンを抑える）。box を渡すとその範囲（比率）だけを切り出す。
- * EXIFの向きを反映し、rotation の回数だけ右へ90度回転する。
+ * EXIFの向きを反映し、縦長なら指定された向きに回転した後、rotation の回数だけ右へ90度回転する。
  * square なら切り出し範囲を正方形に広げる（馬の画像は正方形の枠に収めるので、欠けないように短い辺を伸ばす。画像の端では反対側へずらす）
  */
-export async function imageToBase64(file: File | Blob, maxSide = 1600, box?: CardBox, pad = 0, square = false, rotation = 0): Promise<EncodedImage> {
+export async function imageToBase64(file: File | Blob, maxSide = 1600, box?: CardBox, pad = 0, square = false, { rotation = 0, portraitRotation }: { rotation?: number; portraitRotation?: 'left' | 'right' } = {}): Promise<EncodedImage> {
   const bitmap = await createImageBitmap(file, { imageOrientation: 'from-image' });
   try {
     const clamp = (v: number) => Math.min(1, Math.max(0, v));
@@ -58,7 +58,8 @@ export async function imageToBase64(file: File | Blob, maxSide = 1600, box?: Car
     const scale = Math.min(1, maxSide / Math.max(sw, sh));
     const canvas = document.createElement('canvas');
     const width = Math.max(1, Math.round(sw * scale)), height = Math.max(1, Math.round(sh * scale));
-    const turns = ((rotation % 4) + 4) % 4;
+    const autoTurns = bitmap.height > bitmap.width ? portraitRotation === 'left' ? -1 : portraitRotation === 'right' ? 1 : 0 : 0;
+    const turns = (((rotation + autoTurns) % 4) + 4) % 4;
     canvas.width = turns % 2 ? height : width; canvas.height = turns % 2 ? width : height;
     const ctx = canvas.getContext('2d')!;
     ctx.translate(canvas.width / 2, canvas.height / 2);

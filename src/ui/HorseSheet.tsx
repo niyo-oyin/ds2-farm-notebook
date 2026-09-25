@@ -5,6 +5,8 @@ import type { HorseAbilities, HorseCategory, HorseRecord, OwnedHorse, RaceEntry,
 import { HORSE_CATEGORIES, breedingKey, horseAge, isUnnamedHorse, pedigreeEffectCounts, pedigreeIssue, sexAgeLabel } from '../core/owned-horse';
 import { canReadHorseStory } from '../core/horse-story';
 import { HorseNameSuggestions } from './HorseNameSuggestions';
+import { judge } from '../core/judge';
+import { SummaryStrip } from './JudgeView';
 import { PORTRAIT_MAX_SIDE, deleteImage, imageToBase64, imageUrl, uploadImage } from '../api';
 import { foalNodes, makeFoalRecord, nodePath, unknownRecord } from '../core/pedigree';
 import { allUserHorses, horsePlanLinks, store } from '../store/userdata';
@@ -14,17 +16,18 @@ import { HorseDialog } from './HorseDialog';
 import { HorseSelect, type HorseSelectHandle } from './HorseSelect';
 import { EFFECT_CHIP, EffectChips, SystemBadge } from './Pedigree';
 import { navigate } from './router';
-import { HorseAbilitiesEditor } from './HorseAbilitiesEditor';
+import { GoodMotherComment, HorseAbilitiesEditor } from './HorseAbilitiesEditor';
 import { nameSearch } from './name-search';
 import { applyRaceEdits } from '../core/races';
 import { baseRaces } from '../data/races';
 import { RaceResultsEditor } from './RaceResultsEditor';
 import './HorseSheet.css';
 import { HorsePlaceholder } from './HorsePlaceholder';
+import { HorseOffspring } from './HorseOffspring';
 
 const COAT_COLORS = ['鹿毛', '黒鹿毛', '青鹿毛', '青毛', '栗毛', '栃栗毛', '芦毛', '白毛'];
 type SheetForm = {
-  name: string; sex: Sex | ''; category: HorseCategory; excludeFromSearch: boolean; color: string; birthYear: string;
+  name: string; sex: Sex | ''; category: HorseCategory; excludeFromSearch: boolean; goodMotherComment: boolean; color: string; birthYear: string;
   earnings: string; earningsCurrent: string; wins: string; rank: string; stable: string; weight: string; record: string; races: RaceEntry[];
   sireKey: string; damKey: string; smallSystem: string; abilities: HorseAbilities;
   effects: string[]; memo: string;
@@ -62,7 +65,7 @@ export const HorseSheet = forwardRef<HorseSheetHandle, {
     imageId: horse?.imageId ?? '', portrait: null,
     sireKey: horse?.sireKey ?? actualParent(planned?.sireKey ?? initialParents?.sire), damKey: horse?.damKey ?? actualParent(planned?.damKey ?? initialParents?.dam),
     smallSystem: horse?.smallSystemOverride ?? '',
-    abilities: horse?.abilities ?? {},
+    abilities: horse?.abilities ?? {}, goodMotherComment: horse?.goodMotherComment ?? false,
     effects: horse?.effects ?? [], memo: horse?.memo ?? '',
     plannedIds: horse ? originalLinks.map((l) => l.foal.id) : planned ? [planned.id] : [],
   };
@@ -82,7 +85,9 @@ export const HorseSheet = forwardRef<HorseSheetHandle, {
   const [tab, setTab] = useState('basic');
   const tabId = useId();
   const races = useMemo(() => applyRaceEdits(baseRaces, app.data.raceEdits), [app.data.raceEdits]);
-  const tabs = [{ id: 'basic', label: '基本情報' }, { id: 'pedigree', label: '血統表' }, { id: 'records', label: '戦績' }, { id: 'plans', label: '計画' }];
+  const showOffspring = !!horse && !masterRec && (form.category === '繁殖牝馬' || app.data.horses.some(h => h.damKey === horse.id));
+  const tabs = [{ id: 'basic', label: '基本情報' }, { id: 'pedigree', label: '血統表' }, { id: 'records', label: '戦績' }, ...(showOffspring ? [{ id: 'offspring', label: '産駒' }] : []), { id: 'plans', label: '計画' }];
+  const activeTab = tabs.some(t => t.id === tab) ? tab : 'basic';
   const pedigreeMissing = !form.sireKey || !form.damKey;
   // 配合確認・探索は保存済みの血統で判定するので、保存済みの値で可否を決める
   const actionBlock = horse ? (!horse.sex ? '性別を設定すると使えます' : pedigreeIssue(horse)) : null;
@@ -114,7 +119,7 @@ export const HorseSheet = forwardRef<HorseSheetHandle, {
     try {
       const sire = app.resolver.get(form.sireKey), dam = app.resolver.get(form.damKey);
       const rec = makeFoalRecord(sire, dam, { key: horse?.id ?? 'u:draft', name: form.name, sex: form.sex || null, kind: 'owned', smallSystemOverride: form.smallSystem || null }, app.rules);
-      return { rec, nodes: foalNodes(sire ?? unknownRecord(), dam ?? unknownRecord()), error: '' };
+      return { rec, nodes: foalNodes(sire ?? unknownRecord(), dam ?? unknownRecord()), judgement: sire && dam ? judge(sire, dam, app.ctx) : null, error: '' };
     } catch (e) { return { rec: unknownRecord(), nodes: Array<string>(64).fill(''), error: (e as Error).message }; }
   }, [app, form.sireKey, form.damKey, form.name, form.sex, form.smallSystem, horse]);
   const bigSystems = [...new Set([...app.master.stallions, ...app.master.broodmares]
@@ -154,7 +159,7 @@ export const HorseSheet = forwardRef<HorseSheetHandle, {
       const patch = {
         name: form.name.trim(), sex: form.sex || null, category: form.category, excludeFromSearch: form.excludeFromSearch, sireKey: form.sireKey, damKey: form.damKey,
         smallSystemOverride: form.smallSystem || null, profile: Object.values(profile).some((v) => v !== undefined) ? profile : undefined,
-        abilities: form.abilities, effects: form.effects.length ? form.effects : undefined, memo: form.memo, imageId,
+        abilities: form.abilities, goodMotherComment: form.goodMotherComment, effects: form.effects.length ? form.effects : undefined, memo: form.memo, imageId,
       };
       let result: OwnedHorse;
       if (horse) {
@@ -250,17 +255,21 @@ export const HorseSheet = forwardRef<HorseSheetHandle, {
         </section>
       </aside>
     </div>
-    {/* データの繁殖牝馬は中身がすべてデータの値なので、詳細のタブを出さない（右上の「データを確認」で見る） */}
+    {masterRec && <section className="sheet-section sheet-abilities">
+      <div className="sheet-section-heading"><h3>能力・適性</h3></div>
+      <GoodMotherComment checked={form.goodMotherComment} onChange={goodMotherComment => change({ goodMotherComment })} />
+    </section>}
+    {/* マスターに紐づく馬の血統・能力は「データを確認」で表示する。 */}
     {!masterRec && <>
     <div className="sheet-tabs" role="tablist" aria-label="所有馬の詳細">
-      {tabs.map((t, i) => <button type="button" role="tab" key={t.id} id={`${tabId}-${t.id}`} aria-controls={`${tabId}-${t.id}-panel`} aria-selected={tab === t.id} tabIndex={tab === t.id ? 0 : -1} onClick={() => setTab(t.id)} onKeyDown={(e) => {
+      {tabs.map((t, i) => <button type="button" role="tab" key={t.id} id={`${tabId}-${t.id}`} aria-controls={`${tabId}-${t.id}-panel`} aria-selected={activeTab === t.id} tabIndex={activeTab === t.id ? 0 : -1} onClick={() => setTab(t.id)} onKeyDown={(e) => {
         const next = e.key === 'ArrowRight' ? (i + 1) % tabs.length : e.key === 'ArrowLeft' ? (i + tabs.length - 1) % tabs.length : e.key === 'Home' ? 0 : e.key === 'End' ? tabs.length - 1 : null;
         if (next === null) return;
         e.preventDefault(); setTab(tabs[next].id);
         e.currentTarget.parentElement?.querySelectorAll<HTMLButtonElement>('[role="tab"]')[next]?.focus();
       }}>{t.label}{t.id === 'plans' && links.length > 0 && <span className="sheet-tab-count">{links.length}</span>}{t.id === 'pedigree' && pedigreeMissing && <WarnMark title={!form.sireKey && !form.damKey ? '血統が未登録' : !form.sireKey ? '父が未登録' : '母が未登録'} />}</button>)}
     </div>
-    <div className="sheet-tab-panel" role="tabpanel" id={`${tabId}-basic-panel`} aria-labelledby={`${tabId}-basic`} hidden={tab !== 'basic'}>
+    <div className="sheet-tab-panel" role="tabpanel" id={`${tabId}-basic-panel`} aria-labelledby={`${tabId}-basic`} hidden={activeTab !== 'basic'}>
       <div className="sheet-basic-layout">
         <section className="sheet-section sheet-details">
           <div className="sheet-section-heading"><h3>基本情報</h3></div>
@@ -271,11 +280,11 @@ export const HorseSheet = forwardRef<HorseSheetHandle, {
             <div><dt><label htmlFor={`${tabId}-birth`}>生年</label></dt><dd><input id={`${tabId}-birth`} type="number" min="1" step="1" value={form.birthYear} placeholder="未登録" onChange={(e) => change({ birthYear: e.target.value })} /></dd></div>
             <div><dt><label htmlFor={`${tabId}-system`}>小系統</label></dt><dd><select id={`${tabId}-system`} value={form.smallSystem} onChange={(e) => change({ smallSystem: e.target.value })}><option value="">{bloodline.rec.smallSystem && !form.smallSystem ? `${bloodline.rec.smallSystem}系` : '未確認'}</option>{smalls.map((sys) => <option key={sys} value={sys}>{sys}系</option>)}</select>{bloodline.rec.smallSystemSource === '父から推定' && <span className="sheet-info-source">父から推定</span>}</dd></div>
             <div><dt>大系統</dt><dd>{bigSystem ? <span className="sheet-system-code">{bigSystem}系</span> : <span className="muted">未確認</span>}</dd></div>
-            <div><dt>配合探索</dt><dd><label className="sheet-search-exclude"><input type="checkbox" checked={!form.excludeFromSearch} onChange={(e) => change({ excludeFromSearch: !e.target.checked })} />候補に含める</label></dd></div>
+            <div><dt>配合探索</dt><dd><label className="sheet-search-exclude"><input type="checkbox" checked={form.category !== '引退' && !form.excludeFromSearch} disabled={form.category === '引退'} onChange={(e) => change({ excludeFromSearch: !e.target.checked })} />候補に含める</label></dd></div>
             {horse && <div><dt>登録日</dt><dd>{new Date(horse.createdAt).toLocaleDateString('ja-JP')}</dd></div>}
           </dl>
         </section>
-        <HorseAbilitiesEditor value={form.abilities} category={form.category} onChange={(abilities) => change({ abilities })} />
+        <HorseAbilitiesEditor value={form.abilities} category={form.category} onChange={(abilities) => change({ abilities })} goodMotherComment={form.goodMotherComment} onGoodMotherCommentChange={goodMotherComment => change({ goodMotherComment })} />
       <section className="sheet-section sheet-factors">
         <div className="sheet-section-heading"><h3>本馬の因子</h3></div>
         <div className="sheet-effect-options">{app.master.meta.crossEffects.map((effect) => <label key={effect} className={form.effects.includes(effect) ? 'selected' : ''}><input type="checkbox" aria-label={`本馬の因子 ${effect}`} checked={form.effects.includes(effect)} onChange={(e) => {
@@ -289,15 +298,16 @@ export const HorseSheet = forwardRef<HorseSheetHandle, {
       </section>
       </div>
     </div>
-    <div className="sheet-tab-panel" role="tabpanel" id={`${tabId}-pedigree-panel`} aria-labelledby={`${tabId}-pedigree`} hidden={tab !== 'pedigree'}>
+    <div className="sheet-tab-panel" role="tabpanel" id={`${tabId}-pedigree-panel`} aria-labelledby={`${tabId}-pedigree`} hidden={activeTab !== 'pedigree'}>
       <section className="sheet-section sheet-bloodline">
       {pedigreeMissing && <p className="sheet-pedigree-notice"><WarnMark title="" /><span>{!form.sireKey && !form.damKey ? '血統が未登録です。' : !form.sireKey ? '父が未登録です。' : '母が未登録です。'}「血統表を編集」で選ぶか、ゲームの血統・クロス画面の写真から登録できます。</span>{horse && <button type="button" onClick={() => requestCapture(['血統'], { id: horse.id, name: horse.name })}>写真から血統を登録</button>}</p>}
       <HorseBloodline nodes={bloodline.nodes} record={bloodline.rec} sireKey={form.sireKey} damKey={form.damKey} sireOpts={sireOpts} damOpts={damOpts} onSire={(sireKey) => change({ sireKey })} onDam={(damKey) => change({ damKey })} />
       {bloodline.error && <p className="error">{bloodline.error}</p>}
 
       </section>
+      {bloodline.judgement && <div className="sheet-mating-info"><SummaryStrip j={bloodline.judgement} showCost={false} /></div>}
     </div>
-    <div className="sheet-tab-panel" role="tabpanel" id={`${tabId}-records-panel`} aria-labelledby={`${tabId}-records`} hidden={tab !== 'records'}>
+    <div className="sheet-tab-panel" role="tabpanel" id={`${tabId}-records-panel`} aria-labelledby={`${tabId}-records`} hidden={activeTab !== 'records'}>
       <section className="sheet-section">
         <div className="sheet-section-heading"><h3>戦績</h3><span className="small muted">入厩馬の画面の項目</span></div>
         <div className="sheet-record-fields">
@@ -313,7 +323,10 @@ export const HorseSheet = forwardRef<HorseSheetHandle, {
         {!!horse?.observations?.length && <div className="sheet-observations"><h4>読み取り履歴</h4><ul>{[...horse.observations].reverse().map((o, i) => <li key={i}>{new Date(o.at).toLocaleString('ja-JP', { dateStyle: 'short', timeStyle: 'short' })} · {o.screen}{o.age !== undefined ? ` · ${o.age}歳` : ''}{o.source === 'manual' ? ' · 手入力' : ''}</li>)}</ul></div>}
       </section>
     </div>
-    <div className="sheet-tab-panel" role="tabpanel" id={`${tabId}-plans-panel`} aria-labelledby={`${tabId}-plans`} hidden={tab !== 'plans'}>
+    {showOffspring && <div className="sheet-tab-panel" role="tabpanel" id={`${tabId}-offspring-panel`} aria-labelledby={`${tabId}-offspring`} hidden={activeTab !== 'offspring'}>
+      <HorseOffspring damId={horse.id} horses={app.data.horses} label={key => app.resolver.label(key)} />
+    </div>}
+    <div className="sheet-tab-panel" role="tabpanel" id={`${tabId}-plans-panel`} aria-labelledby={`${tabId}-plans`} hidden={activeTab !== 'plans'}>
       <section className="sheet-section sheet-plans">
         <div className="sheet-section-heading"><h3>対応する計画 <span>{links.length}件</span></h3><button type="button" aria-expanded={linkEditing} onClick={() => setLinkEditing(!linkEditing)}>{linkEditing ? '選択を閉じる' : '紐付けを編集'}</button></div>
         {links.length ? <ul className="sheet-plan-list">{links.map(({ plan, foal, stepIndex }) => <li key={foal.id}>

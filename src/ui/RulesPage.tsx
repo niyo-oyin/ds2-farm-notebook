@@ -79,8 +79,8 @@ export function RulesPage({ initialGuide }: { initialGuide: string | null }) {
           ]} />
           <p className="stat-guide-note small muted">繁殖牝馬のスピード・スタミナ・パワーは、アプリでは数値で管理します。種牡馬のA〜C評価や競走馬のカードの印とは別の尺度です。空欄や「—」は未確認を表します。</p>
         </> : <>
-          <StatSection title="基本能力・コース適性" introduction="カードの評価は育成や出走を通じて判明する。同じ印でも能力には幅がある。" entries={BASIC_ABILITIES} />
-          <StatSection title="特性・馬場適性" entries={RACE_TRAITS} />
+          <StatSection title="基本能力・コース適性" introduction="評価は育成や出走を通じて判明する。スピード・スタミナ・パワー・根性は○＜◎＜◉（ピンク）、気性・芝は△＜○＜◎、ダートは×＜△＜○＜◎＜◉。同じ印でも能力には幅がある。" entries={BASIC_ABILITIES} />
+          <StatSection title="特性・馬場適性" introduction="重馬場・体質・脚元は×＜△＜○＜◎。荒れ馬場・高速馬場も×を記録できる。その他の評価印で表す特性は△＜○＜◎。「-」は未判明。" entries={RACE_TRAITS} />
           <StatSection title="成長タイプ" introduction="能力のピークや衰えの時期に関わる。強さそのものを表す順位ではない。" entries={[
             ['早熟', '早い時期に力を発揮するタイプ。若いうちのレースを狙う際の目安。'],
             ['持続', '力を発揮できる時期が長く続くタイプ。'],

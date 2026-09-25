@@ -20,18 +20,75 @@ const stabled = (): CardReading => card({
 });
 
 describe('カード読み取りの解釈', () => {
-  it('写真の読み取りでは3種類の印と成長型・コーナー適性を保ち、×は拒否する', async () => {
-    const response = { ...stabled(), traits: { ...stabled().traits, growth: '晩成' }, notes: '' };
+  it('写真の評価を登録・表示用の差分まで保ち、項目にない印は拒否する', async () => {
+    const response = { ...stabled(), abilities: { ...stabled().abilities, speed: '◉', dirt: '×' }, traits: { ...stabled().traits, growth: '晩成', legs: '×', constitution: '×', heavy_track: '×', rough_track: '×', fast_track: '×', concentration: '△' }, races: [], notes: '' };
     const completion = vi.spyOn(llmClient, 'chatCompletion');
     try {
       completion.mockResolvedValue({ text: JSON.stringify(response) });
       const { result } = await readScreenAs('入厩馬', 'image', 'image/png');
-      expect(result).toMatchObject({ card: { abilities: { speed: '○', guts: '◎', stamina: '-' }, traits: { growth: '晩成', corner: '両○', legs: '△' } } });
-      for (const group of ['abilities', 'traits'] as const) {
-        const key = group === 'abilities' ? 'speed' : 'legs';
-        completion.mockResolvedValue({ text: JSON.stringify({ ...response, [group]: { ...response[group], [key]: '×' } }) });
+      expect(result).toMatchObject({ card: { abilities: { speed: '◉', dirt: '×', stamina: '-' }, traits: { growth: '晩成', corner: '両○', legs: '×', constitution: '×', heavy_track: '×', rough_track: '×', fast_track: '×', concentration: '△' } } });
+      if (result.screen_type !== '入厩馬' && result.screen_type !== '育成馬') throw new Error('カード以外');
+      const patch = applyCardReading(undefined, { ...result.card, screen_type: result.screen_type }, '2026-09-24T00:00:00Z');
+      expect(patch.abilities?.race).toMatchObject({ speed: '◉', dirt: '×', legs: '×', health: '×', heavyTrack: '×', roughTrack: '×', fastTrack: '×', concentration: '△' });
+      expect(patch.abilities?.race).not.toHaveProperty('stamina');
+      expect(cardPatchDiff(undefined, patch)).toEqual(expect.arrayContaining([
+        { label: '脚元', before: '未登録', after: '×' },
+        { label: '重馬場', before: '未登録', after: '×' },
+        { label: 'スピード', before: '未登録', after: '◉' },
+      ]));
+      for (const [group, key, mark] of [['abilities', 'speed', '×'], ['abilities', 'speed', '△'], ['abilities', 'turf', '◉'], ['traits', 'concentration', '×'], ['traits', 'corner', '○']] as const) {
+        completion.mockResolvedValue({ text: JSON.stringify({ ...response, [group]: { ...response[group], [key]: mark } }) });
         await expect(readScreenAs('入厩馬', 'image', 'image/png')).rejects.toThrow('読み取り結果の形式が不正');
       }
+    } finally { completion.mockRestore(); }
+  });
+
+  it('戦績の全列を取り込み、誕生・購入・入厩・出走予定は含めない', async () => {
+    const blank = { date: '', place: '', race: '', finish: '', grade: '', surface: null, distance: null, going: null, runners: null, popularity: null, jockey: '', jockey_candidates: [], carriedWeight: null, bodyWeight: null, strategy: null };
+    const race = { ...blank, date: '8.5', place: '中京', race: '中京２歳ステークス', finish: '1', grade: 'GⅢ', surface: '芝', distance: 1400, going: '良', runners: 18, popularity: 1, jockey: 'ルメール', carriedWeight: 55, bodyWeight: 426, strategy: '追' };
+    const completion = vi.spyOn(llmClient, 'chatCompletion').mockResolvedValue({ text: JSON.stringify({ ...stabled(), races: [
+      race,
+      { ...blank, date: '7.3', place: '福島', race: 'メイクデビュー福島', finish: '1', grade: '新馬', surface: 'ダート', distance: 1150, going: '稍重' },
+      { ...blank, date: '10.1', place: '東京', race: 'サウジアラビアRC', jockey: '出走予定' },
+      { ...blank, race: 'ミッキーアイル ドナブルーハ 誕生' },
+      { ...blank, date: '5.1', race: '早乙女厩舎 入厩' },
+      { ...blank, date: '30年', race: '２歳セール 購入（4800万円）' },
+    ], notes: '' }) });
+    try {
+      const { result } = await readScreenAs('入厩馬', 'image', 'image/jpeg');
+      if (result.screen_type !== '入厩馬') throw new Error('入厩馬以外');
+      expect(result.card.races).toHaveLength(2);
+      const { jockey_candidates: _candidates, ...expectedRace } = race;
+      expect(result.card.races[0]).toEqual(expectedRace);
+      expect(result.card.races[1]).not.toHaveProperty('bodyWeight');
+      const patch = applyCardReading(undefined, { ...result.card, screen_type: result.screen_type }, '2026-09-24T00:00:00Z');
+      expect(patch.profile?.races).toEqual(result.card.races);
+    } finally { completion.mockRestore(); }
+  });
+
+  it('3文字の騎手名を一意の前方一致候補だけで補完し、曖昧・不一致・未省略の表記は保つ', async () => {
+    const cases = [
+      { displayed: 'ルメー', candidates: ['ルメール'], expected: 'ルメール' },
+      { displayed: '横山武', candidates: ['横山 武史', '横山武史'], expected: '横山武史' },
+      { displayed: 'デムー', candidates: ['デムーロ', 'デムーロ弟'], expected: 'デムー' },
+      { displayed: 'ルメー', candidates: ['川田将雅'], expected: 'ルメー' },
+      { displayed: 'ルメー', candidates: [], expected: 'ルメー' },
+      { displayed: '武豊', candidates: ['武豊彦'], expected: '武豊' },
+      { displayed: '', candidates: ['ルメール'], expected: undefined },
+    ];
+    const races = cases.map(({ displayed, candidates }, i) => ({
+      date: `8.${i + 1}`, place: '新潟', race: '未勝利', finish: '1', grade: '', surface: null, distance: null, going: null,
+      runners: null, popularity: null, jockey: displayed, jockey_candidates: candidates, carriedWeight: null, bodyWeight: null, strategy: null,
+    }));
+    const completion = vi.spyOn(llmClient, 'chatCompletion').mockResolvedValue({ text: JSON.stringify({ ...stabled(), races, notes: '' }) });
+    try {
+      const { result } = await readScreenAs('入厩馬', 'image', 'image/jpeg');
+      if (result.screen_type !== '入厩馬') throw new Error('入厩馬以外');
+      expect(result.card.races.map((r) => r.jockey)).toEqual(cases.map((c) => c.expected));
+      const patch = applyCardReading(undefined, { ...result.card, screen_type: result.screen_type }, '2026-09-24T00:00:00Z');
+      expect(patch.profile?.races?.[0].jockey).toBe('ルメール');
+      expect(result.card.races[0]).not.toHaveProperty('jockey_candidates');
+      expect(completion).toHaveBeenCalledTimes(1);
     } finally { completion.mockRestore(); }
   });
 
@@ -66,11 +123,13 @@ describe('カード読み取りの解釈', () => {
   });
 
   it('競走成績は日付・場所・レース名で重複を除き、新しい行を先頭に足す', () => {
-    const existing = [{ date: '10.3', place: '新潟', race: '新潟牝', finish: '', surface: '芝' as const, distance: 1800, going: '稍重' as const, grade: 'GⅢ' }, { date: '8.5', place: '札幌', race: '丹頂ス', finish: '3' }];
-    const merged = mergeRaces(existing, [{ date: '12.2', place: '中京', race: '中日新', finish: '' }, { date: '10.3', place: '新潟', race: '新潟牝', finish: '5' }]);
+    const existing = [{ date: '10.3', place: '新潟', race: '新潟牝', finish: '', surface: '芝' as const, distance: 1800, going: '稍重' as const, grade: 'GⅢ', carriedWeight: 55, bodyWeight: 426, jockey: 'ルメール' }, { date: '8.5', place: '札幌', race: '丹頂ス', finish: '3' }];
+    const merged = mergeRaces(existing, [{ date: '12.2', place: '中京', race: '中日新', finish: '' }, { date: '10.3', place: '新潟', race: '新潟牝', finish: '5', going: '良', popularity: 2, jockey: '', bodyWeight: undefined }]);
     expect(merged.map((r) => r.race)).toEqual(['中日新', '新潟牝', '丹頂ス']);
     expect(merged[1].finish).toBe('5');
-    expect(merged[1]).toMatchObject({ surface: '芝', distance: 1800, going: '稍重', grade: 'GⅢ' });
+    expect(merged[1]).toMatchObject({ surface: '芝', distance: 1800, going: '良', grade: 'GⅢ', carriedWeight: 55, bodyWeight: 426, jockey: 'ルメール', popularity: 2 });
+    const update = applyCardReading(owned('u:race', { profile: { races: existing } }), card({ races: merged.slice(1) }), '2026-09-24T00:00:00Z');
+    expect(cardPatchDiff(owned('u:race', { profile: { races: existing } }), update)).toContainEqual({ label: '競走成績', before: '2行', after: '2行（内容更新）' });
     expect(merged[2].finish).toBe('3');
     expect(mergeRaces(undefined, [{ date: '', place: '', race: '', finish: '' }])).toEqual([]);
   });
@@ -87,10 +146,10 @@ describe('カード読み取りの統合', () => {
 
   it('入厩後の読み取りで判明した印だけを上書きし、既存の値と観測履歴を残す', () => {
     const horse = owned('u:1', { name: 'アディクティドの27', category: '現役', profile: { birthYear: 27, color: '芦毛', wins: '' },
-      abilities: { race: { stamina: '△', speed: '△', distance: '1600-2000m' } }, observations: [{ at: '2026-01-01T00:00:00.000Z', screen: '育成馬', source: 'photo' }] });
+      abilities: { race: { stamina: '◎', speed: '◎', distance: '1600-2000m' } }, observations: [{ at: '2026-01-01T00:00:00.000Z', screen: '育成馬', source: 'photo' }] });
     const patch = applyCardReading(horse, stabled(), '2026-09-19T00:00:00.000Z');
     expect(patch.name).toBe('アディクトドリーム');
-    expect(patch.abilities?.race).toEqual({ stamina: '△', speed: '○', power: '○', guts: '◎', temperament: '○', turf: '◎', distance: '2000-2400m',
+    expect(patch.abilities?.race).toEqual({ stamina: '◎', speed: '○', power: '○', guts: '◎', temperament: '○', turf: '◎', distance: '2000-2400m',
       start: '○', corner: '両○', heavyTrack: '○', roughTrack: '○', fastTrack: '○', health: '○', legs: '△' });
     expect(patch.profile).toEqual({ birthYear: 27, color: '芦毛', wins: '', rank: 'OP', stable: '美浦 / 勝田厩舎', weight: '444kg (+6kg)', record: '28戦6勝', earnings: 16330, earningsCurrent: 5800,
       races: [{ date: '12.2', place: '中京', race: '中日新', finish: '' }, { date: '10.3', place: '新潟', race: '新潟牝', finish: '' }] });
@@ -99,7 +158,7 @@ describe('カード読み取りの統合', () => {
     const diff = cardPatchDiff(horse, patch);
     expect(diff.find((d) => d.label === '馬名')).toEqual({ label: '馬名', before: 'アディクティドの27', after: 'アディクトドリーム' });
     expect(diff.find((d) => d.label === 'スタミナ')).toBeUndefined();
-    expect(diff.find((d) => d.label === 'スピード')).toEqual({ label: 'スピード', before: '△', after: '○' });
+    expect(diff.find((d) => d.label === 'スピード')).toEqual({ label: 'スピード', before: '◎', after: '○' });
     expect(diff.find((d) => d.label === '競走成績')).toEqual({ label: '競走成績', before: '未登録', after: '2行' });
   });
 

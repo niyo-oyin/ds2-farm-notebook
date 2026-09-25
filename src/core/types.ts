@@ -13,8 +13,6 @@ export interface MasterHorse {
   color: string | null;
   bigSystem: string | null;
   smallSystem: string | null;
-  omoshiro: string | null; // 面白用4系統 (a-o)
-  migoto: string | null;   // 見事用4系統 (a-o) 種牡馬のみ
   ancestors: string[];     // 祖先ID 30頭（空文字は不明）: 父,母,父父,父母,母父,母母,(3代8頭),(4代16頭)
   unlock?: string | null;        // 解禁条件（例: 皐月賞に勝利）
   breedingRightPrice?: number | null; // 種牡馬の種付け権購入額（万円）。未設定なら権利条件なし
@@ -64,8 +62,6 @@ export interface StallionAbilities {
   temperament?: AbilityRank; guts?: AbilityRank; health?: AbilityRank; achievement?: AbilityRank; stability?: AbilityRank;
   distanceMin?: number; distanceMax?: number;
 }
-/** 現役馬のカードの印。「-」（未判明）はキーを持たない。 */
-export type CardMark = '◎' | '○' | '△';
 export type RaceAbilityKey = 'speed' | 'stamina' | 'power' | 'guts' | 'temperament' | 'turf' | 'dirt';
 export type RaceTraitKey = 'growth' | 'start' | 'corner' | 'heavyTrack' | 'roughTrack' | 'fastTrack' | 'health' | 'legs' | 'concentration' | 'timid' | 'soundReaction' | 'reaction';
 /** 現役馬のカードに表示された印・文字をそのまま記録する。評価尺度を推測して変換しない。 */
@@ -77,6 +73,12 @@ export interface RaceEntry {
   surface?: '芝' | 'ダート';
   distance?: number;
   going?: '良' | '稍重' | '重' | '不良';
+  runners?: number;
+  popularity?: number;
+  jockey?: string;
+  carriedWeight?: number;
+  bodyWeight?: number;
+  strategy?: '逃' | '先' | '差' | '追';
 }
 /** ゲーム画面からの読み取り履歴 */
 export interface Observation { at: string; screen: string; age?: number; source: 'photo' | 'manual'; importJobId?: string }
@@ -112,6 +114,7 @@ export interface OwnedHorse extends UserHorseBase {
   masterKey?: HorseKey;
   category: HorseCategory;
   excludeFromSearch?: boolean;
+  goodMotherComment?: boolean;
   profile?: {
     color?: string; birthYear?: number; wins?: string;
     /** 総賞金（万円） */ earnings?: number; /** 収得賞金（万円） */ earningsCurrent?: number;

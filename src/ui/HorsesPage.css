@@ -79,3 +79,31 @@
   .master-mare-list input { grid-row: span 2; }
   .master-mare-name { white-space: nowrap; }
 }
+
+.horse-detail-filters { padding: 0 12px 10px; flex-shrink: 0; }
+.horse-detail-filters summary { font-size: 12px; cursor: pointer; }
+.horse-detail-filters summary .tag { margin-left: 6px; }
+.horse-detail-filter-fields { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 8px; padding-top: 10px; }
+.horse-detail-filter-fields .combo { min-width: 0; }
+.horse-detail-filter-fields .field { min-width: 0; }
+.horse-list-caption { align-items: center; gap: 8px; }
+.horses-page .horse-list-sort select { min-height: 30px; height: 30px; width: 112px; padding: 2px 6px; font-size: 12px; }
+.horses-page .horse-list-sort button { height: 30px; min-width: 28px; font-size: 16px; }
+.horses-page .horse-filter-reset { min-height: 28px; margin-left: 6px; border: 0; padding: 2px 4px; background: transparent; color: var(--accent); font-size: 12px; }
+.horse-sort-value { font-size: 11px; color: var(--ink-muted); }
+@media (max-height: 800px) and (min-width: 901px) { .horse-list-panel:has(.horse-detail-filters[open]) { max-height: none; position: static; } }
+@media (max-width: 720px) { .horses-page .horse-list-sort select { height: 40px; font-size: 16px; width: 124px; } .horses-page .horse-list-sort button { height: 40px; } }
+
+.horse-list-filters { grid-template-columns: minmax(0, 1.2fr) minmax(0, 1fr) minmax(0, 1fr); }
+.horse-basic-filter { min-width: 0; font-size: 12px; color: var(--ink-muted); }
+.horse-basic-filter > button { display: flex; justify-content: space-between; align-items: center; gap: 6px; width: 100%; margin-top: 4px; padding-inline: 8px; font-size: 12px; }
+.horse-basic-filter > button > span:first-child { overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.horse-basic-filter > button.active { color: var(--accent); border-color: var(--accent); }
+.horse-filter-popover { position: fixed; margin: 0; width: min(260px, calc(100vw - 16px)); max-height: min(290px, calc(100dvh - 16px)); overflow: auto; padding: 10px; border: 1px solid var(--rule); border-radius: var(--r-md); background: var(--paper-raised); color: var(--ink); box-shadow: 0 6px 24px #0002; }
+.horse-filter-popover label { display: flex; align-items: center; gap: 8px; min-height: 36px; font-size: 13px; cursor: pointer; }
+.horse-filter-popover input[type=checkbox] { width: 16px; height: 16px; min-height: 0; margin: 0; flex: none; }
+.horse-filter-popover-actions { display: flex; align-items: center; justify-content: space-between; border-bottom: 1px solid var(--rule); padding-bottom: 6px; margin-bottom: 6px; }
+.horses-page .horse-filter-popover-actions button, .horses-page .horse-filter-done { min-height: 32px; padding: 4px 8px; font-size: 12px; }
+.horse-filter-options { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 2px 8px; }
+.horse-filter-done { display: block; margin: 8px 0 0 auto; }
+@media (max-width: 720px) { .horse-filter-popover label { min-height: 44px; } }

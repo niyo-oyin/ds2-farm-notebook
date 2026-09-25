@@ -1,5 +1,5 @@
 import { useMemo, useRef, useState, useSyncExternalStore } from 'react';
-import type { HorseCategory, Sex, OwnedHorse } from '../core/types';
+import type { OwnedHorse } from '../core/types';
 import { HORSE_CATEGORIES, horseAge, sexAgeLabel } from '../core/owned-horse';
 import { PageHeading } from './icons';
 import { useApp, ownedParentKeys } from './app-context';
@@ -12,29 +12,26 @@ import { nameSearch } from './name-search';
 import { HorseSheet, type HorseSheetHandle } from './HorseSheet';
 import './HorsesPage.css';
 import { HorsePlaceholder } from './HorsePlaceholder';
+import { HorseSelect } from './HorseSelect';
+import { HorseListFilter } from './HorseListFilter';
+import { OWNED_SORTS, EMPTY_OWNED_FILTER, compareOwnedHorses, matchesOwnedHorse, type OwnedSort, EMPTY_OWNED_BASIC_FILTER, matchesOwnedBasic, type OwnedBasicFilter } from './owned-horse-list';
 
 const mq = typeof matchMedia !== 'undefined' ? matchMedia('(max-width: 900px)') : null;
 const useNarrow = () => useSyncExternalStore((cb) => { mq?.addEventListener('change', cb); return () => mq?.removeEventListener('change', cb); }, () => !!mq?.matches);
 const scrollTop = () => window.scrollTo(0, 0);
-/** 一覧の並び順。見出しの文字をクリックすると登録順→更新順→生年順と巡り、矢印で昇順・降順を切り替える。端末に記憶する */
-type SortKey = 'created' | 'updated' | 'birth';
-const SORTS: { key: SortKey; label: string }[] = [{ key: 'created', label: '登録順' }, { key: 'updated', label: '更新順' }, { key: 'birth', label: '生年順' }];
 const SORT_KEY = 'ds2tool.horses.sort';
-interface Sort { key: SortKey; desc: boolean }
-const loadSort = (): Sort => {
-  try { const s = JSON.parse(localStorage.getItem(SORT_KEY) ?? '') as Sort; if (SORTS.some((x) => x.key === s.key) && typeof s.desc === 'boolean') return s; } catch { /* 既定 */ }
+const loadSort = (): OwnedSort => {
+  try { const s = JSON.parse(localStorage.getItem(SORT_KEY) ?? '') as OwnedSort; if (OWNED_SORTS.some(x => x.key === s.key) && typeof s.desc === 'boolean') return s; } catch { /* 既定 */ }
   return { key: 'updated', desc: true };
 };
-const byName = (a: OwnedHorse, b: OwnedHorse) => a.name.localeCompare(b.name, 'ja');
-/** 並び順の値。生年は未登録なら null（昇順・降順に関わらず末尾） */
-const sortValue = (h: OwnedHorse, key: SortKey): string | number | null => key === 'created' ? h.createdAt : key === 'updated' ? h.updatedAt : h.profile?.birthYear ?? null;
-const compare = ({ key, desc }: Sort) => (a: OwnedHorse, b: OwnedHorse) => {
-  const x = sortValue(a, key), y = sortValue(b, key);
-  if (x === null && y === null) return byName(a, b);
-  if (x === null) return 1;
-  if (y === null) return -1;
-  const c = typeof x === 'number' && typeof y === 'number' ? x - y : String(x).localeCompare(String(y));
-  return (desc ? -c : c) || byName(a, b);
+
+const BASIC_FILTER_KEY = 'ds2tool.horses.basicFilter';
+const loadBasicFilter = (): OwnedBasicFilter => {
+  try {
+    const filter = JSON.parse(localStorage.getItem(BASIC_FILTER_KEY) ?? '');
+    if (filter && ['categories', 'sexes', 'ages'].every(key => Array.isArray(filter[key]) && filter[key].every((v: unknown) => typeof v === 'string'))) return filter;
+  } catch { /* 既定 */ }
+  return EMPTY_OWNED_BASIC_FILTER;
 };
 
 export function HorsesPage({ params }: { params: URLSearchParams }) {
@@ -45,22 +42,26 @@ export function HorsesPage({ params }: { params: URLSearchParams }) {
   const [selectedId, setSelectedId] = useState<string | null>(params.get('id'));
   const [editing, setEditing] = useState<string | null>(params.get('new') ? 'new' : null);
   const [q, setQ] = useState('');
-  const [status, setStatus] = useState<HorseCategory | 'all'>('all');
-  const [sex, setSex] = useState<'' | Sex>('');
-  const [linked, setLinked] = useState('all');
+  const [excluded, setExcluded] = useState<OwnedBasicFilter>(loadBasicFilter);
+  const changeBasicFilter = (next: OwnedBasicFilter) => { setExcluded(next); localStorage.setItem(BASIC_FILTER_KEY, JSON.stringify(next)); };
+  const [filter, setFilter] = useState(EMPTY_OWNED_FILTER);
   const [addingMaster, setAddingMaster] = useState(false);
-  const [sort, setSort] = useState<Sort>(loadSort);
-  const changeSort = (next: Sort) => { setSort(next); localStorage.setItem(SORT_KEY, JSON.stringify(next)); };
-  const nextKey = SORTS[(SORTS.findIndex((x) => x.key === sort.key) + 1) % SORTS.length];
+  const [sort, setSort] = useState<OwnedSort>(loadSort);
+  const changeSort = (next: OwnedSort) => { setSort(next); localStorage.setItem(SORT_KEY, JSON.stringify(next)); };
   const [message, setMessage] = useState(params.get('saved') ? '所有馬を保存しました' : '');
   const [error, setError] = useState('');
   const linksByHorse = useMemo(() => new Map(app.data.horses.map((h) => [h.id, horsePlanLinks(app.data, h.id)])), [app.data]);
   const label = (key: string) => key ? app.resolver.label(key) : '未登録';
-  const horses = nameSearch(q).filter(app.data.horses.filter((h) => {
-    const hasLinks = !!linksByHorse.get(h.id)?.length;
-    return (status === 'all' || h.category === status) && (!sex || h.sex === sex)
-      && (linked === 'all' || (linked === 'linked' ? hasLinks : !hasLinks));
-  }).sort(compare(sort)), (h) => [h.name, label(ownedParentKeys(app, h).sire), label(ownedParentKeys(app, h).dam), ...(linksByHorse.get(h.id)?.map((l) => l.plan?.name ?? l.foal?.name) ?? [])]);
+  const parentsByHorse = useMemo(() => new Map(app.data.horses.map(h => [h.id, ownedParentKeys(app, h)])), [app]);
+  const parentOptions = (role: 'sire' | 'dam') => [...new Set([...parentsByHorse.values()].map(p => p[role]).filter(Boolean))].map(key => ({ key, name: label(key), group: role === 'sire' ? '父' : '母', sub: '' })).sort((a, b) => a.name.localeCompare(b.name, 'ja'));
+  const ages = [...new Set(app.data.horses.map(h => horseAge(h.profile?.birthYear, app.data.settings.gameYear)).filter((n): n is number => n !== undefined))].sort((a, b) => a - b);
+  const detailCount = Object.values(filter).filter(Boolean).length;
+  const filtered = !!q || Object.values(excluded).some(values => values.length > 0) || detailCount > 0;
+  const clearFilters = () => { setQ(''); changeBasicFilter(EMPTY_OWNED_BASIC_FILTER); setFilter(EMPTY_OWNED_FILTER); };
+  const horses = nameSearch(q).filter(app.data.horses.filter(h => {
+    return matchesOwnedBasic(h, excluded, app.data.settings.gameYear)
+      && matchesOwnedHorse(h, filter, parentsByHorse.get(h.id)!, !!linksByHorse.get(h.id)?.length);
+  }), h => [h.name, label(parentsByHorse.get(h.id)!.sire), label(parentsByHorse.get(h.id)!.dam), ...(linksByHorse.get(h.id)?.map(l => l.plan?.name ?? l.foal?.name) ?? [])]).sort(compareOwnedHorses(sort, app.data.settings.gameYear));
   const selected = app.data.horses.find((h) => h.id === selectedId) ?? (!narrow ? horses[0] : undefined);
   const detailVisible = !!editing || !!selected;
   const finish = (h: OwnedHorse) => {
@@ -79,13 +80,22 @@ export function HorsesPage({ params }: { params: URLSearchParams }) {
     <div className={'horses-workspace' + (detailVisible ? ' has-detail' : '')}>
       <aside className="horse-list-panel">
         <div className="horse-search"><input aria-label="所有馬を検索" placeholder="馬名・父母・計画名で検索" value={q} onChange={(e) => setQ(e.target.value)} /></div>
-        <div className="horse-list-filters"><label className="field">区分<select value={status} onChange={(e) => setStatus(e.target.value as typeof status)}><option value="all">すべて</option>{HORSE_CATEGORIES.map((s) => <option key={s}>{s}</option>)}</select></label><label className="field">性別<select value={sex} onChange={(e) => setSex(e.target.value as typeof sex)}><option value="">すべて</option><option value="F">牝</option><option value="M">牡</option></select></label><label className="field">計画との紐付け<select value={linked} onChange={(e) => setLinked(e.target.value)}><option value="all">すべて</option><option value="linked">紐付けあり</option><option value="unlinked">紐付けなし</option></select></label></div>
-        <div className="horse-list-caption"><span>{horses.length}頭</span><span className="horse-list-sort">
-          {q.trim() && <span>一致順・</span>}
-          <button type="button" className="horse-list-sortkey" title={`クリックで${nextKey.label}に切り替え`} onClick={() => changeSort({ ...sort, key: nextKey.key })}>{SORTS.find((x) => x.key === sort.key)!.label}</button>
-          <button type="button" className="horse-list-sortdir" aria-label={sort.desc ? '降順（押すと昇順）' : '昇順（押すと降順）'} title={sort.desc ? '降順（押すと昇順）' : '昇順（押すと降順）'} onClick={() => changeSort({ ...sort, desc: !sort.desc })}>
-            <svg viewBox="0 0 12 12" width="12" height="12" aria-hidden="true" style={{ transform: sort.desc ? 'none' : 'scaleY(-1)' }}><path d="M6 1.5v9M2.5 7 6 10.5 9.5 7" fill="none" stroke="currentColor" strokeWidth="1.6" strokeLinecap="round" strokeLinejoin="round" /></svg>
-          </button>
+        <div className="horse-list-filters">
+          <HorseListFilter label="区分" options={HORSE_CATEGORIES.map(value => ({ value, label: value }))} excluded={excluded.categories} onChange={categories => changeBasicFilter({ ...excluded, categories })} preset={{ label: '引退以外', excluded: ['引退'] }} />
+          <HorseListFilter label="性別" options={[{ value: 'M', label: '牡' }, { value: 'F', label: '牝' }, { value: 'unknown', label: '未確認' }]} excluded={excluded.sexes} onChange={sexes => changeBasicFilter({ ...excluded, sexes })} />
+          <HorseListFilter label="年齢" options={[...ages.map(n => ({ value: String(n), label: `${n}歳` })), { value: 'unknown', label: '未確認' }]} excluded={excluded.ages} onChange={ages => changeBasicFilter({ ...excluded, ages })} />
+        </div>
+        <details className="horse-detail-filters"><summary>詳細条件{detailCount > 0 && <span className="tag">{detailCount}</span>}</summary><div className="horse-detail-filter-fields">
+          <label className="field">父<HorseSelect aria-label="父で絞り込み" value={filter.sire} onChange={sire => setFilter({ ...filter, sire })} options={parentOptions('sire')} placeholder="すべて" /></label>
+          <label className="field">母<HorseSelect aria-label="母で絞り込み" value={filter.dam} onChange={dam => setFilter({ ...filter, dam })} options={parentOptions('dam')} placeholder="すべて" /></label>
+          <label className="field">成長型<select value={filter.growth} onChange={e => setFilter({ ...filter, growth: e.target.value })}><option value="">すべて</option>{['早熟', '普通', '持続', '晩成'].map(g => <option key={g}>{g}</option>)}</select></label>
+          <label className="field">距離適性（m）<input type="number" min={0} step={100} value={filter.distance} onChange={e => setFilter({ ...filter, distance: e.target.value })} placeholder="不問" /></label>
+          <label className="field">馬場適性<select value={filter.surface} onChange={e => setFilter({ ...filter, surface: e.target.value })}><option value="">すべて</option><option value="turf">芝 ○以上</option><option value="dirt">ダート ○以上</option></select></label>
+          <label className="field">計画との紐付け<select value={filter.linked} onChange={e => setFilter({ ...filter, linked: e.target.value })}><option value="">すべて</option><option value="linked">紐付けあり</option><option value="unlinked">紐付けなし</option></select></label>
+        </div></details>
+        <div className="horse-list-caption"><span>{horses.length} / {app.data.horses.length}頭{filtered && <button type="button" className="horse-filter-reset" onClick={clearFilters}>解除</button>}</span><span className="horse-list-sort">
+          <select aria-label="所有馬の並び順" value={sort.key} onChange={e => { const key = e.target.value as OwnedSort['key']; changeSort({ key, desc: !['name', 'age', 'category', 'sex'].includes(key) }); }}>{OWNED_SORTS.map(s => <option key={s.key} value={s.key}>{s.label}</option>)}</select>
+          <button type="button" className="horse-list-sortdir" aria-label={sort.desc ? '降順（押すと昇順）' : '昇順（押すと降順）'} title={sort.desc ? '降順（押すと昇順）' : '昇順（押すと降順）'} onClick={() => changeSort({ ...sort, desc: !sort.desc })}>{sort.desc ? '↓' : '↑'}</button>
         </span></div>
         <div className="horse-list">{horses.map((h) => {
           const links = linksByHorse.get(h.id) ?? [];
@@ -96,7 +106,7 @@ export function HorsesPage({ params }: { params: URLSearchParams }) {
           return <button key={h.id} className={'horse-list-item' + (selected?.id === h.id ? ' selected' : '')} aria-pressed={selected?.id === h.id} onClick={() => { if ((!editing && selected?.id === h.id) || !leave()) return; setSelectedId(h.id); setEditing(null); setError(''); if (narrow) scrollTop(); }}>
             <span className="portrait horse-list-thumb">{h.imageId ? <img src={imageUrl(h.imageId)} alt="" loading="lazy" /> : <HorsePlaceholder category={h.category} sex={h.sex} />}</span>
             <span className="horse-list-body">
-              <span className="horse-list-title"><b className="horse-list-name">{h.name}</b><span className={`pill cat-${h.category}`}>{h.category}</span><span className={`pill sex-${h.sex ?? 'none'}`}>{sexAgeLabel(h.sex, horseAge(h.profile?.birthYear, app.data.settings.gameYear))}</span>{h.profile?.color && <span className="pill">{h.profile.color}</span>}</span>
+              <span className="horse-list-title"><b className="horse-list-name">{h.name}</b><span className={`pill cat-${h.category}`}>{h.category}</span><span className={`pill sex-${h.sex ?? 'none'}`}>{sexAgeLabel(h.sex, horseAge(h.profile?.birthYear, app.data.settings.gameYear))}</span>{h.profile?.color && <span className="pill">{h.profile.color}</span>}{sort.key === 'earnings' && <span className="horse-sort-value">{h.profile?.earnings == null ? '賞金未確認' : `${h.profile.earnings.toLocaleString()}万`}</span>}{(['speed', 'stamina', 'power'] as string[]).includes(sort.key) && <span className="horse-sort-value">{OWNED_SORTS.find(s => s.key === sort.key)?.label} {h.abilities?.race?.[sort.key as 'speed' | 'stamina' | 'power'] ?? '—'}</span>}</span>
               {missing
                 ? <span className="horse-list-parents missing">血統未登録</span>
                 : <span className="horse-list-parents" title={parents}>{sire ? label(sire) : <em className="missing">未登録</em>} × {dam ? label(dam) : <em className="missing">未登録</em>}</span>}
@@ -105,7 +115,7 @@ export function HorsesPage({ params }: { params: URLSearchParams }) {
             <span className="horse-list-chevron" aria-hidden="true">›</span>
           </button>;
         })}</div>
-        {!horses.length && <div className="horse-list-empty">{app.data.horses.length ? <>該当する所有馬はありません<button onClick={() => { setQ(''); setStatus('all'); setSex(''); setLinked('all'); }}>絞り込みを解除</button></> : <>所有馬はまだ登録されていません<button onClick={() => setEditing('new')}>最初の所有馬を登録</button></>}</div>}
+        {!horses.length && <div className="horse-list-empty">{app.data.horses.length ? <>該当する所有馬はありません<button onClick={clearFilters}>絞り込みを解除</button></> : <>所有馬はまだ登録されていません<button onClick={() => setEditing('new')}>最初の所有馬を登録</button></>}</div>}
       </aside>
       <div className="horse-detail-panel" onFocusCapture={() => { if (selected && !editing && selectedId !== selected.id) setSelectedId(selected.id); }}>
         {narrow && detailVisible && <button className="horse-back" onClick={() => { if (!leave()) return; setSelectedId(null); setEditing(null); scrollTop(); }}>‹ 所有馬一覧へ</button>}

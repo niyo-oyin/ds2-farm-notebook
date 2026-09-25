@@ -26,7 +26,7 @@ function RaceCard({ value, onChange }: { value: RaceAbilities; onChange: (value:
   const mark = (key: keyof RaceAbilities, label: string, marks: readonly string[]) => {
     const current = value[key] ?? '';
     return <label key={key} className={'race-mark' + (current ? ' known' : '')}><span>{label}</span>
-      <select aria-label={label} value={current} onChange={(e) => update(key, e.target.value)}><option value="">-</option>{marks.map((m) => <option key={m}>{m}</option>)}</select>
+      <select aria-label={label} value={current} onChange={(e) => update(key, e.target.value)}><option value="">-</option>{marks.map((m) => <option key={m} value={m}>{m === '◉' ? '◉（ピンク）' : m}</option>)}</select>
     </label>;
   };
   return <div className="race-card">
@@ -36,7 +36,14 @@ function RaceCard({ value, onChange }: { value: RaceAbilities; onChange: (value:
   </div>;
 }
 
-export function HorseAbilitiesEditor({ value, category, onChange }: { value: HorseAbilities; category: HorseCategory; onChange: (value: HorseAbilities) => void }) {
+export function GoodMotherComment({ checked, onChange }: { checked: boolean; onChange: (checked: boolean) => void }) {
+  return <label className="sheet-mother-comment"><input type="checkbox" checked={checked} onChange={e => onChange(e.target.checked)} />「いい母」コメントあり</label>;
+}
+
+export function HorseAbilitiesEditor({ value, category, onChange, goodMotherComment, onGoodMotherCommentChange }: {
+  value: HorseAbilities; category: HorseCategory; onChange: (value: HorseAbilities) => void;
+  goodMotherComment: boolean; onGoodMotherCommentChange: (checked: boolean) => void;
+}) {
   const group: Group | 'race' | undefined = category === '繁殖牝馬' ? 'broodmare' : category === '種牡馬' ? 'stallion' : category === '現役' ? 'race' : undefined;
   const renderFields = (g: Group) => <div className="sheet-ability-fields">{fields[g].map(({ key, label, type, options }) => {
     const record = (value[g] ?? {}) as Record<string, string | number | undefined>;
@@ -54,6 +61,7 @@ export function HorseAbilitiesEditor({ value, category, onChange }: { value: Hor
   return <section className="sheet-section sheet-abilities">
     <div className="sheet-section-heading"><h3>能力・適性</h3><span className="small muted">{category}</span></div>
     {group === 'race' ? raceCard : group ? renderFields(group) : null}
+    {group === 'broodmare' && <GoodMotherComment checked={goodMotherComment} onChange={onGoodMotherCommentChange} />}
     {group === 'race' && <p className="sheet-ability-hint">「-」は未判明</p>}
     {group !== 'race' && hasRace && <details className="sheet-past-abilities"><summary>現役時の記録</summary>{raceCard}</details>}
   </section>;

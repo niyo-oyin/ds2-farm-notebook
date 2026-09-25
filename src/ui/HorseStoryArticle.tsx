@@ -1,10 +1,10 @@
-import type { HorseStory } from '../shared/horse-story';
+import { normalizeStoryContent, type HorseStory } from '../shared/horse-story';
 import { storyRaceWins } from '../core/horse-story';
 import './HorseStory.css';
 
 export function HorseStoryArticle({ story, image, emblem = "/favicon.svg" }: { story: HorseStory; image?: string; emblem?: string }) {
   const { facts } = story.request;
-  const { content } = story;
+  const content = normalizeStoryContent(story.content);
   const wins = storyRaceWins(facts);
   const parents = facts.parents.filter(p => p.name);
   return <article className={`horse-story story-${content.palette}`}>

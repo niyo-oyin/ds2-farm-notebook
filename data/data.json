@@ -1,8 +1,8 @@
 {
   "master": {
     "meta": {
-      "dataVersion": "2026-09-24-07",
-      "createdAt": "2026-09-23T16:34:35.970Z",
+      "dataVersion": "2026-09-25-02",
+      "createdAt": "2026-09-24T15:21:57.041Z",
       "bigSystems": [
         "Ec",
         "Ph",
@@ -44,8 +44,6 @@
         "color": "鹿毛",
         "bigSystem": "Ro",
         "smallSystem": "サンデーサイレンス",
-        "omoshiro": "diej",
-        "migoto": "bkdg",
         "ancestors": [
           "st:2",
           "a:209",
@@ -102,8 +100,6 @@
         "color": "青鹿",
         "bigSystem": "Ro",
         "smallSystem": "サンデーサイレンス",
-        "omoshiro": "dbik",
-        "migoto": "lbln",
         "ancestors": [
           "a:54",
           "a:2791",
@@ -160,8 +156,6 @@
         "color": "鹿毛",
         "bigSystem": "Ro",
         "smallSystem": "サンデーサイレンス",
-        "omoshiro": "decc",
-        "migoto": "ijee",
         "ancestors": [
           "st:38",
           "bm:7",
@@ -218,8 +212,6 @@
         "color": "青鹿",
         "bigSystem": "Ro",
         "smallSystem": "サンデーサイレンス",
-        "omoshiro": "deei",
-        "migoto": "ijcj",
         "ancestors": [
           "st:1",
           "a:2950",
@@ -276,8 +268,6 @@
         "color": "栗毛",
         "bigSystem": "Ne",
         "smallSystem": "ノーザンテースト",
-        "omoshiro": "bfik",
-        "migoto": "kbnn",
         "ancestors": [
           "a:89",
           "a:201",
@@ -334,8 +324,6 @@
         "color": "青鹿",
         "bigSystem": "Ro",
         "smallSystem": "サンデーサイレンス",
-        "omoshiro": "defn",
-        "migoto": "ijce",
         "ancestors": [
           "st:1",
           "a:3490",
@@ -392,8 +380,6 @@
         "color": "黒鹿",
         "bigSystem": "Ro",
         "smallSystem": "サンデーサイレンス",
-        "omoshiro": "dmcf",
-        "migoto": "inme",
         "ancestors": [
           "a:3292",
           "a:2878",
@@ -450,8 +436,6 @@
         "color": "鹿毛",
         "bigSystem": "Ro",
         "smallSystem": "ロベルト",
-        "omoshiro": "dcde",
-        "migoto": "mhed",
         "ancestors": [
           "st:69",
           "bm:66",
@@ -508,8 +492,6 @@
         "color": "鹿毛",
         "bigSystem": "Na",
         "smallSystem": "ミスタープロスペクター",
-        "omoshiro": "feeo",
-        "migoto": "cmce",
         "ancestors": [
           "a:68",
           "a:3374",
@@ -566,8 +548,6 @@
         "color": "栗毛",
         "bigSystem": "Ro",
         "smallSystem": "サンデーサイレンス",
-        "omoshiro": "dcfc",
-        "migoto": "iecc",
         "ancestors": [
           "st:14",
           "a:3271",
@@ -624,8 +604,6 @@
         "color": "鹿毛",
         "bigSystem": "Na",
         "smallSystem": "ミスタープロスペクター",
-        "omoshiro": "feem",
-        "migoto": "eocn",
         "ancestors": [
           "st:9",
           "a:3465",
@@ -682,8 +660,6 @@
         "color": "黒鹿",
         "bigSystem": "Na",
         "smallSystem": "ミスタープロスペクター",
-        "omoshiro": "fede",
-        "migoto": "emed",
         "ancestors": [
           "st:11",
           "bm:66",
@@ -740,8 +716,6 @@
         "color": "鹿毛",
         "bigSystem": "Na",
         "smallSystem": "ミスタープロスペクター",
-        "omoshiro": "fedc",
-        "migoto": "eoie",
         "ancestors": [
           "st:9",
           "a:2855",
@@ -798,8 +772,6 @@
         "color": "鹿毛",
         "bigSystem": "Ro",
         "smallSystem": "サンデーサイレンス",
-        "omoshiro": "dice",
-        "migoto": "bkkl",
         "ancestors": [
           "st:2",
           "a:2840",
@@ -856,8 +828,6 @@
         "color": "黒鹿",
         "bigSystem": "Ro",
         "smallSystem": "ロベルト",
-        "omoshiro": "dcnk",
-        "migoto": "lckl",
         "ancestors": [
           "a:115",
           "a:800",
@@ -914,8 +884,6 @@
         "color": "鹿毛",
         "bigSystem": "Ro",
         "smallSystem": "サンデーサイレンス",
-        "omoshiro": "deef",
-        "migoto": "ijce",
         "ancestors": [
           "st:1",
           "bm:69",
@@ -972,8 +940,6 @@
         "color": "鹿毛",
         "bigSystem": "Ns",
         "smallSystem": "ボールドルーラー",
-        "omoshiro": "cked",
-        "migoto": "comf",
         "ancestors": [
           "a:1865",
           "a:2528",
@@ -1030,8 +996,6 @@
         "color": "鹿毛",
         "bigSystem": "Ne",
         "smallSystem": "ストームキャット",
-        "omoshiro": "efef",
-        "migoto": "fmnk",
         "ancestors": [
           "a:1094",
           "a:895",
@@ -1088,8 +1052,6 @@
         "color": "鹿毛",
         "bigSystem": "Ro",
         "smallSystem": "ロベルト",
-        "omoshiro": "dfcm",
-        "migoto": "eefm",
         "ancestors": [
           "a:464",
           "a:339",
@@ -1146,8 +1108,6 @@
         "color": "鹿毛",
         "bigSystem": "Ns",
         "smallSystem": "プリンスリーギフト",
-        "omoshiro": "cceo",
-        "migoto": "kcjg",
         "ancestors": [
           "a:3001",
           "a:3000",
@@ -1204,8 +1164,6 @@
         "color": "栗毛",
         "bigSystem": "Ro",
         "smallSystem": "ロベルト",
-        "omoshiro": "dede",
-        "migoto": "bmih",
         "ancestors": [
           "st:94",
           "a:3435",
@@ -1262,8 +1220,6 @@
         "color": "黒鹿",
         "bigSystem": "Ro",
         "smallSystem": "サンデーサイレンス",
-        "omoshiro": "dike",
-        "migoto": "bkmm",
         "ancestors": [
           "st:2",
           "a:2995",
@@ -1320,8 +1276,6 @@
         "color": "栗毛",
         "bigSystem": "Ro",
         "smallSystem": "サンデーサイレンス",
-        "omoshiro": "diel",
-        "migoto": "bkii",
         "ancestors": [
           "st:2",
           "a:3063",
@@ -1378,8 +1332,6 @@
         "color": "鹿毛",
         "bigSystem": "Ro",
         "smallSystem": "ロベルト",
-        "omoshiro": "ddee",
-        "migoto": "eeci",
         "ancestors": [
           "st:21",
           "a:3403",
@@ -1436,8 +1388,6 @@
         "color": "栗毛",
         "bigSystem": "Ne",
         "smallSystem": "サドラーズウェルズ",
-        "omoshiro": "eeef",
-        "migoto": "fcbe",
         "ancestors": [
           "st:w-34",
           "a:1284",
@@ -1494,8 +1444,6 @@
         "color": "栗毛",
         "bigSystem": "Ro",
         "smallSystem": "サンデーサイレンス",
-        "omoshiro": "defe",
-        "migoto": "ilee",
         "ancestors": [
           "st:23",
           "a:3501",
@@ -1552,8 +1500,6 @@
         "color": "栗毛",
         "bigSystem": "Ne",
         "smallSystem": "ストームキャット",
-        "omoshiro": "ebmn",
-        "migoto": "chfc",
         "ancestors": [
           "a:1205",
           "a:1626",
@@ -1610,8 +1556,6 @@
         "color": null,
         "bigSystem": "Na",
         "smallSystem": "ミスタープロスペクター",
-        "omoshiro": "fede",
-        "migoto": "eoed",
         "ancestors": [
           "st:9",
           "bm:66",
@@ -1668,8 +1612,6 @@
         "color": "鹿毛",
         "bigSystem": "Na",
         "smallSystem": "ミスタープロスペクター",
-        "omoshiro": "fcef",
-        "migoto": "ceed",
         "ancestors": [
           "a:973",
           "a:455",
@@ -1726,8 +1668,6 @@
         "color": "黒鹿",
         "bigSystem": "Ns",
         "smallSystem": "ボールドルーラー",
-        "omoshiro": "cfej",
-        "migoto": "cckl",
         "ancestors": [
           "a:206",
           "a:2777",
@@ -1784,8 +1724,6 @@
         "color": "鹿毛",
         "bigSystem": "Ro",
         "smallSystem": "ロベルト",
-        "omoshiro": "dcdf",
-        "migoto": "mhmd",
         "ancestors": [
           "st:69",
           "a:3350",
@@ -1842,8 +1780,6 @@
         "color": "鹿毛",
         "bigSystem": "Na",
         "smallSystem": "ミスタープロスペクター",
-        "omoshiro": "fece",
-        "migoto": "eoka",
         "ancestors": [
           "st:9",
           "a:2899",
@@ -1900,8 +1836,6 @@
         "color": "栗毛",
         "bigSystem": "Ro",
         "smallSystem": "サンデーサイレンス",
-        "omoshiro": "dkoe",
-        "migoto": "iejc",
         "ancestors": [
           "st:22",
           "a:2925",
@@ -1958,8 +1892,6 @@
         "color": "青鹿",
         "bigSystem": "Ro",
         "smallSystem": "サンデーサイレンス",
-        "omoshiro": "dede",
-        "migoto": "ijbc",
         "ancestors": [
           "st:1",
           "a:3037",
@@ -2016,8 +1948,6 @@
         "color": "鹿毛",
         "bigSystem": "Ne",
         "smallSystem": "ダンチヒ",
-        "omoshiro": "eefe",
-        "migoto": "mkek",
         "ancestors": [
           "a:766",
           "a:1933",
@@ -2074,8 +2004,6 @@
         "color": "鹿毛",
         "bigSystem": "Na",
         "smallSystem": "ミスタープロスペクター",
-        "omoshiro": "feed",
-        "migoto": "ddln",
         "ancestors": [
           "st:w-37",
           "a:3254",
@@ -2132,8 +2060,6 @@
         "color": "芦毛",
         "bigSystem": "Ne",
         "smallSystem": "ストームキャット",
-        "omoshiro": "efln",
-        "migoto": "iejm",
         "ancestors": [
           "a:2254",
           "a:1631",
@@ -2190,8 +2116,6 @@
         "color": "栗毛",
         "bigSystem": "Ro",
         "smallSystem": "サンデーサイレンス",
-        "omoshiro": "diee",
-        "migoto": "bkkk",
         "ancestors": [
           "st:2",
           "a:3202",
@@ -2248,8 +2172,6 @@
         "color": "黒鹿",
         "bigSystem": "Ro",
         "smallSystem": "サンデーサイレンス",
-        "omoshiro": "diej",
-        "migoto": "bkdg",
         "ancestors": [
           "st:2",
           "a:209",
@@ -2306,8 +2228,6 @@
         "color": "鹿毛",
         "bigSystem": "Ne",
         "smallSystem": "サドラーズウェルズ",
-        "omoshiro": "eeee",
-        "migoto": "omef",
         "ancestors": [
           "a:783",
           "a:1597",
@@ -2364,8 +2284,6 @@
         "color": "鹿毛",
         "bigSystem": "Na",
         "smallSystem": "ミスタープロスペクター",
-        "omoshiro": "fecf",
-        "migoto": "eodc",
         "ancestors": [
           "st:9",
           "a:3357",
@@ -2422,8 +2340,6 @@
         "color": "鹿毛",
         "bigSystem": "Ns",
         "smallSystem": "ボールドルーラー",
-        "omoshiro": "ccfe",
-        "migoto": "mcmd",
         "ancestors": [
           "a:216",
           "a:854",
@@ -2480,8 +2396,6 @@
         "color": "鹿毛",
         "bigSystem": "Ro",
         "smallSystem": "サンデーサイレンス",
-        "omoshiro": "dmme",
-        "migoto": "imac",
         "ancestors": [
           "a:3292",
           "a:2983",
@@ -2538,8 +2452,6 @@
         "color": "鹿毛",
         "bigSystem": "Ro",
         "smallSystem": "サンデーサイレンス",
-        "omoshiro": "defc",
-        "migoto": "ieem",
         "ancestors": [
           "st:37",
           "a:2969",
@@ -2596,8 +2508,6 @@
         "color": "黒鹿",
         "bigSystem": "Ro",
         "smallSystem": "サンデーサイレンス",
-        "omoshiro": "defd",
-        "migoto": "ijmk",
         "ancestors": [
           "st:1",
           "a:3464",
@@ -2654,8 +2564,6 @@
         "color": "黒鹿",
         "bigSystem": "Hi",
         "smallSystem": "ヒムヤー",
-        "omoshiro": "lcen",
-        "migoto": "jfcf",
         "ancestors": [
           "a:1557",
           "a:3343",
@@ -2712,8 +2620,6 @@
         "color": "鹿毛",
         "bigSystem": "Na",
         "smallSystem": "ミスタープロスペクター",
-        "omoshiro": "fcfe",
-        "migoto": "eecc",
         "ancestors": [
           "st:w-3",
           "a:1764",
@@ -2770,8 +2676,6 @@
         "color": "鹿毛",
         "bigSystem": "Ne",
         "smallSystem": "ダンチヒ",
-        "omoshiro": "efcf",
-        "migoto": "ifem",
         "ancestors": [
           "st:w-18",
           "a:2572",
@@ -2828,8 +2732,6 @@
         "color": "鹿毛",
         "bigSystem": "Ro",
         "smallSystem": "サンデーサイレンス",
-        "omoshiro": "deoe",
-        "migoto": "ijmi",
         "ancestors": [
           "st:1",
           "a:3481",
@@ -2886,8 +2788,6 @@
         "color": "芦毛",
         "bigSystem": "Ne",
         "smallSystem": "ヴァイスリージェント",
-        "omoshiro": "emge",
-        "migoto": "nccd",
         "ancestors": [
           "a:3298",
           "a:3309",
@@ -2944,8 +2844,6 @@
         "color": "芦毛",
         "bigSystem": "Ne",
         "smallSystem": "ダンチヒ",
-        "omoshiro": "effe",
-        "migoto": "ikhc",
         "ancestors": [
           "st:w-18",
           "a:1147",
@@ -3002,8 +2900,6 @@
         "color": "鹿毛",
         "bigSystem": "Na",
         "smallSystem": "ミスタープロスペクター",
-        "omoshiro": "fben",
-        "migoto": "dccd",
         "ancestors": [
           "a:2476",
           "a:1346",
@@ -3060,8 +2956,6 @@
         "color": "黒鹿",
         "bigSystem": "Ne",
         "smallSystem": "ストームキャット",
-        "omoshiro": "ecek",
-        "migoto": "ccdc",
         "ancestors": [
           "a:1089",
           "a:451",
@@ -3118,8 +3012,6 @@
         "color": "栗毛",
         "bigSystem": "Ne",
         "smallSystem": "ヴァイスリージェント",
-        "omoshiro": "eced",
-        "migoto": "fdcc",
         "ancestors": [
           "a:1995",
           "a:1331",
@@ -3176,8 +3068,6 @@
         "color": "栗毛",
         "bigSystem": "Ne",
         "smallSystem": "ストームキャット",
-        "omoshiro": "emfc",
-        "migoto": "bmfc",
         "ancestors": [
           "st:27",
           "a:1092",
@@ -3234,8 +3124,6 @@
         "color": "鹿毛",
         "bigSystem": "Na",
         "smallSystem": "ミスタープロスペクター",
-        "omoshiro": "fedf",
-        "migoto": "eece",
         "ancestors": [
           "st:9",
           "bm:221",
@@ -3292,8 +3180,6 @@
         "color": "鹿毛",
         "bigSystem": "Na",
         "smallSystem": "ミスタープロスペクター",
-        "omoshiro": "feec",
-        "migoto": "gfdm",
         "ancestors": [
           "st:w-5",
           "a:1268",
@@ -3350,8 +3236,6 @@
         "color": "黒鹿",
         "bigSystem": "Ro",
         "smallSystem": "サンデーサイレンス",
-        "omoshiro": "dffj",
-        "migoto": "imdo",
         "ancestors": [
           "st:88",
           "a:3333",
@@ -3408,8 +3292,6 @@
         "color": "栗毛",
         "bigSystem": "Ro",
         "smallSystem": "サンデーサイレンス",
-        "omoshiro": "dedc",
-        "migoto": "iemk",
         "ancestors": [
           "st:37",
           "a:2908",
@@ -3466,8 +3348,6 @@
         "color": "鹿毛",
         "bigSystem": "Ro",
         "smallSystem": "サンデーサイレンス",
-        "omoshiro": "dcek",
-        "migoto": "ickl",
         "ancestors": [
           "st:14",
           "a:3023",
@@ -3524,8 +3404,6 @@
         "color": "鹿毛",
         "bigSystem": "Na",
         "smallSystem": "ミスタープロスペクター",
-        "omoshiro": "feed",
-        "migoto": "emff",
         "ancestors": [
           "st:11",
           "a:3089",
@@ -3582,8 +3460,6 @@
         "color": "鹿毛",
         "bigSystem": "Ne",
         "smallSystem": "ストームキャット",
-        "omoshiro": "emin",
-        "migoto": "clhm",
         "ancestors": [
           "a:1015",
           "a:2011",
@@ -3640,8 +3516,6 @@
         "color": "鹿毛",
         "bigSystem": "Ns",
         "smallSystem": "プリンスリーギフト",
-        "omoshiro": "cefe",
-        "migoto": "coec",
         "ancestors": [
           "st:20",
           "a:3031",
@@ -3698,8 +3572,6 @@
         "color": "鹿毛",
         "bigSystem": "Na",
         "smallSystem": "ミスタープロスペクター",
-        "omoshiro": "fdef",
-        "migoto": "eced",
         "ancestors": [
           "a:1994",
           "a:1751",
@@ -3756,8 +3628,6 @@
         "color": "鹿毛",
         "bigSystem": "Ro",
         "smallSystem": "サンデーサイレンス",
-        "omoshiro": "dkfm",
-        "migoto": "ieen",
         "ancestors": [
           "st:22",
           "bm:141",
@@ -3814,8 +3684,6 @@
         "color": "鹿毛",
         "bigSystem": "Ro",
         "smallSystem": "サンデーサイレンス",
-        "omoshiro": "deec",
-        "migoto": "ijfo",
         "ancestors": [
           "st:1",
           "bm:16",
@@ -3872,8 +3740,6 @@
         "color": "鹿毛",
         "bigSystem": "Ne",
         "smallSystem": "ダンチヒ",
-        "omoshiro": "efnc",
-        "migoto": "ikcc",
         "ancestors": [
           "st:w-18",
           "a:1479",
@@ -3930,8 +3796,6 @@
         "color": "栗毛",
         "bigSystem": "Ns",
         "smallSystem": "ボールドルーラー",
-        "omoshiro": "ccfe",
-        "migoto": "fked",
         "ancestors": [
           "a:1541",
           "a:1531",
@@ -3988,8 +3852,6 @@
         "color": "鹿毛",
         "bigSystem": "Ro",
         "smallSystem": "サンデーサイレンス",
-        "omoshiro": "deed",
-        "migoto": "ijdh",
         "ancestors": [
           "st:1",
           "a:3371",
@@ -4046,8 +3908,6 @@
         "color": "黒鹿",
         "bigSystem": "Ro",
         "smallSystem": "ロベルト",
-        "omoshiro": "dmch",
-        "migoto": "cild",
         "ancestors": [
           "a:1399",
           "a:2566",
@@ -4104,8 +3964,6 @@
         "color": "黒鹿",
         "bigSystem": "Ro",
         "smallSystem": "サンデーサイレンス",
-        "omoshiro": "deen",
-        "migoto": "ijcf",
         "ancestors": [
           "st:1",
           "a:3343",
@@ -4162,8 +4020,6 @@
         "color": "栗毛",
         "bigSystem": "Na",
         "smallSystem": "ミスタープロスペクター",
-        "omoshiro": "fecf",
-        "migoto": "ccde",
         "ancestors": [
           "st:w-7",
           "a:1723",
@@ -4220,8 +4076,6 @@
         "color": "鹿毛",
         "bigSystem": "Ro",
         "smallSystem": "サンデーサイレンス",
-        "omoshiro": "deee",
-        "migoto": "ijef",
         "ancestors": [
           "st:1",
           "a:3068",
@@ -4278,8 +4132,6 @@
         "color": "栗毛",
         "bigSystem": "Na",
         "smallSystem": "ミスタープロスペクター",
-        "omoshiro": "ffdm",
-        "migoto": "eeee",
         "ancestors": [
           "a:998",
           "a:325",
@@ -4336,8 +4188,6 @@
         "color": "鹿毛",
         "bigSystem": "Ro",
         "smallSystem": "サンデーサイレンス",
-        "omoshiro": "decl",
-        "migoto": "ijmm",
         "ancestors": [
           "st:1",
           "bm:30",
@@ -4394,8 +4244,6 @@
         "color": "芦毛",
         "bigSystem": "Ro",
         "smallSystem": "サンデーサイレンス",
-        "omoshiro": "dmcf",
-        "migoto": "ieee",
         "ancestors": [
           "st:22",
           "a:3007",
@@ -4452,8 +4300,6 @@
         "color": "芦毛",
         "bigSystem": "Ro",
         "smallSystem": "サンデーサイレンス",
-        "omoshiro": "deec",
-        "migoto": "ijcm",
         "ancestors": [
           "st:1",
           "a:2949",
@@ -4510,8 +4356,6 @@
         "color": "黒鹿",
         "bigSystem": "Na",
         "smallSystem": "ミスタープロスペクター",
-        "omoshiro": "fcdo",
-        "migoto": "eeee",
         "ancestors": [
           "st:31",
           "bm:114",
@@ -4568,8 +4412,6 @@
         "color": "鹿毛",
         "bigSystem": "Ro",
         "smallSystem": "サンデーサイレンス",
-        "omoshiro": "deef",
-        "migoto": "ijce",
         "ancestors": [
           "st:1",
           "a:3355",
@@ -4626,8 +4468,6 @@
         "color": "黒鹿",
         "bigSystem": "Ne",
         "smallSystem": "ストームキャット",
-        "omoshiro": "efcf",
-        "migoto": "dfim",
         "ancestors": [
           "a:1174",
           "a:2458",
@@ -4684,8 +4524,6 @@
         "color": "栗毛",
         "bigSystem": "Ro",
         "smallSystem": "サンデーサイレンス",
-        "omoshiro": "dekf",
-        "migoto": "iekk",
         "ancestors": [
           "st:37",
           "a:2980",
@@ -4742,8 +4580,6 @@
         "color": "青鹿",
         "bigSystem": "Ro",
         "smallSystem": "サンデーサイレンス",
-        "omoshiro": "dede",
-        "migoto": "ijfd",
         "ancestors": [
           "st:1",
           "a:2884",
@@ -4800,8 +4636,6 @@
         "color": "黒鹿",
         "bigSystem": "Ne",
         "smallSystem": "サドラーズウェルズ",
-        "omoshiro": "eife",
-        "migoto": "digj",
         "ancestors": [
           "a:1628",
           "a:1565",
@@ -4858,8 +4692,6 @@
         "color": "鹿毛",
         "bigSystem": "Na",
         "smallSystem": "ミスタープロスペクター",
-        "omoshiro": "fcec",
-        "migoto": "ecdk",
         "ancestors": [
           "st:w-3",
           "a:807",
@@ -4916,8 +4748,6 @@
         "color": "黒鹿",
         "bigSystem": "Na",
         "smallSystem": "ミスタープロスペクター",
-        "omoshiro": "fedc",
-        "migoto": "eece",
         "ancestors": [
           "st:9",
           "a:3340",
@@ -4974,8 +4804,6 @@
         "color": "鹿毛",
         "bigSystem": "Ro",
         "smallSystem": "サンデーサイレンス",
-        "omoshiro": "deee",
-        "migoto": "ijmc",
         "ancestors": [
           "st:1",
           "bm:186",
@@ -5032,8 +4860,6 @@
         "color": "鹿毛",
         "bigSystem": "Ro",
         "smallSystem": "サンデーサイレンス",
-        "omoshiro": "deef",
-        "migoto": "ijic",
         "ancestors": [
           "st:1",
           "a:2918",
@@ -5090,8 +4916,6 @@
         "color": "栗毛",
         "bigSystem": "Ne",
         "smallSystem": "ストームキャット",
-        "omoshiro": "ecec",
-        "migoto": "ccdc",
         "ancestors": [
           "a:1089",
           "a:3299",
@@ -5148,8 +4972,6 @@
         "color": "鹿毛",
         "bigSystem": "Ro",
         "smallSystem": "サンデーサイレンス",
-        "omoshiro": "difm",
-        "migoto": "bilk",
         "ancestors": [
           "st:2",
           "a:3337",
@@ -5206,8 +5028,6 @@
         "color": "鹿毛",
         "bigSystem": "Na",
         "smallSystem": "ミスタープロスペクター",
-        "omoshiro": "fedf",
-        "migoto": "meda",
         "ancestors": [
           "a:2917",
           "a:3344",
@@ -5264,8 +5084,6 @@
         "color": "鹿毛",
         "bigSystem": "Ro",
         "smallSystem": "サンデーサイレンス",
-        "omoshiro": "dede",
-        "migoto": "ijkk",
         "ancestors": [
           "st:1",
           "a:3294",
@@ -5322,8 +5140,6 @@
         "color": "黒鹿",
         "bigSystem": "Na",
         "smallSystem": "ミスタープロスペクター",
-        "omoshiro": "fikf",
-        "migoto": "ejcj",
         "ancestors": [
           "a:2959",
           "a:3394",
@@ -5380,8 +5196,6 @@
         "color": "黒鹿",
         "bigSystem": "Ro",
         "smallSystem": "サンデーサイレンス",
-        "omoshiro": "defe",
-        "migoto": "ieii",
         "ancestors": [
           "st:23",
           "a:3151",
@@ -5438,8 +5252,6 @@
         "color": "栗毛",
         "bigSystem": "Ro",
         "smallSystem": "ロベルト",
-        "omoshiro": "dbem",
-        "migoto": "cmif",
         "ancestors": [
           "a:2350",
           "a:290",
@@ -5496,8 +5308,6 @@
         "color": "栗毛",
         "bigSystem": "Ro",
         "smallSystem": "サンデーサイレンス",
-        "omoshiro": "dced",
-        "migoto": "icnk",
         "ancestors": [
           "a:2844",
           "a:3365",
@@ -5554,8 +5364,6 @@
         "color": "鹿毛",
         "bigSystem": "Ns",
         "smallSystem": "プリンスリーギフト",
-        "omoshiro": "cedc",
-        "migoto": "coii",
         "ancestors": [
           "st:20",
           "a:3485",
@@ -5612,8 +5420,6 @@
         "color": "青鹿毛",
         "bigSystem": "Ro",
         "smallSystem": "ロベルト",
-        "omoshiro": "ddfd",
-        "migoto": "eeem",
         "ancestors": [
           "st:21",
           "a:3319",
@@ -5670,8 +5476,6 @@
         "color": "栗毛",
         "bigSystem": "Ro",
         "smallSystem": "サンデーサイレンス",
-        "omoshiro": "dcfe",
-        "migoto": "ickl",
         "ancestors": [
           "st:14",
           "a:3226",
@@ -5728,8 +5532,6 @@
         "color": "鹿毛",
         "bigSystem": "Ne",
         "smallSystem": "リファール",
-        "omoshiro": "egdf",
-        "migoto": "dgkm",
         "ancestors": [
           "a:3335",
           "a:3094",
@@ -5786,8 +5588,6 @@
         "color": "鹿毛",
         "bigSystem": "Ro",
         "smallSystem": "ロベルト",
-        "omoshiro": "dcfe",
-        "migoto": "mhdk",
         "ancestors": [
           "st:69",
           "a:2993",
@@ -5844,8 +5644,6 @@
         "color": "鹿毛",
         "bigSystem": "Ro",
         "smallSystem": "サンデーサイレンス",
-        "omoshiro": "decj",
-        "migoto": "ijef",
         "ancestors": [
           "st:1",
           "a:3437",
@@ -5902,8 +5700,6 @@
         "color": "鹿毛",
         "bigSystem": "Ro",
         "smallSystem": "サンデーサイレンス",
-        "omoshiro": "dede",
-        "migoto": "ijmc",
         "ancestors": [
           "st:1",
           "a:2914",
@@ -5960,8 +5756,6 @@
         "color": "黒鹿",
         "bigSystem": "Ro",
         "smallSystem": "サンデーサイレンス",
-        "omoshiro": "defe",
-        "migoto": "ijek",
         "ancestors": [
           "st:1",
           "a:3314",
@@ -6018,8 +5812,6 @@
         "color": "鹿毛",
         "bigSystem": "Ne",
         "smallSystem": "ニアークティック",
-        "omoshiro": "emce",
-        "migoto": "kmhk",
         "ancestors": [
           "a:3493",
           "a:3022",
@@ -6076,8 +5868,6 @@
         "color": "鹿毛",
         "bigSystem": "Ro",
         "smallSystem": "サンデーサイレンス",
-        "omoshiro": "dkoe",
-        "migoto": "iejc",
         "ancestors": [
           "st:22",
           "a:2925",
@@ -6134,8 +5924,6 @@
         "color": "鹿毛",
         "bigSystem": "Ne",
         "smallSystem": "サドラーズウェルズ",
-        "omoshiro": "efec",
-        "migoto": "dimm",
         "ancestors": [
           "st:w-2",
           "a:1380",
@@ -6192,8 +5980,6 @@
         "color": "栗毛",
         "bigSystem": "Na",
         "smallSystem": "ミスタープロスペクター",
-        "omoshiro": "fdcc",
-        "migoto": "efee",
         "ancestors": [
           "st:89",
           "bm:135",
@@ -6250,8 +6036,6 @@
         "color": "栗毛",
         "bigSystem": "Na",
         "smallSystem": "ミスタープロスペクター",
-        "omoshiro": "fhcc",
-        "migoto": "ckki",
         "ancestors": [
           "a:2861",
           "a:3461",
@@ -6308,8 +6092,6 @@
         "color": "黒鹿",
         "bigSystem": "Na",
         "smallSystem": "ミスタープロスペクター",
-        "omoshiro": "fcfi",
-        "migoto": "ehle",
         "ancestors": [
           "st:w-45",
           "a:402",
@@ -6366,8 +6148,6 @@
         "color": "青鹿",
         "bigSystem": "Ro",
         "smallSystem": "サンデーサイレンス",
-        "omoshiro": "dkek",
-        "migoto": "iemg",
         "ancestors": [
           "st:22",
           "a:3168",
@@ -6424,8 +6204,6 @@
         "color": "栗毛",
         "bigSystem": "Ro",
         "smallSystem": "ロベルト",
-        "omoshiro": "dmfe",
-        "migoto": "micc",
         "ancestors": [
           "st:w-28",
           "a:3280",
@@ -6482,8 +6260,6 @@
         "color": "栗毛",
         "bigSystem": "Ns",
         "smallSystem": "ボールドルーラー",
-        "omoshiro": "cffd",
-        "migoto": "cecm",
         "ancestors": [
           "st:41",
           "a:3295",
@@ -6540,8 +6316,6 @@
         "color": "栗毛",
         "bigSystem": "Ne",
         "smallSystem": "サドラーズウェルズ",
-        "omoshiro": "edef",
-        "migoto": "dhcn",
         "ancestors": [
           "a:1385",
           "a:2640",
@@ -6598,8 +6372,6 @@
         "color": "鹿毛",
         "bigSystem": "Ro",
         "smallSystem": "サンデーサイレンス",
-        "omoshiro": "dicf",
-        "migoto": "bkmc",
         "ancestors": [
           "st:2",
           "a:3330",
@@ -6656,8 +6428,6 @@
         "color": "鹿毛",
         "bigSystem": "Na",
         "smallSystem": "ミスタープロスペクター",
-        "omoshiro": "feee",
-        "migoto": "eocf",
         "ancestors": [
           "st:9",
           "a:3360",
@@ -6714,8 +6484,6 @@
         "color": "鹿毛",
         "bigSystem": "Na",
         "smallSystem": "ミスタープロスペクター",
-        "omoshiro": "fcei",
-        "migoto": "eedc",
         "ancestors": [
           "st:w-3",
           "a:1993",
@@ -6772,8 +6540,6 @@
         "color": "栗毛",
         "bigSystem": "Na",
         "smallSystem": "ミスタープロスペクター",
-        "omoshiro": "fede",
-        "migoto": "eoec",
         "ancestors": [
           "st:9",
           "a:3416",
@@ -6830,8 +6596,6 @@
         "color": "芦毛",
         "bigSystem": "Ns",
         "smallSystem": "ボールドルーラー",
-        "omoshiro": "cfde",
-        "migoto": "feim",
         "ancestors": [
           "a:2563",
           "a:3323",
@@ -6888,8 +6652,6 @@
         "color": "鹿毛",
         "bigSystem": "Ro",
         "smallSystem": "サンデーサイレンス",
-        "omoshiro": "demn",
-        "migoto": "ijfo",
         "ancestors": [
           "st:1",
           "a:3180",
@@ -6946,8 +6708,6 @@
         "color": "青鹿",
         "bigSystem": "Ro",
         "smallSystem": "サンデーサイレンス",
-        "omoshiro": "decf",
-        "migoto": "ikmc",
         "ancestors": [
           "a:3092",
           "a:2963",
@@ -7004,8 +6764,6 @@
         "color": "芦毛",
         "bigSystem": "Na",
         "smallSystem": "ミスタープロスペクター",
-        "omoshiro": "fidf",
-        "migoto": "eoil",
         "ancestors": [
           "a:3061",
           "a:3329",
@@ -7060,10 +6818,8 @@
         "sex": "M",
         "price": 50,
         "color": "黒鹿",
-        "bigSystem": "Ro",
+        "bigSystem": "Na",
         "smallSystem": "ヘイロー",
-        "omoshiro": "fedc",
-        "migoto": "eoie",
         "ancestors": [
           "st:9",
           "a:3487",
@@ -7120,8 +6876,6 @@
         "color": "黒鹿",
         "bigSystem": "Ne",
         "smallSystem": "サドラーズウェルズ",
-        "omoshiro": "ecdc",
-        "migoto": "dmie",
         "ancestors": [
           "a:3482",
           "a:3079",
@@ -7178,8 +6932,6 @@
         "color": "鹿毛",
         "bigSystem": "Ro",
         "smallSystem": "サンデーサイレンス",
-        "omoshiro": "dfef",
-        "migoto": "imoe",
         "ancestors": [
           "st:88",
           "a:2849",
@@ -7236,8 +6988,6 @@
         "color": "黒鹿",
         "bigSystem": "Ro",
         "smallSystem": "サンデーサイレンス",
-        "omoshiro": "deke",
-        "migoto": "ijjj",
         "ancestors": [
           "st:1",
           "bm:56",
@@ -7294,8 +7044,6 @@
         "color": "黒鹿",
         "bigSystem": "Ro",
         "smallSystem": "サンデーサイレンス",
-        "omoshiro": "dcde",
-        "migoto": "ieef",
         "ancestors": [
           "st:14",
           "a:3499",
@@ -7352,8 +7100,6 @@
         "color": "栗毛",
         "bigSystem": "Ns",
         "smallSystem": "レッドゴッド",
-        "omoshiro": "coke",
-        "migoto": "ekjb",
         "ancestors": [
           "a:1467",
           "a:3137",
@@ -7410,8 +7156,6 @@
         "color": "栗毛",
         "bigSystem": "Na",
         "smallSystem": "ミスタープロスペクター",
-        "omoshiro": "fcee",
-        "migoto": "ehcd",
         "ancestors": [
           "st:w-45",
           "a:431",
@@ -7468,8 +7212,6 @@
         "color": "黒鹿",
         "bigSystem": "Ro",
         "smallSystem": "サンデーサイレンス",
-        "omoshiro": "deee",
-        "migoto": "iecm",
         "ancestors": [
           "st:37",
           "a:3072",
@@ -7526,8 +7268,6 @@
         "color": "黒鹿",
         "bigSystem": "Ro",
         "smallSystem": "サンデーサイレンス",
-        "omoshiro": "dofc",
-        "migoto": "keme",
         "ancestors": [
           "st:32",
           "a:3133",
@@ -7584,8 +7324,6 @@
         "color": "芦毛",
         "bigSystem": "Ns",
         "smallSystem": "ボールドルーラー",
-        "omoshiro": "cfim",
-        "migoto": "feem",
         "ancestors": [
           "a:2563",
           "a:1714",
@@ -7642,8 +7380,6 @@
         "color": "黒鹿",
         "bigSystem": "Ro",
         "smallSystem": "サンデーサイレンス",
-        "omoshiro": "dece",
-        "migoto": "ilkc",
         "ancestors": [
           "st:23",
           "a:3257",
@@ -7700,8 +7436,6 @@
         "color": "鹿毛",
         "bigSystem": "Ns",
         "smallSystem": "ゼダーン",
-        "omoshiro": "ckek",
-        "migoto": "akcg",
         "ancestors": [
           "st:w-9",
           "a:3146",
@@ -7758,8 +7492,6 @@
         "color": "芦毛",
         "bigSystem": "Ro",
         "smallSystem": "サンデーサイレンス",
-        "omoshiro": "dmec",
-        "migoto": "ikec",
         "ancestors": [
           "a:3373",
           "a:3054",
@@ -7816,8 +7548,6 @@
         "color": "鹿毛",
         "bigSystem": "Ro",
         "smallSystem": "サンデーサイレンス",
-        "omoshiro": "defe",
-        "migoto": "ijek",
         "ancestors": [
           "st:1",
           "a:3314",
@@ -7874,8 +7604,6 @@
         "color": "青鹿",
         "bigSystem": "Ne",
         "smallSystem": "サドラーズウェルズ",
-        "omoshiro": "eedc",
-        "migoto": "femm",
         "ancestors": [
           "st:w-34",
           "a:2898",
@@ -7932,8 +7660,6 @@
         "color": "芦毛",
         "bigSystem": "Na",
         "smallSystem": "ミスタープロスペクター",
-        "omoshiro": "fccf",
-        "migoto": "mcnm",
         "ancestors": [
           "a:2684",
           "a:2271",
@@ -7990,8 +7716,6 @@
         "color": "鹿毛",
         "bigSystem": "Na",
         "smallSystem": "ミスタープロスペクター",
-        "omoshiro": "fede",
-        "migoto": "eece",
         "ancestors": [
           "st:9",
           "a:3175",
@@ -8048,8 +7772,6 @@
         "color": "鹿毛",
         "bigSystem": "Na",
         "smallSystem": "ミスタープロスペクター",
-        "omoshiro": "fidc",
-        "migoto": "eihf",
         "ancestors": [
           "a:3061",
           "a:2974",
@@ -8106,8 +7828,6 @@
         "color": "鹿毛",
         "bigSystem": "Na",
         "smallSystem": "ミスタープロスペクター",
-        "omoshiro": "fefe",
-        "migoto": "mehc",
         "ancestors": [
           "a:900",
           "a:984",
@@ -8164,8 +7884,6 @@
         "color": "鹿毛",
         "bigSystem": "Na",
         "smallSystem": "ミスタープロスペクター",
-        "omoshiro": "feed",
-        "migoto": "ceik",
         "ancestors": [
           "a:1048",
           "a:3167",
@@ -8222,8 +7940,6 @@
         "color": "青鹿",
         "bigSystem": "Na",
         "smallSystem": "ミスタープロスペクター",
-        "omoshiro": "fede",
-        "migoto": "eece",
         "ancestors": [
           "st:9",
           "a:3364",
@@ -8280,8 +7996,6 @@
         "color": "鹿毛",
         "bigSystem": "Ro",
         "smallSystem": "サンデーサイレンス",
-        "omoshiro": "dede",
-        "migoto": "ijbc",
         "ancestors": [
           "st:1",
           "a:3037",
@@ -8338,8 +8052,6 @@
         "color": "青鹿",
         "bigSystem": "Ro",
         "smallSystem": "サンデーサイレンス",
-        "omoshiro": "deec",
-        "migoto": "ijge",
         "ancestors": [
           "st:1",
           "a:3407",
@@ -8396,8 +8108,6 @@
         "color": "鹿毛",
         "bigSystem": "Ne",
         "smallSystem": "サドラーズウェルズ",
-        "omoshiro": "ebec",
-        "migoto": "dbmg",
         "ancestors": [
           "a:2924",
           "a:3349",
@@ -8454,8 +8164,6 @@
         "color": "黒鹿",
         "bigSystem": "Ro",
         "smallSystem": "ヘイロー",
-        "omoshiro": "deec",
-        "migoto": "kkcm",
         "ancestors": [
           "a:3116",
           "a:3199",
@@ -8512,8 +8220,6 @@
         "color": "鹿毛",
         "bigSystem": "Na",
         "smallSystem": "ミスタープロスペクター",
-        "omoshiro": "fced",
-        "migoto": "ecka",
         "ancestors": [
           "st:31",
           "a:2848",
@@ -8570,8 +8276,6 @@
         "color": "鹿毛",
         "bigSystem": "Ro",
         "smallSystem": "サンデーサイレンス",
-        "omoshiro": "deke",
-        "migoto": "ijjj",
         "ancestors": [
           "st:1",
           "bm:56",
@@ -8628,8 +8332,6 @@
         "color": "黒鹿",
         "bigSystem": "Sw",
         "smallSystem": "ブランドフォード",
-        "omoshiro": "jkee",
-        "migoto": "okii",
         "ancestors": [
           "st:w-54",
           "a:1803",
@@ -8686,8 +8388,6 @@
         "color": "鹿毛",
         "bigSystem": "Na",
         "smallSystem": "ミスタープロスペクター",
-        "omoshiro": "feee",
-        "migoto": "hhmk",
         "ancestors": [
           "a:3074",
           "a:3492",
@@ -8744,8 +8444,6 @@
         "color": "鹿毛",
         "bigSystem": "Ne",
         "smallSystem": "ダンチヒ",
-        "omoshiro": "eefe",
-        "migoto": "iccm",
         "ancestors": [
           "a:1437",
           "a:828",
@@ -8802,8 +8500,6 @@
         "color": "鹿毛",
         "bigSystem": "Ne",
         "smallSystem": "ダンチヒ",
-        "omoshiro": "eeed",
-        "migoto": "idff",
         "ancestors": [
           "a:452",
           "a:2051",
@@ -8860,8 +8556,6 @@
         "color": "鹿毛",
         "bigSystem": "Ro",
         "smallSystem": "サンデーサイレンス",
-        "omoshiro": "dfeb",
-        "migoto": "imdj",
         "ancestors": [
           "st:88",
           "a:3246",
@@ -8918,8 +8612,6 @@
         "color": "栗毛",
         "bigSystem": "Ne",
         "smallSystem": "ストームキャット",
-        "omoshiro": "eccf",
-        "migoto": "cdme",
         "ancestors": [
           "a:1089",
           "a:254",
@@ -8976,8 +8668,6 @@
         "color": "黒鹿",
         "bigSystem": "Ma",
         "smallSystem": "インテント",
-        "omoshiro": "ndcf",
-        "migoto": "hfkc",
         "ancestors": [
           "a:2897",
           "a:2921",
@@ -9034,8 +8724,6 @@
         "color": "黒鹿",
         "bigSystem": "Na",
         "smallSystem": "ミスタープロスペクター",
-        "omoshiro": "fcec",
-        "migoto": "chad",
         "ancestors": [
           "a:1116",
           "a:1796",
@@ -9092,8 +8780,6 @@
         "color": "栗毛",
         "bigSystem": "Na",
         "smallSystem": "ミスタープロスペクター",
-        "omoshiro": "ficj",
-        "migoto": "mcmm",
         "ancestors": [
           "a:2990",
           "a:2911",
@@ -9150,8 +8836,6 @@
         "color": "鹿毛",
         "bigSystem": "Ro",
         "smallSystem": "サンデーサイレンス",
-        "omoshiro": "dfce",
-        "migoto": "ifhk",
         "ancestors": [
           "a:2997",
           "a:3144",
@@ -9208,8 +8892,6 @@
         "color": "栗毛",
         "bigSystem": "Ne",
         "smallSystem": "ダンチヒ",
-        "omoshiro": "ekif",
-        "migoto": "ncjm",
         "ancestors": [
           "a:432",
           "a:511",
@@ -9266,8 +8948,6 @@
         "color": "鹿毛",
         "bigSystem": "Ro",
         "smallSystem": "サンデーサイレンス",
-        "omoshiro": "dkme",
-        "migoto": "ikmm",
         "ancestors": [
           "st:22",
           "a:3163",
@@ -9324,8 +9004,6 @@
         "color": "栗毛",
         "bigSystem": "Ne",
         "smallSystem": "ストームキャット",
-        "omoshiro": "eide",
-        "migoto": "bidc",
         "ancestors": [
           "a:3422",
           "a:3203",
@@ -9382,8 +9060,6 @@
         "color": "黒鹿",
         "bigSystem": "Ne",
         "smallSystem": "リファール",
-        "omoshiro": "egfc",
-        "migoto": "dgkm",
         "ancestors": [
           "a:3335",
           "a:3271",
@@ -9440,8 +9116,6 @@
         "color": "鹿毛",
         "bigSystem": "Ne",
         "smallSystem": "ダンチヒ",
-        "omoshiro": "eofc",
-        "migoto": "doik",
         "ancestors": [
           "a:573",
           "a:426",
@@ -9498,8 +9172,6 @@
         "color": "黒鹿",
         "bigSystem": "Ne",
         "smallSystem": "ダンチヒ",
-        "omoshiro": "ehde",
-        "migoto": "khen",
         "ancestors": [
           "a:3087",
           "a:3086",
@@ -9556,8 +9228,6 @@
         "color": "青鹿",
         "bigSystem": "Ne",
         "smallSystem": "リファール",
-        "omoshiro": "edef",
-        "migoto": "ddce",
         "ancestors": [
           "a:2960",
           "a:3262",
@@ -9614,8 +9284,6 @@
         "color": "青毛",
         "bigSystem": "Ro",
         "smallSystem": "サンデーサイレンス",
-        "omoshiro": "dmee",
-        "migoto": "ikco",
         "ancestors": [
           "a:3373",
           "a:3417",
@@ -9672,8 +9340,6 @@
         "color": "鹿毛",
         "bigSystem": "He",
         "smallSystem": "マイバブー",
-        "omoshiro": "oecm",
-        "migoto": "dckm",
         "ancestors": [
           "a:3177",
           "a:2935",
@@ -9730,8 +9396,6 @@
         "color": "栗毛",
         "bigSystem": "Ne",
         "smallSystem": "サドラーズウェルズ",
-        "omoshiro": "efcm",
-        "migoto": "diig",
         "ancestors": [
           "st:w-2",
           "a:1454",
@@ -9788,8 +9452,6 @@
         "color": "鹿毛",
         "bigSystem": "Ro",
         "smallSystem": "サンデーサイレンス",
-        "omoshiro": "dcei",
-        "migoto": "ieie",
         "ancestors": [
           "st:14",
           "a:3099",
@@ -9846,8 +9508,6 @@
         "color": "鹿毛",
         "bigSystem": "Ro",
         "smallSystem": "サンデーサイレンス",
-        "omoshiro": "deed",
-        "migoto": "iekk",
         "ancestors": [
           "st:37",
           "a:3414",
@@ -9904,8 +9564,6 @@
         "color": "鹿毛",
         "bigSystem": "Ne",
         "smallSystem": "ダンチヒ",
-        "omoshiro": "eefe",
-        "migoto": "ecmf",
         "ancestors": [
           "a:1204",
           "a:873",
@@ -9962,8 +9620,6 @@
         "color": "鹿毛",
         "bigSystem": "Ne",
         "smallSystem": "ノーザンダンサー",
-        "omoshiro": "edbc",
-        "migoto": "idka",
         "ancestors": [
           "a:867",
           "a:648",
@@ -10020,8 +9676,6 @@
         "color": "鹿毛",
         "bigSystem": "Na",
         "smallSystem": "ミスタープロスペクター",
-        "omoshiro": "fgce",
-        "migoto": "emfc",
         "ancestors": [
           "a:2099",
           "a:3088",
@@ -10078,8 +9732,6 @@
         "color": "鹿毛",
         "bigSystem": "Ns",
         "smallSystem": "プリンスリーギフト",
-        "omoshiro": "ckcg",
-        "migoto": "gjin",
         "ancestors": [
           "a:3276",
           "a:3478",
@@ -10136,8 +9788,6 @@
         "color": "鹿毛",
         "bigSystem": "Ne",
         "smallSystem": "ダンチヒ",
-        "omoshiro": "eofi",
-        "migoto": "doik",
         "ancestors": [
           "a:573",
           "a:2696",
@@ -10197,8 +9847,6 @@
         "color": null,
         "bigSystem": "Ro",
         "smallSystem": "サンデーサイレンス",
-        "omoshiro": "dkoe",
-        "migoto": "iejc",
         "ancestors": [
           "st:22",
           "a:3338",
@@ -10256,8 +9904,6 @@
         "color": null,
         "bigSystem": "Ne",
         "smallSystem": "サドラーズウェルズ",
-        "omoshiro": "edfi",
-        "migoto": "fkhj",
         "ancestors": [
           "a:122",
           "a:2696",
@@ -10316,8 +9962,6 @@
         "color": null,
         "bigSystem": "Na",
         "smallSystem": "ミスタープロスペクター",
-        "omoshiro": "fece",
-        "migoto": "hbdk",
         "ancestors": [
           "a:40",
           "a:2835",
@@ -10376,8 +10020,6 @@
         "color": null,
         "bigSystem": "Na",
         "smallSystem": "ミスタープロスペクター",
-        "omoshiro": "fkcc",
-        "migoto": "mbeo",
         "ancestors": [
           "a:3731",
           "a:3732",
@@ -10436,8 +10078,6 @@
         "color": null,
         "bigSystem": "Na",
         "smallSystem": "ミスタープロスペクター",
-        "omoshiro": "fgef",
-        "migoto": "ecch",
         "ancestors": [
           "a:1966",
           "a:1501",
@@ -10496,8 +10136,6 @@
         "color": null,
         "bigSystem": "Ne",
         "smallSystem": "ストームキャット",
-        "omoshiro": "efed",
-        "migoto": "dcme",
         "ancestors": [
           "a:1174",
           "a:3546",
@@ -10556,8 +10194,6 @@
         "color": null,
         "bigSystem": "Na",
         "smallSystem": "ミスタープロスペクター",
-        "omoshiro": "fcec",
-        "migoto": "chch",
         "ancestors": [
           "a:1116",
           "a:2343",
@@ -10616,8 +10252,6 @@
         "color": null,
         "bigSystem": "He",
         "smallSystem": "マイバブー",
-        "omoshiro": "obdg",
-        "migoto": "kikm",
         "ancestors": [
           "a:183",
           "a:3059",
@@ -10675,8 +10309,6 @@
         "color": null,
         "bigSystem": "Ns",
         "smallSystem": "ゼダーン",
-        "omoshiro": "cakn",
-        "migoto": "mmcg",
         "ancestors": [
           "a:2943",
           "a:2293",
@@ -10734,8 +10366,6 @@
         "color": null,
         "bigSystem": "Ne",
         "smallSystem": "ダンチヒ",
-        "omoshiro": "effe",
-        "migoto": "dmec",
         "ancestors": [
           "a:1299",
           "a:2827",
@@ -10794,8 +10424,6 @@
         "color": null,
         "bigSystem": "Ne",
         "smallSystem": "ストームキャット",
-        "omoshiro": "efec",
-        "migoto": "iene",
         "ancestors": [
           "a:2254",
           "a:3552",
@@ -10854,8 +10482,6 @@
         "color": null,
         "bigSystem": "Na",
         "smallSystem": "ミスタープロスペクター",
-        "omoshiro": "fcef",
-        "migoto": "kcce",
         "ancestors": [
           "st:w-4",
           "a:3770",
@@ -10914,8 +10540,6 @@
         "color": null,
         "bigSystem": "Ne",
         "smallSystem": "ストームキャット",
-        "omoshiro": "ecfl",
-        "migoto": "cdni",
         "ancestors": [
           "a:1089",
           "a:3771",
@@ -10974,8 +10598,6 @@
         "color": null,
         "bigSystem": "Ro",
         "smallSystem": "ヘイロー",
-        "omoshiro": "dfml",
-        "migoto": "klok",
         "ancestors": [
           "a:805",
           "a:2569",
@@ -11033,8 +10655,6 @@
         "color": null,
         "bigSystem": "Ne",
         "smallSystem": "ダンチヒ",
-        "omoshiro": "emfm",
-        "migoto": "ihik",
         "ancestors": [
           "a:763",
           "a:2073",
@@ -11093,8 +10713,6 @@
         "color": null,
         "bigSystem": "Ne",
         "smallSystem": "ストームキャット",
-        "omoshiro": "effk",
-        "migoto": "ieee",
         "ancestors": [
           "a:2254",
           "a:3785",
@@ -11153,8 +10771,6 @@
         "color": null,
         "bigSystem": "Na",
         "smallSystem": "ミスタープロスペクター",
-        "omoshiro": "feef",
-        "migoto": "cdcc",
         "ancestors": [
           "a:898",
           "a:3788",
@@ -11213,8 +10829,6 @@
         "color": null,
         "bigSystem": "Ne",
         "smallSystem": "ダンチヒ",
-        "omoshiro": "eifk",
-        "migoto": "fgem",
         "ancestors": [
           "a:34",
           "a:2450",
@@ -11273,8 +10887,6 @@
         "color": null,
         "bigSystem": "Ns",
         "smallSystem": "レッドゴッド",
-        "omoshiro": "cjef",
-        "migoto": "mgkd",
         "ancestors": [
           "a:1770",
           "a:1710",
@@ -11332,8 +10944,6 @@
         "color": null,
         "bigSystem": "Ne",
         "smallSystem": "ヴァイスリージェント",
-        "omoshiro": "ecnh",
-        "migoto": "nfjb",
         "ancestors": [
           "a:364",
           "a:369",
@@ -11392,8 +11002,6 @@
         "color": null,
         "bigSystem": "Na",
         "smallSystem": "ミスタープロスペクター",
-        "omoshiro": "fceb",
-        "migoto": "eedo",
         "ancestors": [
           "st:w-3",
           "a:3798",
@@ -11452,8 +11060,6 @@
         "color": null,
         "bigSystem": "Ne",
         "smallSystem": "ダンチヒ",
-        "omoshiro": "emed",
-        "migoto": "ihlo",
         "ancestors": [
           "a:763",
           "a:3800",
@@ -11512,8 +11118,6 @@
         "color": null,
         "bigSystem": "Ne",
         "smallSystem": "ストームキャット",
-        "omoshiro": "effc",
-        "migoto": "cgdf",
         "ancestors": [
           "a:3805",
           "a:3806",
@@ -11572,8 +11176,6 @@
         "color": null,
         "bigSystem": "Ns",
         "smallSystem": "ボールドルーラー",
-        "omoshiro": "cffe",
-        "migoto": "feej",
         "ancestors": [
           "a:2563",
           "a:3815",
@@ -11632,8 +11234,6 @@
         "color": null,
         "bigSystem": "Ne",
         "smallSystem": "ストームキャット",
-        "omoshiro": "efem",
-        "migoto": "ienn",
         "ancestors": [
           "a:2254",
           "a:3819",
@@ -11691,8 +11291,6 @@
         "color": null,
         "bigSystem": "Ro",
         "smallSystem": "サンデーサイレンス",
-        "omoshiro": "defc",
-        "migoto": "iebd",
         "ancestors": [
           "st:37",
           "a:3823",
@@ -11750,8 +11348,6 @@
         "color": null,
         "bigSystem": "Ne",
         "smallSystem": "サドラーズウェルズ",
-        "omoshiro": "ebfe",
-        "migoto": "djec",
         "ancestors": [
           "a:1706",
           "a:2564",
@@ -11810,8 +11406,6 @@
         "color": null,
         "bigSystem": "Ro",
         "smallSystem": "ロベルト",
-        "omoshiro": "dcmi",
-        "migoto": "lika",
         "ancestors": [
           "a:115",
           "a:1366",
@@ -11869,8 +11463,6 @@
         "color": null,
         "bigSystem": "Ne",
         "smallSystem": "サドラーズウェルズ",
-        "omoshiro": "efek",
-        "migoto": "dioh",
         "ancestors": [
           "st:w-2",
           "a:3831",
@@ -11929,8 +11521,6 @@
         "color": null,
         "bigSystem": "Na",
         "smallSystem": "ミスタープロスペクター",
-        "omoshiro": "fcee",
-        "migoto": "eefc",
         "ancestors": [
           "st:w-3",
           "a:3836",
@@ -11989,8 +11579,6 @@
         "color": null,
         "bigSystem": "Ns",
         "smallSystem": "グレイソヴリン",
-        "omoshiro": "cede",
-        "migoto": "kced",
         "ancestors": [
           "a:1286",
           "a:3842",
@@ -12049,8 +11637,6 @@
         "color": null,
         "bigSystem": "Na",
         "smallSystem": "ミスタープロスペクター",
-        "omoshiro": "fedf",
-        "migoto": "gffe",
         "ancestors": [
           "st:w-5",
           "a:1046",
@@ -12108,8 +11694,6 @@
         "color": null,
         "bigSystem": "Ne",
         "smallSystem": "ストームキャット",
-        "omoshiro": "efec",
-        "migoto": "cgcj",
         "ancestors": [
           "a:3805",
           "a:3846",
@@ -12168,8 +11752,6 @@
         "color": null,
         "bigSystem": "Ne",
         "smallSystem": "サドラーズウェルズ",
-        "omoshiro": "efec",
-        "migoto": "dimm",
         "ancestors": [
           "st:w-2",
           "a:1380",
@@ -12228,8 +11810,6 @@
         "color": null,
         "bigSystem": "Ns",
         "smallSystem": "ボールドルーラー",
-        "omoshiro": "cfec",
-        "migoto": "fend",
         "ancestors": [
           "a:2563",
           "a:3850",
@@ -12288,8 +11868,6 @@
         "color": null,
         "bigSystem": "Ne",
         "smallSystem": "ストームキャット",
-        "omoshiro": "emcc",
-        "migoto": "bnae",
         "ancestors": [
           "st:27",
           "a:3436",
@@ -12347,8 +11925,6 @@
         "color": null,
         "bigSystem": "Na",
         "smallSystem": "ミスタープロスペクター",
-        "omoshiro": "fded",
-        "migoto": "ckni",
         "ancestors": [
           "a:2385",
           "a:2322",
@@ -12407,8 +11983,6 @@
         "color": null,
         "bigSystem": "Ne",
         "smallSystem": "ノーザンダンサー",
-        "omoshiro": "eihm",
-        "migoto": "fbna",
         "ancestors": [
           "a:88",
           "a:3035",
@@ -12466,8 +12040,6 @@
         "color": null,
         "bigSystem": "Ne",
         "smallSystem": "サドラーズウェルズ",
-        "omoshiro": "eeee",
-        "migoto": "edfi",
         "ancestors": [
           "a:3865",
           "a:3866",
@@ -12526,8 +12098,6 @@
         "color": null,
         "bigSystem": "Ne",
         "smallSystem": "ノーザンダンサー",
-        "omoshiro": "eofe",
-        "migoto": "ccdb",
         "ancestors": [
           "a:224",
           "a:1648",
@@ -12586,8 +12156,6 @@
         "color": null,
         "bigSystem": "Na",
         "smallSystem": "ミスタープロスペクター",
-        "omoshiro": "febe",
-        "migoto": "eogm",
         "ancestors": [
           "a:1261",
           "a:3879",
@@ -12646,8 +12214,6 @@
         "color": null,
         "bigSystem": "Na",
         "smallSystem": "ネイティヴダンサー",
-        "omoshiro": "fcnc",
-        "migoto": "naga",
         "ancestors": [
           "a:3140",
           "a:3334",
@@ -12705,8 +12271,6 @@
         "color": null,
         "bigSystem": "Ne",
         "smallSystem": "ノーザンダンサー",
-        "omoshiro": "eofe",
-        "migoto": "ccdk",
         "ancestors": [
           "a:224",
           "a:3887",
@@ -12765,8 +12329,6 @@
         "color": null,
         "bigSystem": "Ne",
         "smallSystem": "サドラーズウェルズ",
-        "omoshiro": "efee",
-        "migoto": "dico",
         "ancestors": [
           "st:w-2",
           "a:1634",
@@ -12825,8 +12387,6 @@
         "color": null,
         "bigSystem": "Na",
         "smallSystem": "ミスタープロスペクター",
-        "omoshiro": "fech",
-        "migoto": "cmmd",
         "ancestors": [
           "a:68",
           "a:617",
@@ -12885,8 +12445,6 @@
         "color": null,
         "bigSystem": "Ne",
         "smallSystem": "ストームキャット",
-        "omoshiro": "eefc",
-        "migoto": "fdec",
         "ancestors": [
           "st:w-6",
           "a:3893",
@@ -12944,8 +12502,6 @@
         "color": null,
         "bigSystem": "Ne",
         "smallSystem": "ノーザンダンサー",
-        "omoshiro": "emff",
-        "migoto": "ckec",
         "ancestors": [
           "a:1604",
           "a:3899",
@@ -13003,8 +12559,6 @@
         "color": null,
         "bigSystem": "Ns",
         "smallSystem": "レッドゴッド",
-        "omoshiro": "cekm",
-        "migoto": "dmeh",
         "ancestors": [
           "a:1846",
           "a:1602",
@@ -13063,8 +12617,6 @@
         "color": null,
         "bigSystem": "Ne",
         "smallSystem": "ヴァイスリージェント",
-        "omoshiro": "ecnc",
-        "migoto": "nfee",
         "ancestors": [
           "a:364",
           "a:3906",
@@ -13123,8 +12675,6 @@
         "color": null,
         "bigSystem": "Ro",
         "smallSystem": "サンデーサイレンス",
-        "omoshiro": "deee",
-        "migoto": "ijfo",
         "ancestors": [
           "st:1",
           "a:3907",
@@ -13183,8 +12733,6 @@
         "color": null,
         "bigSystem": "Na",
         "smallSystem": "ミスタープロスペクター",
-        "omoshiro": "fdce",
-        "migoto": "efef",
         "ancestors": [
           "st:89",
           "a:3208",
@@ -13242,8 +12790,6 @@
         "color": null,
         "bigSystem": "Ne",
         "smallSystem": "ダンチヒ",
-        "omoshiro": "ehkg",
-        "migoto": "fkmj",
         "ancestors": [
           "a:3910",
           "a:3911",
@@ -13302,8 +12848,6 @@
         "color": null,
         "bigSystem": "Ne",
         "smallSystem": "サドラーズウェルズ",
-        "omoshiro": "efec",
-        "migoto": "dicd",
         "ancestors": [
           "st:w-2",
           "a:3925",
@@ -13362,8 +12906,6 @@
         "color": null,
         "bigSystem": "Sw",
         "smallSystem": "ブランドフォード",
-        "omoshiro": "jokk",
-        "migoto": "a?ii",
         "ancestors": [
           "a:1394",
           "a:1720",
@@ -13422,8 +12964,6 @@
         "color": null,
         "bigSystem": "Na",
         "smallSystem": "ミスタープロスペクター",
-        "omoshiro": "fece",
-        "migoto": "gmff",
         "ancestors": [
           "a:3082",
           "a:3933",
@@ -13484,8 +13024,6 @@
         "color": "鹿毛",
         "bigSystem": "Ne",
         "smallSystem": "リファール",
-        "omoshiro": "edcm",
-        "migoto": null,
         "ancestors": [
           "a:2960",
           "a:3306",
@@ -13539,8 +13077,6 @@
         "color": "鹿毛",
         "bigSystem": "Ne",
         "smallSystem": "ノーザンダンサー",
-        "omoshiro": "efce",
-        "migoto": null,
         "ancestors": [
           "st:w-2",
           "a:1532",
@@ -13594,8 +13130,6 @@
         "color": "鹿毛",
         "bigSystem": "Na",
         "smallSystem": "ミスタープロスペクター",
-        "omoshiro": "fede",
-        "migoto": null,
         "ancestors": [
           "st:11",
           "a:3291",
@@ -13649,8 +13183,6 @@
         "color": "青鹿毛",
         "bigSystem": "Ro",
         "smallSystem": "ロベルト",
-        "omoshiro": "defe",
-        "migoto": null,
         "ancestors": [
           "a:3507",
           "a:685",
@@ -13704,8 +13236,6 @@
         "color": "栃栗毛",
         "bigSystem": "Ns",
         "smallSystem": "ボールドルーラー",
-        "omoshiro": "cfef",
-        "migoto": null,
         "ancestors": [
           "a:3508",
           "a:779",
@@ -13759,8 +13289,6 @@
         "color": "黒鹿毛",
         "bigSystem": "Ns",
         "smallSystem": "ボールドルーラー",
-        "omoshiro": "cfef",
-        "migoto": null,
         "ancestors": [
           "a:206",
           "a:1561",
@@ -13814,8 +13342,6 @@
         "color": "鹿毛",
         "bigSystem": "Ns",
         "smallSystem": "プリンスリーギフト",
-        "omoshiro": "cece",
-        "migoto": null,
         "ancestors": [
           "st:20",
           "a:2922",
@@ -13869,8 +13395,6 @@
         "color": "鹿毛",
         "bigSystem": "Sw",
         "smallSystem": "ブランドフォード",
-        "omoshiro": "jnee",
-        "migoto": null,
         "ancestors": [
           "a:1737",
           "a:2822",
@@ -13924,8 +13448,6 @@
         "color": "黒鹿毛",
         "bigSystem": "Ne",
         "smallSystem": "ノーザンダンサー",
-        "omoshiro": "efce",
-        "migoto": null,
         "ancestors": [
           "a:1724",
           "a:2621",
@@ -13979,8 +13501,6 @@
         "color": "黒鹿",
         "bigSystem": "Ro",
         "smallSystem": "サンデーサイレンス",
-        "omoshiro": "deed",
-        "migoto": null,
         "ancestors": [
           "a:3092",
           "a:3267",
@@ -14034,8 +13554,6 @@
         "color": "黒鹿",
         "bigSystem": "Ne",
         "smallSystem": "ダンチヒ",
-        "omoshiro": "eobj",
-        "migoto": null,
         "ancestors": [
           "a:573",
           "a:2801",
@@ -14089,8 +13607,6 @@
         "color": "黒鹿",
         "bigSystem": "Ns",
         "smallSystem": "レッドゴッド",
-        "omoshiro": "cece",
-        "migoto": null,
         "ancestors": [
           "st:w-19",
           "a:2947",
@@ -14144,8 +13660,6 @@
         "color": "鹿毛",
         "bigSystem": "Sw",
         "smallSystem": "ブランドフォード",
-        "omoshiro": "jkce",
-        "migoto": null,
         "ancestors": [
           "st:w-54",
           "a:2247",
@@ -14199,8 +13713,6 @@
         "color": "栗毛",
         "bigSystem": "Ha",
         "smallSystem": "ハイペリオン",
-        "omoshiro": "kekf",
-        "migoto": null,
         "ancestors": [
           "a:2632",
           "a:2658",
@@ -14254,8 +13766,6 @@
         "color": "鹿毛",
         "bigSystem": "Ne",
         "smallSystem": "ダンチヒ",
-        "omoshiro": "efee",
-        "migoto": null,
         "ancestors": [
           "st:w-10",
           "a:332",
@@ -14309,8 +13819,6 @@
         "color": "黒鹿",
         "bigSystem": "Ne",
         "smallSystem": "ノーザンダンサー",
-        "omoshiro": "efco",
-        "migoto": null,
         "ancestors": [
           "a:1142",
           "a:1550",
@@ -14364,8 +13872,6 @@
         "color": "鹿毛",
         "bigSystem": "Na",
         "smallSystem": "ミスタープロスペクター",
-        "omoshiro": "feec",
-        "migoto": null,
         "ancestors": [
           "a:900",
           "a:2413",
@@ -14419,8 +13925,6 @@
         "color": "鹿毛",
         "bigSystem": "Ns",
         "smallSystem": "フォルティノ",
-        "omoshiro": "ckib",
-        "migoto": null,
         "ancestors": [
           "a:1841",
           "a:1405",
@@ -14474,8 +13978,6 @@
         "color": "栗毛",
         "bigSystem": "Na",
         "smallSystem": "ミスタープロスペクター",
-        "omoshiro": "feef",
-        "migoto": null,
         "ancestors": [
           "a:827",
           "a:857",
@@ -14529,8 +14031,6 @@
         "color": "鹿毛",
         "bigSystem": "Ro",
         "smallSystem": "サンデーサイレンス",
-        "omoshiro": "dodj",
-        "migoto": null,
         "ancestors": [
           "st:32",
           "a:3496",
@@ -14584,8 +14084,6 @@
         "color": "鹿毛",
         "bigSystem": "Ro",
         "smallSystem": "サンデーサイレンス",
-        "omoshiro": "dmek",
-        "migoto": null,
         "ancestors": [
           "a:3292",
           "bm:n-1",
@@ -14639,8 +14137,6 @@
         "color": "栗毛",
         "bigSystem": "Ne",
         "smallSystem": "ダンチヒ",
-        "omoshiro": "ecec",
-        "migoto": null,
         "ancestors": [
           "a:2361",
           "a:2481",
@@ -14694,8 +14190,6 @@
         "color": "鹿毛",
         "bigSystem": "Ne",
         "smallSystem": "ダンチヒ",
-        "omoshiro": "eccc",
-        "migoto": null,
         "ancestors": [
           "a:2361",
           "a:1023",
@@ -14749,8 +14243,6 @@
         "color": "青鹿",
         "bigSystem": "Na",
         "smallSystem": "レイズアネイティヴ",
-        "omoshiro": "foee",
-        "migoto": null,
         "ancestors": [
           "a:2164",
           "a:340",
@@ -14804,8 +14296,6 @@
         "color": "芦毛",
         "bigSystem": "Ns",
         "smallSystem": "ボールドルーラー",
-        "omoshiro": "cffm",
-        "migoto": null,
         "ancestors": [
           "a:2563",
           "a:2136",
@@ -14859,8 +14349,6 @@
         "color": "黒鹿",
         "bigSystem": "Na",
         "smallSystem": "ミスタープロスペクター",
-        "omoshiro": "fede",
-        "migoto": null,
         "ancestors": [
           "st:9",
           "a:3162",
@@ -14914,8 +14402,6 @@
         "color": "鹿毛",
         "bigSystem": "Ne",
         "smallSystem": "ダンチヒ",
-        "omoshiro": "efee",
-        "migoto": null,
         "ancestors": [
           "st:w-10",
           "a:2423",
@@ -14969,8 +14455,6 @@
         "color": "鹿毛",
         "bigSystem": "Ro",
         "smallSystem": "サンデーサイレンス",
-        "omoshiro": "dece",
-        "migoto": null,
         "ancestors": [
           "st:1",
           "a:2899",
@@ -15024,8 +14508,6 @@
         "color": "鹿毛",
         "bigSystem": "Ro",
         "smallSystem": "サンデーサイレンス",
-        "omoshiro": "deee",
-        "migoto": null,
         "ancestors": [
           "st:1",
           "a:3194",
@@ -15079,8 +14561,6 @@
         "color": "黒鹿毛",
         "bigSystem": "Ns",
         "smallSystem": "ボールドルーラー",
-        "omoshiro": "cmlm",
-        "migoto": null,
         "ancestors": [
           "a:911",
           "a:1134",
@@ -15134,8 +14614,6 @@
         "color": "栗毛",
         "bigSystem": "Ns",
         "smallSystem": "プリンスリーギフト",
-        "omoshiro": "cefd",
-        "migoto": null,
         "ancestors": [
           "st:20",
           "a:3143",
@@ -15189,8 +14667,6 @@
         "color": "鹿毛",
         "bigSystem": "Ne",
         "smallSystem": "ノーザンダンサー",
-        "omoshiro": "efem",
-        "migoto": null,
         "ancestors": [
           "st:w-27",
           "a:517",
@@ -15244,8 +14720,6 @@
         "color": "鹿毛",
         "bigSystem": "Ro",
         "smallSystem": "サンデーサイレンス",
-        "omoshiro": "dcee",
-        "migoto": null,
         "ancestors": [
           "st:14",
           "a:3480",
@@ -15299,8 +14773,6 @@
         "color": "栗毛",
         "bigSystem": "Na",
         "smallSystem": "ミスタープロスペクター",
-        "omoshiro": "fice",
-        "migoto": null,
         "ancestors": [
           "a:2865",
           "a:2903",
@@ -15354,8 +14826,6 @@
         "color": "鹿毛",
         "bigSystem": "Ns",
         "smallSystem": "グレイソヴリン",
-        "omoshiro": "ckee",
-        "migoto": null,
         "ancestors": [
           "a:1841",
           "a:848",
@@ -15409,8 +14879,6 @@
         "color": "鹿毛",
         "bigSystem": "Na",
         "smallSystem": "ミスタープロスペクター",
-        "omoshiro": "fcee",
-        "migoto": null,
         "ancestors": [
           "a:563",
           "a:923",
@@ -15464,8 +14932,6 @@
         "color": "栗毛",
         "bigSystem": "Ro",
         "smallSystem": "ロベルト",
-        "omoshiro": "dfem",
-        "migoto": null,
         "ancestors": [
           "a:1296",
           "a:2672",
@@ -15519,8 +14985,6 @@
         "color": "栗毛",
         "bigSystem": "Sw",
         "smallSystem": "ブランドフォード",
-        "omoshiro": "jkee",
-        "migoto": null,
         "ancestors": [
           "st:w-54",
           "a:2258",
@@ -15574,8 +15038,6 @@
         "color": "鹿毛",
         "bigSystem": "Na",
         "smallSystem": "ミスタープロスペクター",
-        "omoshiro": "fede",
-        "migoto": null,
         "ancestors": [
           "st:9",
           "a:3391",
@@ -15629,8 +15091,6 @@
         "color": "栗毛",
         "bigSystem": "Ro",
         "smallSystem": "ヘイロー",
-        "omoshiro": "dema",
-        "migoto": null,
         "ancestors": [
           "a:2508",
           "a:2448",
@@ -15684,8 +15144,6 @@
         "color": "鹿毛",
         "bigSystem": "Ne",
         "smallSystem": "ノーザンダンサー",
-        "omoshiro": "ecfe",
-        "migoto": null,
         "ancestors": [
           "a:1969",
           "a:2608",
@@ -15739,8 +15197,6 @@
         "color": "鹿毛",
         "bigSystem": "Ro",
         "smallSystem": "サンデーサイレンス",
-        "omoshiro": "deec",
-        "migoto": null,
         "ancestors": [
           "st:1",
           "a:3258",
@@ -15794,8 +15250,6 @@
         "color": "鹿毛",
         "bigSystem": "St",
         "smallSystem": "リボー",
-        "omoshiro": "mecf",
-        "migoto": null,
         "ancestors": [
           "a:3249",
           "a:2843",
@@ -15849,8 +15303,6 @@
         "color": "鹿毛",
         "bigSystem": "Ne",
         "smallSystem": "ダンチヒ",
-        "omoshiro": "emon",
-        "migoto": null,
         "ancestors": [
           "a:763",
           "a:2216",
@@ -15904,8 +15356,6 @@
         "color": "鹿毛",
         "bigSystem": "Ne",
         "smallSystem": "ストームキャット",
-        "omoshiro": "ecem",
-        "migoto": null,
         "ancestors": [
           "a:1089",
           "a:1176",
@@ -15959,8 +15409,6 @@
         "color": "栗毛",
         "bigSystem": "Ro",
         "smallSystem": "サンデーサイレンス",
-        "omoshiro": "deee",
-        "migoto": null,
         "ancestors": [
           "st:23",
           "a:3503",
@@ -16014,8 +15462,6 @@
         "color": "鹿毛",
         "bigSystem": "Ro",
         "smallSystem": "ロベルト",
-        "omoshiro": "dfcd",
-        "migoto": null,
         "ancestors": [
           "a:1727",
           "a:1903",
@@ -16069,8 +15515,6 @@
         "color": "芦毛",
         "bigSystem": "Ne",
         "smallSystem": "ヴァイスリージェント",
-        "omoshiro": "egdf",
-        "migoto": null,
         "ancestors": [
           "st:49",
           "a:2885",
@@ -16124,8 +15568,6 @@
         "color": "栗毛",
         "bigSystem": "Te",
         "smallSystem": "ダマスカス",
-        "omoshiro": "ibdf",
-        "migoto": null,
         "ancestors": [
           "a:2904",
           "a:2902",
@@ -16179,8 +15621,6 @@
         "color": "芦毛",
         "bigSystem": "Ne",
         "smallSystem": "ダンチヒ",
-        "omoshiro": "efed",
-        "migoto": null,
         "ancestors": [
           "st:34",
           "bm:48",
@@ -16234,8 +15674,6 @@
         "color": "鹿毛",
         "bigSystem": "Ns",
         "smallSystem": "ボールドルーラー",
-        "omoshiro": "cefe",
-        "migoto": null,
         "ancestors": [
           "a:2731",
           "a:1574",
@@ -16289,8 +15727,6 @@
         "color": "鹿毛",
         "bigSystem": "Ha",
         "smallSystem": "ファイントップ",
-        "omoshiro": "kfei",
-        "migoto": null,
         "ancestors": [
           "a:3200",
           "a:3362",
@@ -16344,8 +15780,6 @@
         "color": "栗毛",
         "bigSystem": "Ne",
         "smallSystem": "ヴァイスリージェント",
-        "omoshiro": "ecci",
-        "migoto": null,
         "ancestors": [
           "a:364",
           "a:1766",
@@ -16399,8 +15833,6 @@
         "color": "鹿毛",
         "bigSystem": "Ne",
         "smallSystem": "ヴァイスリージェント",
-        "omoshiro": "emdc",
-        "migoto": null,
         "ancestors": [
           "a:3298",
           "a:3141",
@@ -16454,8 +15886,6 @@
         "color": "青毛",
         "bigSystem": "Ro",
         "smallSystem": "サンデーサイレンス",
-        "omoshiro": "dcfe",
-        "migoto": null,
         "ancestors": [
           "a:2858",
           "a:3111",
@@ -16509,8 +15939,6 @@
         "color": "栗毛",
         "bigSystem": "Ha",
         "smallSystem": "アルヒミスト",
-        "omoshiro": "kjej",
-        "migoto": null,
         "ancestors": [
           "a:221",
           "a:1585",
@@ -16564,8 +15992,6 @@
         "color": "鹿毛",
         "bigSystem": "Ro",
         "smallSystem": "ロベルト",
-        "omoshiro": "dcek",
-        "migoto": null,
         "ancestors": [
           "st:69",
           "a:3098",
@@ -16619,8 +16045,6 @@
         "color": "栗毛",
         "bigSystem": "Ne",
         "smallSystem": "ノーザンダンサー",
-        "omoshiro": "ecfd",
-        "migoto": null,
         "ancestors": [
           "a:3277",
           "a:3104",
@@ -16674,8 +16098,6 @@
         "color": "芦毛",
         "bigSystem": "Ns",
         "smallSystem": "ボールドルーラー",
-        "omoshiro": "cfem",
-        "migoto": null,
         "ancestors": [
           "a:2563",
           "a:2175",
@@ -16729,8 +16151,6 @@
         "color": "芦毛",
         "bigSystem": "Ma",
         "smallSystem": "インテント",
-        "omoshiro": "neka",
-        "migoto": null,
         "ancestors": [
           "a:3165",
           "a:347",
@@ -16784,8 +16204,6 @@
         "color": "鹿毛",
         "bigSystem": "Ro",
         "smallSystem": "サンデーサイレンス",
-        "omoshiro": "dcfe",
-        "migoto": null,
         "ancestors": [
           "st:14",
           "a:2981",
@@ -16839,8 +16257,6 @@
         "color": "鹿毛",
         "bigSystem": "St",
         "smallSystem": "リボー",
-        "omoshiro": "mkmf",
-        "migoto": null,
         "ancestors": [
           "a:3431",
           "a:2931",
@@ -16894,8 +16310,6 @@
         "color": "鹿毛",
         "bigSystem": "Ph",
         "smallSystem": "ダンテ",
-        "omoshiro": "bbjn",
-        "migoto": null,
         "ancestors": [
           "a:1967",
           "a:384",
@@ -16949,8 +16363,6 @@
         "color": "芦毛",
         "bigSystem": "Ro",
         "smallSystem": "サンデーサイレンス",
-        "omoshiro": "dccc",
-        "migoto": null,
         "ancestors": [
           "a:2844",
           "a:3469",
@@ -17004,8 +16416,6 @@
         "color": "栗毛",
         "bigSystem": "Ns",
         "smallSystem": "レッドゴッド",
-        "omoshiro": "cecn",
-        "migoto": null,
         "ancestors": [
           "a:691",
           "a:1195",
@@ -17059,8 +16469,6 @@
         "color": "青毛",
         "bigSystem": "Ro",
         "smallSystem": "サンデーサイレンス",
-        "omoshiro": "deed",
-        "migoto": null,
         "ancestors": [
           "a:3092",
           "a:2957",
@@ -17114,8 +16522,6 @@
         "color": "鹿毛",
         "bigSystem": "Ns",
         "smallSystem": "ボールドルーラー",
-        "omoshiro": "cknf",
-        "migoto": null,
         "ancestors": [
           "a:684",
           "a:566",
@@ -17169,8 +16575,6 @@
         "color": "鹿毛",
         "bigSystem": "Ne",
         "smallSystem": "ストームキャット",
-        "omoshiro": "ecfe",
-        "migoto": null,
         "ancestors": [
           "a:2468",
           "a:1703",
@@ -17224,8 +16628,6 @@
         "color": "栗毛",
         "bigSystem": "Hi",
         "smallSystem": "ヒムヤー",
-        "omoshiro": "ldde",
-        "migoto": null,
         "ancestors": [
           "a:1283",
           "a:450",
@@ -17279,8 +16681,6 @@
         "color": "鹿毛",
         "bigSystem": "Ne",
         "smallSystem": "ヴァイスリージェント",
-        "omoshiro": "emdc",
-        "migoto": null,
         "ancestors": [
           "a:3298",
           "a:2852",
@@ -17334,8 +16734,6 @@
         "color": "芦毛",
         "bigSystem": "Ne",
         "smallSystem": "ノーザンダンサー",
-        "omoshiro": "efec",
-        "migoto": null,
         "ancestors": [
           "a:1210",
           "a:251",
@@ -17389,8 +16787,6 @@
         "color": "栗毛",
         "bigSystem": "Sw",
         "smallSystem": "ブランドフォード",
-        "omoshiro": "jkck",
-        "migoto": null,
         "ancestors": [
           "st:w-54",
           "a:2743",
@@ -17444,8 +16840,6 @@
         "color": "栗毛",
         "bigSystem": "Ro",
         "smallSystem": "ロイヤルチャージャー",
-        "omoshiro": "dkgm",
-        "migoto": null,
         "ancestors": [
           "a:3091",
           "a:3145",
@@ -17499,8 +16893,6 @@
         "color": "栗毛",
         "bigSystem": "Ne",
         "smallSystem": "ストームキャット",
-        "omoshiro": "ecdf",
-        "migoto": null,
         "ancestors": [
           "a:2468",
           "a:1022",
@@ -17554,8 +16946,6 @@
         "color": "鹿毛",
         "bigSystem": "Ne",
         "smallSystem": "ヴァイスリージェント",
-        "omoshiro": "ecfi",
-        "migoto": null,
         "ancestors": [
           "a:364",
           "a:2390",
@@ -17609,8 +16999,6 @@
         "color": "栗毛",
         "bigSystem": "Ns",
         "smallSystem": "レッドゴッド",
-        "omoshiro": "cdek",
-        "migoto": null,
         "ancestors": [
           "a:106",
           "bm:224",
@@ -17664,8 +17052,6 @@
         "color": "青鹿毛",
         "bigSystem": "Ne",
         "smallSystem": "ノーザンダンサー",
-        "omoshiro": "efce",
-        "migoto": null,
         "ancestors": [
           "a:850",
           "a:2665",
@@ -17719,8 +17105,6 @@
         "color": "黒鹿毛",
         "bigSystem": "Ne",
         "smallSystem": "ストームキャット",
-        "omoshiro": "ecfe",
-        "migoto": null,
         "ancestors": [
           "a:475",
           "a:1574",
@@ -17774,8 +17158,6 @@
         "color": "鹿毛",
         "bigSystem": "Ne",
         "smallSystem": "ノーザンダンサー",
-        "omoshiro": "ecee",
-        "migoto": null,
         "ancestors": [
           "a:3277",
           "a:3126",
@@ -17829,8 +17211,6 @@
         "color": "青鹿毛",
         "bigSystem": "Ne",
         "smallSystem": "ダンチヒ",
-        "omoshiro": "ekee",
-        "migoto": null,
         "ancestors": [
           "a:2112",
           "a:1854",
@@ -17884,8 +17264,6 @@
         "color": "芦毛",
         "bigSystem": "Ne",
         "smallSystem": "ヴァイスリージェント",
-        "omoshiro": "egdk",
-        "migoto": null,
         "ancestors": [
           "st:49",
           "a:3358",
@@ -17939,8 +17317,6 @@
         "color": "黒鹿毛",
         "bigSystem": "Ne",
         "smallSystem": "ストームキャット",
-        "omoshiro": "ecde",
-        "migoto": null,
         "ancestors": [
           "a:2468",
           "a:1567",
@@ -17994,8 +17370,6 @@
         "color": "鹿毛",
         "bigSystem": "Ne",
         "smallSystem": "ノーザンダンサー",
-        "omoshiro": "ecce",
-        "migoto": null,
         "ancestors": [
           "a:2910",
           "a:3259",
@@ -18049,8 +17423,6 @@
         "color": "栗毛",
         "bigSystem": "Ro",
         "smallSystem": "サンデーサイレンス",
-        "omoshiro": "dede",
-        "migoto": null,
         "ancestors": [
           "a:2857",
           "a:3317",
@@ -18104,8 +17476,6 @@
         "color": "黒鹿毛",
         "bigSystem": "Na",
         "smallSystem": "ミスタープロスペクター",
-        "omoshiro": "fcen",
-        "migoto": null,
         "ancestors": [
           "a:1728",
           "a:1896",
@@ -18159,8 +17529,6 @@
         "color": "青毛",
         "bigSystem": "Ro",
         "smallSystem": "サンデーサイレンス",
-        "omoshiro": "dede",
-        "migoto": null,
         "ancestors": [
           "a:3092",
           "a:3278",
@@ -18214,8 +17582,6 @@
         "color": "栃栗毛",
         "bigSystem": "Na",
         "smallSystem": "ミスタープロスペクター",
-        "omoshiro": "femc",
-        "migoto": null,
         "ancestors": [
           "a:1048",
           "a:3353",
@@ -18269,8 +17635,6 @@
         "color": "鹿毛",
         "bigSystem": "Na",
         "smallSystem": "ミスタープロスペクター",
-        "omoshiro": "fcee",
-        "migoto": null,
         "ancestors": [
           "st:31",
           "a:2942",
@@ -18324,8 +17688,6 @@
         "color": "鹿毛",
         "bigSystem": "Ne",
         "smallSystem": "ヴァイスリージェント",
-        "omoshiro": "egce",
-        "migoto": null,
         "ancestors": [
           "st:49",
           "a:2899",
@@ -18379,8 +17741,6 @@
         "color": "芦毛",
         "bigSystem": "Ne",
         "smallSystem": "ノーザンダンサー",
-        "omoshiro": "efcm",
-        "migoto": null,
         "ancestors": [
           "a:3275",
           "a:1636",
@@ -18434,8 +17794,6 @@
         "color": "栗毛",
         "bigSystem": "Ne",
         "smallSystem": "ノーザンダンサー",
-        "omoshiro": "ebok",
-        "migoto": null,
         "ancestors": [
           "a:2690",
           "a:1939",
@@ -18489,8 +17847,6 @@
         "color": "鹿毛",
         "bigSystem": "Ne",
         "smallSystem": "ダンチヒ",
-        "omoshiro": "eefe",
-        "migoto": null,
         "ancestors": [
           "a:766",
           "a:1466",
@@ -18544,8 +17900,6 @@
         "color": "鹿毛",
         "bigSystem": "Na",
         "smallSystem": "ミスタープロスペクター",
-        "omoshiro": "fced",
-        "migoto": null,
         "ancestors": [
           "st:w-3",
           "a:2181",
@@ -18599,8 +17953,6 @@
         "color": "黒鹿毛",
         "bigSystem": "Ns",
         "smallSystem": "ネヴァーベンド",
-        "omoshiro": "cmbg",
-        "migoto": null,
         "ancestors": [
           "a:3389",
           "a:2940",
@@ -18654,8 +18006,6 @@
         "color": "黒鹿毛",
         "bigSystem": "Ro",
         "smallSystem": "サンデーサイレンス",
-        "omoshiro": "dece",
-        "migoto": null,
         "ancestors": [
           "st:1",
           "a:2899",
@@ -18709,8 +18059,6 @@
         "color": "芦毛",
         "bigSystem": "Na",
         "smallSystem": "ミスタープロスペクター",
-        "omoshiro": "fiec",
-        "migoto": null,
         "ancestors": [
           "a:3061",
           "a:3368",
@@ -18764,8 +18112,6 @@
         "color": "栗毛",
         "bigSystem": "Ne",
         "smallSystem": "ヴァイスリージェント",
-        "omoshiro": "emcf",
-        "migoto": null,
         "ancestors": [
           "a:3298",
           "a:2923",
@@ -18819,8 +18165,6 @@
         "color": "鹿毛",
         "bigSystem": "Na",
         "smallSystem": "ミスタープロスペクター",
-        "omoshiro": "fedc",
-        "migoto": null,
         "ancestors": [
           "a:2845",
           "a:3419",
@@ -18874,8 +18218,6 @@
         "color": "鹿毛",
         "bigSystem": "Ns",
         "smallSystem": "ボールドルーラー",
-        "omoshiro": "cfef",
-        "migoto": null,
         "ancestors": [
           "a:1580",
           "a:779",
@@ -18929,8 +18271,6 @@
         "color": "黒鹿毛",
         "bigSystem": "Ro",
         "smallSystem": "ロベルト",
-        "omoshiro": "dcde",
-        "migoto": null,
         "ancestors": [
           "a:3120",
           "a:2913",
@@ -18984,8 +18324,6 @@
         "color": "栗毛",
         "bigSystem": "Na",
         "smallSystem": "ミスタープロスペクター",
-        "omoshiro": "ffec",
-        "migoto": null,
         "ancestors": [
           "a:2410",
           "a:3085",
@@ -19039,8 +18377,6 @@
         "color": "鹿毛",
         "bigSystem": "Na",
         "smallSystem": "ミスタープロスペクター",
-        "omoshiro": "fceg",
-        "migoto": null,
         "ancestors": [
           "st:w-3",
           "a:2870",
@@ -19094,8 +18430,6 @@
         "color": "鹿毛",
         "bigSystem": "Ns",
         "smallSystem": "レッドゴッド",
-        "omoshiro": "cjec",
-        "migoto": null,
         "ancestors": [
           "st:w-48",
           "a:1034",
@@ -19149,8 +18483,6 @@
         "color": "黒鹿毛",
         "bigSystem": "Ne",
         "smallSystem": "ダンチヒ",
-        "omoshiro": "efec",
-        "migoto": null,
         "ancestors": [
           "a:764",
           "bm:190",
@@ -19204,8 +18536,6 @@
         "color": "黒鹿毛",
         "bigSystem": "Na",
         "smallSystem": "ミスタープロスペクター",
-        "omoshiro": "fcec",
-        "migoto": null,
         "ancestors": [
           "a:2684",
           "a:1680",
@@ -19259,8 +18589,6 @@
         "color": "鹿毛",
         "bigSystem": "Ro",
         "smallSystem": "ロベルト",
-        "omoshiro": "dmec",
-        "migoto": null,
         "ancestors": [
           "st:w-28",
           "a:3509",
@@ -19314,8 +18642,6 @@
         "color": "鹿毛",
         "bigSystem": "Ne",
         "smallSystem": "ストームキャット",
-        "omoshiro": "ecfe",
-        "migoto": null,
         "ancestors": [
           "a:1089",
           "a:3512",
@@ -19369,8 +18695,6 @@
         "color": "鹿毛",
         "bigSystem": "Ne",
         "smallSystem": "ストームキャット",
-        "omoshiro": "efdf",
-        "migoto": null,
         "ancestors": [
           "a:1174",
           "a:3514",
@@ -19424,8 +18748,6 @@
         "color": "鹿毛",
         "bigSystem": "Na",
         "smallSystem": "エタン",
-        "omoshiro": "fidk",
-        "migoto": null,
         "ancestors": [
           "a:817",
           "a:3517",
@@ -19479,8 +18801,6 @@
         "color": "芦毛",
         "bigSystem": "Ns",
         "smallSystem": "レッドゴッド",
-        "omoshiro": "ceed",
-        "migoto": null,
         "ancestors": [
           "st:w-19",
           "bm:48",
@@ -19534,8 +18854,6 @@
         "color": "鹿毛",
         "bigSystem": "Ne",
         "smallSystem": "ヴァイスリージェント",
-        "omoshiro": "emde",
-        "migoto": null,
         "ancestors": [
           "a:3298",
           "a:3521",
@@ -19589,8 +18907,6 @@
         "color": "鹿毛",
         "bigSystem": "Ro",
         "smallSystem": "サンデーサイレンス",
-        "omoshiro": "deoe",
-        "migoto": null,
         "ancestors": [
           "st:1",
           "a:3481",
@@ -19644,8 +18960,6 @@
         "color": "鹿毛",
         "bigSystem": "Na",
         "smallSystem": "ミスタープロスペクター",
-        "omoshiro": "fmee",
-        "migoto": null,
         "ancestors": [
           "a:862",
           "a:3524",
@@ -19699,8 +19013,6 @@
         "color": "鹿毛",
         "bigSystem": "Ne",
         "smallSystem": "ノーザンダンサー",
-        "omoshiro": "eded",
-        "migoto": null,
         "ancestors": [
           "a:1385",
           "a:3526",
@@ -19754,8 +19066,6 @@
         "color": "鹿毛",
         "bigSystem": "Ro",
         "smallSystem": "サンデーサイレンス",
-        "omoshiro": "dcce",
-        "migoto": null,
         "ancestors": [
           "a:2844",
           "a:3529",
@@ -19809,8 +19119,6 @@
         "color": "鹿毛",
         "bigSystem": "Ns",
         "smallSystem": "ボールドルーラー",
-        "omoshiro": "chme",
-        "migoto": null,
         "ancestors": [
           "a:3530",
           "a:3609",
@@ -19864,8 +19172,6 @@
         "color": "鹿毛",
         "bigSystem": "Ro",
         "smallSystem": "サンデーサイレンス",
-        "omoshiro": "deed",
-        "migoto": null,
         "ancestors": [
           "st:1",
           "a:3365",
@@ -19919,8 +19225,6 @@
         "color": "鹿毛",
         "bigSystem": "Ne",
         "smallSystem": "ダンチヒ",
-        "omoshiro": "efee",
-        "migoto": null,
         "ancestors": [
           "st:w-18",
           "a:3536",
@@ -19974,8 +19278,6 @@
         "color": "栗毛",
         "bigSystem": "Ne",
         "smallSystem": "ダンチヒ",
-        "omoshiro": "efee",
-        "migoto": null,
         "ancestors": [
           "a:868",
           "a:3538",
@@ -20029,8 +19331,6 @@
         "color": "鹿毛",
         "bigSystem": "Ne",
         "smallSystem": "ストームキャット",
-        "omoshiro": "efeo",
-        "migoto": null,
         "ancestors": [
           "a:3611",
           "a:3543",
@@ -20084,8 +19384,6 @@
         "color": "鹿毛",
         "bigSystem": "Ne",
         "smallSystem": "ストームキャット",
-        "omoshiro": "eecf",
-        "migoto": null,
         "ancestors": [
           "st:w-11",
           "a:3551",
@@ -20139,8 +19437,6 @@
         "color": "栗毛",
         "bigSystem": "Na",
         "smallSystem": "ミスタープロスペクター",
-        "omoshiro": "ffcf",
-        "migoto": null,
         "ancestors": [
           "a:998",
           "a:3555",
@@ -20194,8 +19490,6 @@
         "color": "鹿毛",
         "bigSystem": "Ne",
         "smallSystem": "ダンチヒ",
-        "omoshiro": "ekee",
-        "migoto": null,
         "ancestors": [
           "a:1874",
           "a:3538",
@@ -20249,8 +19543,6 @@
         "color": "鹿毛",
         "bigSystem": "Ma",
         "smallSystem": "インテント",
-        "omoshiro": "nfce",
-        "migoto": null,
         "ancestors": [
           "a:3558",
           "a:3613",
@@ -20304,8 +19596,6 @@
         "color": "芦毛",
         "bigSystem": "Na",
         "smallSystem": "ネイティヴダンサー",
-        "omoshiro": "fnee",
-        "migoto": null,
         "ancestors": [
           "st:w-42",
           "a:3565",
@@ -20359,8 +19649,6 @@
         "color": "鹿毛",
         "bigSystem": "Ne",
         "smallSystem": "ノーザンダンサー",
-        "omoshiro": "ekej",
-        "migoto": null,
         "ancestors": [
           "a:1505",
           "a:3616",
@@ -20414,8 +19702,6 @@
         "color": "鹿毛",
         "bigSystem": "Ne",
         "smallSystem": "ダンチヒ",
-        "omoshiro": "ecfj",
-        "migoto": null,
         "ancestors": [
           "a:3568",
           "a:3569",
@@ -20469,8 +19755,6 @@
         "color": "黒鹿毛",
         "bigSystem": "Ro",
         "smallSystem": "サンデーサイレンス",
-        "omoshiro": "dmek",
-        "migoto": null,
         "ancestors": [
           "a:3373",
           "a:3572",
@@ -20524,8 +19808,6 @@
         "color": "栗毛",
         "bigSystem": "Ro",
         "smallSystem": "ロベルト",
-        "omoshiro": "ddcf",
-        "migoto": null,
         "ancestors": [
           "st:21",
           "a:3617",
@@ -20579,8 +19861,6 @@
         "color": "栃栗毛",
         "bigSystem": "Te",
         "smallSystem": "ダマスカス",
-        "omoshiro": "iede",
-        "migoto": null,
         "ancestors": [
           "a:2951",
           "a:3579",
@@ -20634,8 +19914,6 @@
         "color": "鹿毛",
         "bigSystem": "Sw",
         "smallSystem": "ブランドフォード",
-        "omoshiro": "jkce",
-        "migoto": null,
         "ancestors": [
           "st:w-54",
           "a:2247",
@@ -20689,8 +19967,6 @@
         "color": "栗毛",
         "bigSystem": "Ro",
         "smallSystem": "サンデーサイレンス",
-        "omoshiro": "dfee",
-        "migoto": null,
         "ancestors": [
           "a:3108",
           "a:3582",
@@ -20744,8 +20020,6 @@
         "color": "栗毛",
         "bigSystem": "Ns",
         "smallSystem": "プリンスリーギフト",
-        "omoshiro": "cece",
-        "migoto": null,
         "ancestors": [
           "st:20",
           "a:3397",
@@ -20799,8 +20073,6 @@
         "color": "黒鹿毛",
         "bigSystem": "Ma",
         "smallSystem": "インテント",
-        "omoshiro": "ncfe",
-        "migoto": null,
         "ancestors": [
           "a:2612",
           "a:3584",
@@ -20854,8 +20126,6 @@
         "color": "黒鹿毛",
         "bigSystem": "Ne",
         "smallSystem": "ノーザンダンサー",
-        "omoshiro": "edfd",
-        "migoto": null,
         "ancestors": [
           "a:2360",
           "a:3586",
@@ -20909,8 +20179,6 @@
         "color": "黒鹿毛",
         "bigSystem": "Na",
         "smallSystem": "ミスタープロスペクター",
-        "omoshiro": "fhfe",
-        "migoto": null,
         "ancestors": [
           "a:3589",
           "a:3590",
@@ -20964,8 +20232,6 @@
         "color": "鹿毛",
         "bigSystem": "Na",
         "smallSystem": "ミスタープロスペクター",
-        "omoshiro": "feci",
-        "migoto": null,
         "ancestors": [
           "a:827",
           "a:3593",
@@ -21019,8 +20285,6 @@
         "color": "黒鹿毛",
         "bigSystem": "He",
         "smallSystem": "マイバブー",
-        "omoshiro": "oedm",
-        "migoto": null,
         "ancestors": [
           "a:3177",
           "a:3595",
@@ -21074,8 +20338,6 @@
         "color": "鹿毛",
         "bigSystem": "Na",
         "smallSystem": "ミスタープロスペクター",
-        "omoshiro": "femn",
-        "migoto": null,
         "ancestors": [
           "st:9",
           "a:3180",
@@ -21129,8 +20391,6 @@
         "color": "鹿毛",
         "bigSystem": "Na",
         "smallSystem": "ミスタープロスペクター",
-        "omoshiro": "fcec",
-        "migoto": null,
         "ancestors": [
           "st:w-3",
           "a:3619",
@@ -21184,8 +20444,6 @@
         "color": "鹿毛",
         "bigSystem": "Ns",
         "smallSystem": "グレイソヴリン",
-        "omoshiro": "cede",
-        "migoto": null,
         "ancestors": [
           "a:1286",
           "a:3600",
@@ -21239,8 +20497,6 @@
         "color": "鹿毛",
         "bigSystem": "Ne",
         "smallSystem": "ヴァイスリージェント",
-        "omoshiro": "eefk",
-        "migoto": null,
         "ancestors": [
           "a:365",
           "a:2003",
@@ -21294,8 +20550,6 @@
         "color": "芦毛",
         "bigSystem": "Ns",
         "smallSystem": "グレイソヴリン",
-        "omoshiro": "ceff",
-        "migoto": null,
         "ancestors": [
           "a:2856",
           "a:3184",
@@ -21349,8 +20603,6 @@
         "color": "芦毛",
         "bigSystem": "Na",
         "smallSystem": "ネイティヴダンサー",
-        "omoshiro": "fcef",
-        "migoto": null,
         "ancestors": [
           "a:2280",
           "a:286",
@@ -21404,8 +20656,6 @@
         "color": "栗毛",
         "bigSystem": "Ne",
         "smallSystem": "ダンチヒ",
-        "omoshiro": "effe",
-        "migoto": null,
         "ancestors": [
           "a:404",
           "a:458",
@@ -21459,8 +20709,6 @@
         "color": "鹿毛",
         "bigSystem": "Ro",
         "smallSystem": "サンデーサイレンス",
-        "omoshiro": "dekf",
-        "migoto": null,
         "ancestors": [
           "st:1",
           "a:3245",
@@ -21514,8 +20762,6 @@
         "color": "鹿毛",
         "bigSystem": "Ne",
         "smallSystem": "ダンチヒ",
-        "omoshiro": "eemj",
-        "migoto": null,
         "ancestors": [
           "a:3476",
           "a:306",
@@ -21569,8 +20815,6 @@
         "color": "黒鹿毛",
         "bigSystem": "Na",
         "smallSystem": "ミスタープロスペクター",
-        "omoshiro": "fhef",
-        "migoto": null,
         "ancestors": [
           "a:2276",
           "a:1262",
@@ -21624,8 +20868,6 @@
         "color": "栗毛",
         "bigSystem": "Ro",
         "smallSystem": "サンデーサイレンス",
-        "omoshiro": "deec",
-        "migoto": null,
         "ancestors": [
           "a:3092",
           "a:3110",
@@ -21679,8 +20921,6 @@
         "color": "鹿毛",
         "bigSystem": "Ne",
         "smallSystem": "ノーザンダンサー",
-        "omoshiro": "edfc",
-        "migoto": null,
         "ancestors": [
           "a:367",
           "a:2736",
@@ -21734,8 +20974,6 @@
         "color": "鹿毛",
         "bigSystem": "Na",
         "smallSystem": "ミスタープロスペクター",
-        "omoshiro": "feef",
-        "migoto": null,
         "ancestors": [
           "a:1510",
           "a:1762",
@@ -21789,8 +21027,6 @@
         "color": "栗毛",
         "bigSystem": "Ne",
         "smallSystem": "ストームキャット",
-        "omoshiro": "eced",
-        "migoto": null,
         "ancestors": [
           "a:1089",
           "a:3156",
@@ -21844,8 +21080,6 @@
         "color": "鹿毛",
         "bigSystem": "Ne",
         "smallSystem": "サドラーズウェルズ",
-        "omoshiro": "effe",
-        "migoto": null,
         "ancestors": [
           "st:w-2",
           "a:1935",
@@ -21899,8 +21133,6 @@
         "color": "栗毛",
         "bigSystem": "Ne",
         "smallSystem": "サドラーズウェルズ",
-        "omoshiro": "efef",
-        "migoto": null,
         "ancestors": [
           "st:w-2",
           "a:2006",
@@ -21954,8 +21186,6 @@
         "color": "栗毛",
         "bigSystem": "Ns",
         "smallSystem": "ボールドルーラー",
-        "omoshiro": "ckde",
-        "migoto": null,
         "ancestors": [
           "a:1865",
           "a:1194",
@@ -22009,8 +21239,6 @@
         "color": "栗毛",
         "bigSystem": "Na",
         "smallSystem": "ミスタープロスペクター",
-        "omoshiro": "feef",
-        "migoto": null,
         "ancestors": [
           "st:w-37",
           "a:1885",
@@ -22064,8 +21292,6 @@
         "color": "青鹿毛",
         "bigSystem": "Ro",
         "smallSystem": "サンデーサイレンス",
-        "omoshiro": "dmec",
-        "migoto": null,
         "ancestors": [
           "a:3292",
           "a:3227",
@@ -22119,8 +21345,6 @@
         "color": "青鹿毛",
         "bigSystem": "Ne",
         "smallSystem": "ダンチヒ",
-        "omoshiro": "edce",
-        "migoto": null,
         "ancestors": [
           "a:1878",
           "a:1868",
@@ -22174,8 +21398,6 @@
         "color": "鹿毛",
         "bigSystem": "Ns",
         "smallSystem": "レッドゴッド",
-        "omoshiro": "cenm",
-        "migoto": null,
         "ancestors": [
           "a:691",
           "a:1523",
@@ -22229,8 +21451,6 @@
         "color": "栗毛",
         "bigSystem": "Ro",
         "smallSystem": "サンデーサイレンス",
-        "omoshiro": "dcef",
-        "migoto": null,
         "ancestors": [
           "a:2844",
           "a:3044",
@@ -22284,8 +21504,6 @@
         "color": "鹿毛",
         "bigSystem": "Ro",
         "smallSystem": "サンデーサイレンス",
-        "omoshiro": "deei",
-        "migoto": null,
         "ancestors": [
           "st:1",
           "a:3361",
@@ -22339,8 +21557,6 @@
         "color": "鹿毛",
         "bigSystem": "Na",
         "smallSystem": "ミスタープロスペクター",
-        "omoshiro": "fcle",
-        "migoto": null,
         "ancestors": [
           "a:1017",
           "a:1790",
@@ -22394,8 +21610,6 @@
         "color": "黒鹿毛",
         "bigSystem": "Ne",
         "smallSystem": "サドラーズウェルズ",
-        "omoshiro": "edfe",
-        "migoto": null,
         "ancestors": [
           "a:2360",
           "a:1082",
@@ -22449,8 +21663,6 @@
         "color": "鹿毛",
         "bigSystem": "Ne",
         "smallSystem": "サドラーズウェルズ",
-        "omoshiro": "eefe",
-        "migoto": null,
         "ancestors": [
           "st:w-44",
           "a:2300",
@@ -22504,8 +21716,6 @@
         "color": "鹿毛",
         "bigSystem": "Na",
         "smallSystem": "ミスタープロスペクター",
-        "omoshiro": "fedf",
-        "migoto": null,
         "ancestors": [
           "a:900",
           "a:3119",
@@ -22559,8 +21769,6 @@
         "color": "鹿毛",
         "bigSystem": "Ns",
         "smallSystem": "レッドゴッド",
-        "omoshiro": "cked",
-        "migoto": null,
         "ancestors": [
           "a:2078",
           "a:598",
@@ -22614,8 +21822,6 @@
         "color": "栗毛",
         "bigSystem": "Ne",
         "smallSystem": "ストームキャット",
-        "omoshiro": "ecfk",
-        "migoto": null,
         "ancestors": [
           "a:1089",
           "a:1926",
@@ -22669,8 +21875,6 @@
         "color": "栗毛",
         "bigSystem": "Na",
         "smallSystem": "ミスタープロスペクター",
-        "omoshiro": "fcec",
-        "migoto": null,
         "ancestors": [
           "a:1116",
           "a:1859",
@@ -22724,8 +21928,6 @@
         "color": "黒鹿毛",
         "bigSystem": "Na",
         "smallSystem": "ミスタープロスペクター",
-        "omoshiro": "fjen",
-        "migoto": null,
         "ancestors": [
           "a:1778",
           "a:1760",
@@ -22779,8 +21981,6 @@
         "color": "黒鹿毛",
         "bigSystem": "Na",
         "smallSystem": "ミスタープロスペクター",
-        "omoshiro": "fgfk",
-        "migoto": null,
         "ancestors": [
           "a:2896",
           "a:3498",
@@ -22834,8 +22034,6 @@
         "color": "栗毛",
         "bigSystem": "Ro",
         "smallSystem": "サンデーサイレンス",
-        "omoshiro": "defn",
-        "migoto": null,
         "ancestors": [
           "a:3142",
           "a:3455",
@@ -22889,8 +22087,6 @@
         "color": "鹿毛",
         "bigSystem": "St",
         "smallSystem": "プリンスキロ",
-        "omoshiro": "moec",
-        "migoto": null,
         "ancestors": [
           "a:247",
           "a:2711",
@@ -22944,8 +22140,6 @@
         "color": "鹿毛",
         "bigSystem": "Ro",
         "smallSystem": "サンデーサイレンス",
-        "omoshiro": "dcej",
-        "migoto": null,
         "ancestors": [
           "a:2844",
           "a:209",
@@ -22999,8 +22193,6 @@
         "color": "栗毛",
         "bigSystem": "Ro",
         "smallSystem": "サンデーサイレンス",
-        "omoshiro": "dcie",
-        "migoto": null,
         "ancestors": [
           "a:2844",
           "a:3297",
@@ -23054,8 +22246,6 @@
         "color": "鹿毛",
         "bigSystem": "Ro",
         "smallSystem": "サンデーサイレンス",
-        "omoshiro": "deej",
-        "migoto": null,
         "ancestors": [
           "a:3142",
           "a:209",
@@ -23109,8 +22299,6 @@
         "color": "青鹿毛",
         "bigSystem": "Na",
         "smallSystem": "ミスタープロスペクター",
-        "omoshiro": "fede",
-        "migoto": null,
         "ancestors": [
           "st:9",
           "a:3311",
@@ -23164,8 +22352,6 @@
         "color": "鹿毛",
         "bigSystem": "Ne",
         "smallSystem": "サドラーズウェルズ",
-        "omoshiro": "ecee",
-        "migoto": null,
         "ancestors": [
           "a:1218",
           "bm:22",
@@ -23219,8 +22405,6 @@
         "color": "鹿毛",
         "bigSystem": "Ne",
         "smallSystem": "ノーザンダンサー",
-        "omoshiro": "eedd",
-        "migoto": null,
         "ancestors": [
           "a:2836",
           "a:2163",
@@ -23274,8 +22458,6 @@
         "color": "鹿毛",
         "bigSystem": "Na",
         "smallSystem": "ミスタープロスペクター",
-        "omoshiro": "fcec",
-        "migoto": null,
         "ancestors": [
           "a:1175",
           "a:1537",
@@ -23329,8 +22511,6 @@
         "color": "青毛",
         "bigSystem": "Ro",
         "smallSystem": "ヘイロー",
-        "omoshiro": "dmdd",
-        "migoto": null,
         "ancestors": [
           "st:w-14",
           "a:3346",
@@ -23384,8 +22564,6 @@
         "color": "青鹿毛",
         "bigSystem": "Sw",
         "smallSystem": "ブランドフォード",
-        "omoshiro": "jkce",
-        "migoto": null,
         "ancestors": [
           "st:w-54",
           "a:2401",
@@ -23439,8 +22617,6 @@
         "color": "鹿毛",
         "bigSystem": "Ne",
         "smallSystem": "サドラーズウェルズ",
-        "omoshiro": "efeo",
-        "migoto": null,
         "ancestors": [
           "st:w-27",
           "a:2535",
@@ -23494,8 +22670,6 @@
         "color": "鹿毛",
         "bigSystem": "Ne",
         "smallSystem": "ダンチヒ",
-        "omoshiro": "emec",
-        "migoto": null,
         "ancestors": [
           "a:1476",
           "a:556",
@@ -23549,8 +22723,6 @@
         "color": "鹿毛",
         "bigSystem": "Ne",
         "smallSystem": "ヴァイスリージェント",
-        "omoshiro": "endf",
-        "migoto": null,
         "ancestors": [
           "st:w-20",
           "a:1110",
@@ -23604,8 +22776,6 @@
         "color": "鹿毛",
         "bigSystem": "Ne",
         "smallSystem": "サドラーズウェルズ",
-        "omoshiro": "efcj",
-        "migoto": null,
         "ancestors": [
           "a:2404",
           "a:2222",
@@ -23659,8 +22829,6 @@
         "color": "黒鹿毛",
         "bigSystem": "Ne",
         "smallSystem": "リファール",
-        "omoshiro": "egcd",
-        "migoto": null,
         "ancestors": [
           "a:3335",
           "a:2977",
@@ -23714,8 +22882,6 @@
         "color": "鹿毛",
         "bigSystem": "Ne",
         "smallSystem": "サドラーズウェルズ",
-        "omoshiro": "edcf",
-        "migoto": null,
         "ancestors": [
           "a:122",
           "a:527",
@@ -23769,8 +22935,6 @@
         "color": "鹿毛",
         "bigSystem": "Ne",
         "smallSystem": "ノーザンダンサー",
-        "omoshiro": "eced",
-        "migoto": null,
         "ancestors": [
           "a:3277",
           "a:3425",
@@ -23824,8 +22988,6 @@
         "color": "鹿毛",
         "bigSystem": "Ne",
         "smallSystem": "ダンチヒ",
-        "omoshiro": "eefe",
-        "migoto": null,
         "ancestors": [
           "a:605",
           "a:2806",
@@ -23879,8 +23041,6 @@
         "color": "栗毛",
         "bigSystem": "Na",
         "smallSystem": "ミスタープロスペクター",
-        "omoshiro": "fefo",
-        "migoto": null,
         "ancestors": [
           "a:827",
           "a:2854",
@@ -23934,8 +23094,6 @@
         "color": "鹿毛",
         "bigSystem": "Ns",
         "smallSystem": "ボールドルーラー",
-        "omoshiro": "cefd",
-        "migoto": null,
         "ancestors": [
           "a:734",
           "a:1199",
@@ -23989,8 +23147,6 @@
         "color": "鹿毛",
         "bigSystem": "Ma",
         "smallSystem": "インテント",
-        "omoshiro": "nece",
-        "migoto": null,
         "ancestors": [
           "a:2613",
           "a:1581",
@@ -24044,8 +23200,6 @@
         "color": "鹿毛",
         "bigSystem": "Na",
         "smallSystem": "ミスタープロスペクター",
-        "omoshiro": "fced",
-        "migoto": null,
         "ancestors": [
           "st:31",
           "a:3270",
@@ -24099,8 +23253,6 @@
         "color": "鹿毛",
         "bigSystem": "Ro",
         "smallSystem": "ロベルト",
-        "omoshiro": "dcce",
-        "migoto": null,
         "ancestors": [
           "st:69",
           "a:2978",
@@ -24154,8 +23306,6 @@
         "color": "鹿毛",
         "bigSystem": "Ne",
         "smallSystem": "ノーザンダンサー",
-        "omoshiro": "efef",
-        "migoto": null,
         "ancestors": [
           "st:w-40",
           "a:2796",
@@ -24209,8 +23359,6 @@
         "color": "黒鹿毛",
         "bigSystem": "Na",
         "smallSystem": "ミスタープロスペクター",
-        "omoshiro": "fede",
-        "migoto": null,
         "ancestors": [
           "st:9",
           "a:3331",
@@ -24264,8 +23412,6 @@
         "color": "青鹿毛",
         "bigSystem": "Ne",
         "smallSystem": "ヴァイスリージェント",
-        "omoshiro": "encf",
-        "migoto": null,
         "ancestors": [
           "a:2228",
           "a:509",
@@ -24319,8 +23465,6 @@
         "color": "白毛",
         "bigSystem": "Na",
         "smallSystem": "ミスタープロスペクター",
-        "omoshiro": "fede",
-        "migoto": null,
         "ancestors": [
           "st:9",
           "a:3034",
@@ -24374,8 +23518,6 @@
         "color": "黒鹿毛",
         "bigSystem": "Ro",
         "smallSystem": "サンデーサイレンス",
-        "omoshiro": "dkfm",
-        "migoto": null,
         "ancestors": [
           "st:22",
           "a:2916",
@@ -24429,8 +23571,6 @@
         "color": "鹿毛",
         "bigSystem": "Ne",
         "smallSystem": "ヴァイスリージェント",
-        "omoshiro": "egde",
-        "migoto": null,
         "ancestors": [
           "st:49",
           "a:2874",
@@ -24484,8 +23624,6 @@
         "color": "鹿毛",
         "bigSystem": "Ne",
         "smallSystem": "ダンチヒ",
-        "omoshiro": "efoe",
-        "migoto": null,
         "ancestors": [
           "st:w-10",
           "a:2201",
@@ -24539,8 +23677,6 @@
         "color": "栗毛",
         "bigSystem": "Na",
         "smallSystem": "ミスタープロスペクター",
-        "omoshiro": "figm",
-        "migoto": null,
         "ancestors": [
           "a:2990",
           "a:2803",
@@ -24594,8 +23730,6 @@
         "color": "黒鹿毛",
         "bigSystem": "Ne",
         "smallSystem": "ダンチヒ",
-        "omoshiro": "efef",
-        "migoto": null,
         "ancestors": [
           "a:1389",
           "a:301",
@@ -24649,8 +23783,6 @@
         "color": "鹿毛",
         "bigSystem": "Sw",
         "smallSystem": "ブランドフォード",
-        "omoshiro": "jeoe",
-        "migoto": null,
         "ancestors": [
           "a:2328",
           "a:1166",
@@ -24704,8 +23836,6 @@
         "color": "栗毛",
         "bigSystem": "Na",
         "smallSystem": "ミスタープロスペクター",
-        "omoshiro": "fden",
-        "migoto": null,
         "ancestors": [
           "a:2385",
           "a:439",
@@ -24759,8 +23889,6 @@
         "color": "青鹿毛",
         "bigSystem": "Ma",
         "smallSystem": "インテント",
-        "omoshiro": "necc",
-        "migoto": null,
         "ancestors": [
           "a:2610",
           "a:2810",
@@ -24814,8 +23942,6 @@
         "color": "白毛",
         "bigSystem": "Ne",
         "smallSystem": "ヴァイスリージェント",
-        "omoshiro": "egde",
-        "migoto": null,
         "ancestors": [
           "st:49",
           "a:3034",
@@ -24869,8 +23995,6 @@
         "color": "鹿毛",
         "bigSystem": "Ne",
         "smallSystem": "ダンチヒ",
-        "omoshiro": "eded",
-        "migoto": null,
         "ancestors": [
           "a:2105",
           "a:1742",
@@ -24924,8 +24048,6 @@
         "color": "青鹿毛",
         "bigSystem": "Ne",
         "smallSystem": "ダンチヒ",
-        "omoshiro": "eeoe",
-        "migoto": null,
         "ancestors": [
           "a:766",
           "a:2737",
@@ -24979,8 +24101,6 @@
         "color": "芦毛",
         "bigSystem": "Ne",
         "smallSystem": "ダンチヒ",
-        "omoshiro": "effc",
-        "migoto": null,
         "ancestors": [
           "a:1892",
           "a:2709",
@@ -25034,8 +24154,6 @@
         "color": "黒鹿毛",
         "bigSystem": "Ro",
         "smallSystem": "サンデーサイレンス",
-        "omoshiro": "dcmk",
-        "migoto": null,
         "ancestors": [
           "st:14",
           "a:3336",
@@ -25089,8 +24207,6 @@
         "color": "黒鹿毛",
         "bigSystem": "Ns",
         "smallSystem": "ボールドルーラー",
-        "omoshiro": "cefl",
-        "migoto": null,
         "ancestors": [
           "a:2456",
           "a:1826",
@@ -25144,8 +24260,6 @@
         "color": "栗毛",
         "bigSystem": "Na",
         "smallSystem": "ミスタープロスペクター",
-        "omoshiro": "fedk",
-        "migoto": null,
         "ancestors": [
           "st:9",
           "a:3222",
@@ -25199,8 +24313,6 @@
         "color": "鹿毛",
         "bigSystem": "Na",
         "smallSystem": "ミスタープロスペクター",
-        "omoshiro": "fede",
-        "migoto": null,
         "ancestors": [
           "st:9",
           "a:3155",
@@ -25254,8 +24366,6 @@
         "color": "栗毛",
         "bigSystem": "Ne",
         "smallSystem": "サドラーズウェルズ",
-        "omoshiro": "efoe",
-        "migoto": null,
         "ancestors": [
           "st:w-2",
           "a:596",
@@ -25309,8 +24419,6 @@
         "color": "鹿毛",
         "bigSystem": "Ro",
         "smallSystem": "サンデーサイレンス",
-        "omoshiro": "dece",
-        "migoto": null,
         "ancestors": [
           "st:1",
           "a:3125",
@@ -25364,8 +24472,6 @@
         "color": "栗毛",
         "bigSystem": "Hi",
         "smallSystem": "ヒムヤー",
-        "omoshiro": "lcce",
-        "migoto": null,
         "ancestors": [
           "a:987",
           "a:1735",
@@ -25419,8 +24525,6 @@
         "color": "青鹿毛",
         "bigSystem": "Ro",
         "smallSystem": "ロベルト",
-        "omoshiro": "dcfe",
-        "migoto": null,
         "ancestors": [
           "st:69",
           "a:3466",
@@ -25474,8 +24578,6 @@
         "color": "鹿毛",
         "bigSystem": "Ns",
         "smallSystem": "レッドゴッド",
-        "omoshiro": "cedf",
-        "migoto": null,
         "ancestors": [
           "st:w-19",
           "a:3152",
@@ -25529,8 +24631,6 @@
         "color": "鹿毛",
         "bigSystem": "Ne",
         "smallSystem": "ストームキャット",
-        "omoshiro": "efhf",
-        "migoto": null,
         "ancestors": [
           "a:2778",
           "a:413",
@@ -25584,8 +24684,6 @@
         "color": "栗毛",
         "bigSystem": "Ne",
         "smallSystem": "サドラーズウェルズ",
-        "omoshiro": "edkn",
-        "migoto": null,
         "ancestors": [
           "a:2360",
           "a:376",
@@ -25639,8 +24737,6 @@
         "color": "黒鹿毛",
         "bigSystem": "Na",
         "smallSystem": "ミスタープロスペクター",
-        "omoshiro": "fcee",
-        "migoto": null,
         "ancestors": [
           "a:2684",
           "a:591",
@@ -25694,8 +24790,6 @@
         "color": "鹿毛",
         "bigSystem": "Ne",
         "smallSystem": "ストームキャット",
-        "omoshiro": "ecfh",
-        "migoto": null,
         "ancestors": [
           "a:1128",
           "a:949",
@@ -25749,8 +24843,6 @@
         "color": null,
         "bigSystem": "Na",
         "smallSystem": "ミスタープロスペクター",
-        "omoshiro": "fecl",
-        "migoto": null,
         "ancestors": [
           "a:3082",
           "a:3603",
@@ -25805,8 +24897,6 @@
         "color": null,
         "bigSystem": "Ne",
         "smallSystem": "ヴァイスリージェント",
-        "omoshiro": "emkb",
-        "migoto": null,
         "ancestors": [
           "a:3298",
           "a:3221",
@@ -25861,8 +24951,6 @@
         "color": null,
         "bigSystem": "Ns",
         "smallSystem": "プリンスリーギフト",
-        "omoshiro": "cefe",
-        "migoto": null,
         "ancestors": [
           "st:20",
           "a:3607",
@@ -25917,8 +25005,6 @@
         "color": "鹿毛",
         "bigSystem": "Ne",
         "smallSystem": "ノーザンダンサー",
-        "omoshiro": "emff",
-        "migoto": null,
         "ancestors": [
           "a:1604",
           "a:3899",
@@ -25972,8 +25058,6 @@
         "color": null,
         "bigSystem": "Ne",
         "smallSystem": "ストームキャット",
-        "omoshiro": "ehef",
-        "migoto": null,
         "ancestors": [
           "a:3937",
           "a:3938",
@@ -26016,6 +25100,114 @@
           "kenko": null,
           "kisyo": null,
           "type": 0
+        }
+      },
+      {
+        "id": "bm:n-5",
+        "kind": "broodmare",
+        "name": "マニーシャ",
+        "sex": "F",
+        "price": 0,
+        "color": null,
+        "bigSystem": "Ne",
+        "smallSystem": "ストームキャット",
+        "ancestors": [
+          "st:w-23",
+          "a:3948",
+          "a:3805",
+          "a:3806",
+          "a:1706",
+          "a:3949",
+          "a:1089",
+          "a:3807",
+          "a:2719",
+          "a:3808",
+          "a:122",
+          "a:997",
+          "a:1970",
+          "a:3950",
+          "a:2468",
+          "a:1599",
+          "a:1556",
+          "a:1202",
+          "a:1556",
+          "a:3809",
+          "a:3810",
+          "a:3811",
+          "a:89",
+          "a:196",
+          "a:2622",
+          "a:2631",
+          "a:2518",
+          "a:1999",
+          "a:2304",
+          "a:1577"
+        ],
+        "unlock": null,
+        "purchasePrice": null,
+        "priceUnknown": true,
+        "attrs": {
+          "speed": null,
+          "stamina": null,
+          "power": null,
+          "dirt": null,
+          "kenko": null,
+          "kisyo": null,
+          "type": null
+        }
+      },
+      {
+        "id": "bm:n-6",
+        "kind": "broodmare",
+        "name": "シロインジャー",
+        "sex": "F",
+        "price": 0,
+        "color": null,
+        "bigSystem": "Ne",
+        "smallSystem": "ダンチヒ",
+        "ancestors": [
+          "st:34",
+          "a:3951",
+          "a:766",
+          "a:1933",
+          "st:49",
+          "a:3034",
+          "a:763",
+          "a:1180",
+          "a:440",
+          "a:1151",
+          "a:3298",
+          "a:3309",
+          "st:2",
+          "a:2893",
+          "a:34",
+          "a:2100",
+          "a:1349",
+          "a:1371",
+          "a:326",
+          "a:419",
+          "a:2304",
+          "a:2249",
+          "a:35",
+          "a:1690",
+          "a:649",
+          "a:892",
+          "a:54",
+          "a:2791",
+          "a:2623",
+          "a:2467"
+        ],
+        "unlock": null,
+        "purchasePrice": null,
+        "priceUnknown": true,
+        "attrs": {
+          "speed": null,
+          "stamina": null,
+          "power": null,
+          "dirt": null,
+          "kenko": null,
+          "kisyo": null,
+          "type": null
         }
       }
     ],
@@ -28925,7 +28117,8 @@
         "system": 6,
         "sex": "M",
         "effects": [],
-        "id": "a:326"
+        "id": "a:326",
+        "effectsKnown": true
       },
       {
         "name": "Ardelle",
@@ -29589,7 +28782,8 @@
         "system": 5,
         "sex": "F",
         "effects": [],
-        "id": "a:419"
+        "id": "a:419",
+        "effectsKnown": true
       },
       {
         "name": "Beautiful Pet",
@@ -29737,7 +28931,8 @@
         "system": 6,
         "sex": "M",
         "effects": [],
-        "id": "a:440"
+        "id": "a:440",
+        "effectsKnown": true
       },
       {
         "name": "Bernardini",
@@ -32063,7 +31258,8 @@
         "system": 5,
         "sex": "M",
         "effects": [],
-        "id": "a:766"
+        "id": "a:766",
+        "effectsKnown": true
       },
       {
         "name": "Dantina",
@@ -33691,7 +32887,8 @@
         "system": 2,
         "sex": "F",
         "effects": [],
-        "id": "a:997"
+        "id": "a:997",
+        "effectsKnown": true
       },
       {
         "name": "Flower Alley",
@@ -34788,7 +33985,8 @@
         "system": 5,
         "sex": "F",
         "effects": [],
-        "id": "a:1151"
+        "id": "a:1151",
+        "effectsKnown": true
       },
       {
         "name": "Guinevere's Folly",
@@ -34995,7 +34193,8 @@
         "system": 5,
         "sex": "F",
         "effects": [],
-        "id": "a:1180"
+        "id": "a:1180",
+        "effectsKnown": true
       },
       {
         "name": "Hasty Road",
@@ -35150,7 +34349,8 @@
         "system": 7,
         "sex": "F",
         "effects": [],
-        "id": "a:1202"
+        "id": "a:1202",
+        "effectsKnown": true
       },
       {
         "name": "Helice",
@@ -36195,7 +35395,8 @@
         "system": 5,
         "sex": "M",
         "effects": [],
-        "id": "a:1349"
+        "id": "a:1349",
+        "effectsKnown": true
       },
       {
         "name": "Kala Dancer",
@@ -36349,7 +35550,8 @@
         "system": 11,
         "sex": "F",
         "effects": [],
-        "id": "a:1371"
+        "id": "a:1371",
+        "effectsKnown": true
       },
       {
         "name": "Key Cents",
@@ -37315,7 +36517,9 @@
         "system": 5,
         "sex": "M",
         "effects": [],
-        "id": "a:1506"
+        "id": "a:1506",
+        "sireId": "a:89",
+        "damId": "a:204"
       },
       {
         "name": "Lonely Dancer",
@@ -37822,7 +37026,8 @@
         "system": 10,
         "sex": "F",
         "effects": [],
-        "id": "a:1577"
+        "id": "a:1577",
+        "effectsKnown": true
       },
       {
         "name": "Make Change",
@@ -38744,7 +37949,8 @@
         "system": 5,
         "sex": "M",
         "effects": [],
-        "id": "a:1706"
+        "id": "a:1706",
+        "effectsKnown": true
       },
       {
         "name": "Montparnasse",
@@ -40365,7 +39571,8 @@
         "system": 6,
         "sex": "F",
         "effects": [],
-        "id": "a:1933"
+        "id": "a:1933",
+        "effectsKnown": true
       },
       {
         "name": "Pendulina",
@@ -40626,7 +39833,8 @@
         "system": 11,
         "sex": "M",
         "effects": [],
-        "id": "a:1970"
+        "id": "a:1970",
+        "effectsKnown": true
       },
       {
         "name": "プレイメイト",
@@ -40832,7 +40040,8 @@
         "system": 3,
         "sex": "F",
         "effects": [],
-        "id": "a:1999"
+        "id": "a:1999",
+        "effectsKnown": true
       },
       {
         "name": "Praise",
@@ -42608,7 +41817,8 @@
         "system": 11,
         "sex": "F",
         "effects": [],
-        "id": "a:2249"
+        "id": "a:2249",
+        "effectsKnown": true
       },
       {
         "name": "Saumarez",
@@ -44159,7 +43369,8 @@
         "system": 3,
         "sex": "F",
         "effects": [],
-        "id": "a:2467"
+        "id": "a:2467",
+        "effectsKnown": true
       },
       {
         "name": "Storm Cat",
@@ -45276,14 +44487,16 @@
         "system": 2,
         "sex": "M",
         "effects": [],
-        "id": "a:2622"
+        "id": "a:2622",
+        "effectsKnown": true
       },
       {
         "name": "Topsider",
         "system": 5,
         "sex": "M",
         "effects": [],
-        "id": "a:2623"
+        "id": "a:2623",
+        "effectsKnown": true
       },
       {
         "name": "Torbella",
@@ -45341,7 +44554,8 @@
         "system": 10,
         "sex": "F",
         "effects": [],
-        "id": "a:2631"
+        "id": "a:2631",
+        "effectsKnown": true
       },
       {
         "name": "Toylsome",
@@ -47210,7 +46424,8 @@
         "system": 5,
         "sex": "F",
         "effects": [],
-        "id": "a:2893"
+        "id": "a:2893",
+        "effectsKnown": true
       },
       {
         "name": "ウェディングバンド",
@@ -47763,7 +46978,8 @@
         "system": 5,
         "sex": "M",
         "effects": [],
-        "id": "st:49"
+        "id": "st:49",
+        "effectsKnown": true
       },
       {
         "name": "グッバイヘイロー",
@@ -48214,7 +47430,8 @@
         "system": 4,
         "sex": "F",
         "effects": [],
-        "id": "a:3034"
+        "id": "a:3034",
+        "effectsKnown": true
       },
       {
         "name": "シル",
@@ -53676,28 +52893,32 @@
         "system": 5,
         "sex": "M",
         "effects": [],
-        "id": "a:3805"
+        "id": "a:3805",
+        "effectsKnown": true
       },
       {
         "name": "Lady Vettori",
         "system": 6,
         "sex": "F",
         "effects": [],
-        "id": "a:3806"
+        "id": "a:3806",
+        "effectsKnown": true
       },
       {
         "name": "Helsinki",
         "system": 6,
         "sex": "F",
         "effects": [],
-        "id": "a:3807"
+        "id": "a:3807",
+        "effectsKnown": true
       },
       {
         "name": "Lady Golconda",
         "system": 3,
         "sex": "F",
         "effects": [],
-        "id": "a:3808"
+        "id": "a:3808",
+        "effectsKnown": true
       },
       {
         "name": "Air Distingue",
@@ -53712,14 +52933,16 @@
         "system": 3,
         "sex": "M",
         "effects": [],
-        "id": "a:3810"
+        "id": "a:3810",
+        "effectsKnown": true
       },
       {
         "name": "Lady Sharp",
         "system": 6,
         "sex": "F",
         "effects": [],
-        "id": "a:3811"
+        "id": "a:3811",
+        "effectsKnown": true
       },
       {
         "name": "Euryanthe",
@@ -54548,7 +53771,7 @@
       },
       {
         "name": "Olymp",
-        "system": null,
+        "system": 11,
         "sex": "M",
         "effects": [],
         "id": "a:3929"
@@ -55682,7 +54905,7 @@
         "system": 5,
         "sex": "M",
         "effects": [],
-        "effectsKnown": false
+        "effectsKnown": true
       },
       {
         "id": "st:w-24",
@@ -57627,6 +56850,58 @@
         "sex": "F",
         "effects": [],
         "effectsKnown": false
+      },
+      {
+        "id": "a:3948",
+        "name": "Mahati",
+        "sex": "F",
+        "system": 5,
+        "effects": [],
+        "effectsKnown": true
+      },
+      {
+        "id": "a:3949",
+        "name": "Minaccia",
+        "sex": "F",
+        "system": 11,
+        "effects": [],
+        "effectsKnown": true
+      },
+      {
+        "id": "a:3950",
+        "name": "Maji",
+        "sex": "F",
+        "system": 5,
+        "effects": [],
+        "effectsKnown": true
+      },
+      {
+        "id": "bm:n-5",
+        "name": "マニーシャ",
+        "system": 5,
+        "sex": "F",
+        "effects": [],
+        "effectsKnown": false
+      },
+      {
+        "id": "a:3951",
+        "name": "ユキチャン",
+        "system": 5,
+        "sex": "F",
+        "effects": [],
+        "effectsKnown": false,
+        "sireId": "st:49",
+        "damId": "a:3034"
+      },
+      {
+        "id": "bm:n-6",
+        "name": "シロインジャー",
+        "system": 5,
+        "sex": "F",
+        "effects": [],
+        "effectsKnown": false,
+        "sireId": "st:34",
+        "damId": "a:3951"
       }
     ],
     "kotta": [
@@ -62901,6 +62176,78 @@
       [
         "st:w-53",
         "st:w-53"
+      ],
+      [
+        "a:917",
+        "a:557"
+      ],
+      [
+        "a:917",
+        "a:605"
+      ],
+      [
+        "a:917",
+        "a:763"
+      ],
+      [
+        "a:917",
+        "a:764"
+      ],
+      [
+        "a:917",
+        "a:765"
+      ],
+      [
+        "a:917",
+        "a:766"
+      ],
+      [
+        "a:917",
+        "a:868"
+      ],
+      [
+        "a:917",
+        "a:917"
+      ],
+      [
+        "a:917",
+        "st:w-22"
+      ],
+      [
+        "a:917",
+        "a:1015"
+      ],
+      [
+        "a:917",
+        "st:w-15"
+      ],
+      [
+        "a:917",
+        "a:1874"
+      ],
+      [
+        "a:917",
+        "a:2112"
+      ],
+      [
+        "a:917",
+        "st:94"
+      ],
+      [
+        "a:917",
+        "a:3082"
+      ],
+      [
+        "a:917",
+        "a:3115"
+      ],
+      [
+        "a:917",
+        "a:3118"
+      ],
+      [
+        "a:917",
+        "a:3476"
       ]
     ],
     "nicks": [
@@ -62952,7 +62299,7 @@
       {
         "sire": "サンデーサイレンス",
         "dam": "ノーザンダンサー",
-        "level": 2
+        "level": 0
       },
       {
         "sire": "ミスタープロスペクター",
@@ -63108,6 +62455,16 @@
         "sire": "ストームキャット",
         "dam": "ストームキャット",
         "level": 0
+      },
+      {
+        "sire": "マイバブー",
+        "dam": "ミスタープロスペクター",
+        "level": 2
+      },
+      {
+        "sire": "ヒムヤー",
+        "dam": "ミスタープロスペクター",
+        "level": 2
       }
     ]
   },

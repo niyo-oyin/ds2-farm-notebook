@@ -1,23 +1,25 @@
-import { useMemo } from 'react';
+import { useMemo, useState } from 'react';
 import { useApp, sireOptions, includePlannedInSearch } from './app-context';
 import { Icon } from './icons';
 import { StallionFilter, EMPTY_FILTER, matchesStallion, isFilterActive, type StallionFilterState } from './StallionFilter';
-import { goalVerdict, summarize, type JudgementSummary, type SearchGoal } from '../core/search';
+import { goalVerdict, summarize, type SearchGoal } from '../core/search';
 import { judge } from '../core/judge';
 import { wantedEffects } from '../core/result-order';
 import { assignWithinBudget } from '../core/season';
 import { planProgress } from '../store/plan-progress';
 import type { Plan } from '../store/model';
-import { GoalEditor, SearchSection, SortSelect, Summary, useMemoState, useMobile } from './SearchPage';
-import { ownedOrigins, sortCompare, type SortKey } from './search-order';
+import { GoalEditor, SearchSection, SortSelect, useMemoState, useMobile } from './SearchPage';
+import { ownedOrigins, sortCompare } from './search-order';
 import { SummaryStrip, JudgeView } from './JudgeView';
 import { Pedigree } from './Pedigree';
 import { Tip } from './Tip';
+import { OneGenResultList, oneGenColumns, type OneGenResultRow } from './OneGenResultList';
+import { compareOneGenResults, DEFAULT_ONEGEN_SORT, stallionValues, type OneGenSort } from './onegen-results';
+import { HorseDialog } from './HorseDialog';
+import { ResultPagination } from './ResultPagination';
+import { useResultPage } from './use-result-page';
 
-/** 繁殖牝馬ごとに出す候補の数 */
-const CANDIDATES = 5;
-
-interface Option { sire: string; cost: number; costUnknown: boolean; s: JudgementSummary; plan?: { plan: Plan; index: number } }
+interface Option extends OneGenResultRow { sireName: string; damName: string; cost: number; costUnknown: boolean; plan?: { plan: Plan; index: number } }
 interface Row { mare: string; options: Option[] }
 
 /**
@@ -26,13 +28,11 @@ interface Row { mare: string; options: Option[] }
  */
 export function SeasonPlanner({ filter, setFilter }: { filter: StallionFilterState; setFilter: (filter: StallionFilterState) => void }) {
   const app = useApp();
-  const mobile = useMobile();
+  const [detailHorse, setDetailHorse] = useState<string | null>(null);
   const sOpts = useMemo(() => sireOptions(app, { onlyAvailable: true, requirePedigree: true, includePlanned: includePlannedInSearch(app), includeOverseas: filter.includeOverseas }), [app, filter.includeOverseas]);
   const mares = useMemo(() => ownedOrigins(app, 'mare'), [app]);
-  const [goals, setGoals] = useMemoState<SearchGoal[]>('season', 'goals', []);
+  const [goals, setGoals] = useMemoState<SearchGoal[]>('season', 'goals', [{ type: 'notDangerous' }]);
   const [budget, setBudget] = useMemoState<string>('season', 'budget', '');
-  const [sort, setSort] = useMemoState<SortKey>('season', 'sort', 'recommended');
-  const [open, setOpen] = useMemoState<string | null>('season', 'open', null);
   // 牝馬ごとに選び直した種牡馬（予算の割り当てより優先する）
   const [picked, setPicked] = useMemoState<Record<string, string>>('season', 'picked', {});
   const sires = useMemo(() => sOpts.map((o) => o.key).filter((key) => { const m = app.master.stallions.find((s) => s.id === key); return !isFilterActive(filter) || !m || matchesStallion(m, filter); }), [sOpts, filter, app]);
@@ -58,19 +58,17 @@ export function SeasonPlanner({ filter, setFilter }: { filter: StallionFilterSta
         const s = app.resolver.get(sire);
         if (!s) return null;
         const j = judge(s, dam, app.ctx);
-        return { sire, cost: j.cost, costUnknown: !!j.costUnknown, s: summarize(j) };
+        return { sire, dam: mare, sireName: s.name, damName: dam.name, judgement: j, stallion: stallionValues(s, app.resolver.master(sire), app.resolver.user(sire)), cost: j.cost, costUnknown: !!j.costUnknown, s: summarize(j) };
       };
       const fromPlan = planStep(mare);
       const planned = fromPlan && option(fromPlan.sire);
-      const ranked = sires.filter((key) => key !== fromPlan?.sire).flatMap((key) => {
-        const s = app.resolver.get(key);
-        if (!s) return [];
-        const j = judge(s, dam, app.ctx);
-        return goals.every((g) => goalVerdict(j, g) === '成立') ? [{ sire: key, cost: j.cost, costUnknown: !!j.costUnknown, s: summarize(j) }] : [];
-      }).sort((a, b) => sortCompare(sort, { ...a, attrs: attrsOf(a.sire) }, { ...b, attrs: attrsOf(b.sire) }, wanted)).slice(0, CANDIDATES);
+      const ranked = sires.filter(key => key !== fromPlan?.sire).flatMap(key => {
+        const o = option(key);
+        return o && goals.every(g => goalVerdict(o.judgement, g) === '成立') ? [o] : [];
+      }).sort((a, b) => sortCompare('recommended', { ...a, attrs: attrsOf(a.sire) }, { ...b, attrs: attrsOf(b.sire) }, wanted));
       return [{ mare, options: planned ? [{ ...planned, plan: { plan: fromPlan.plan, index: fromPlan.index } }, ...ranked] : ranked }];
     });
-  }, [mares, goals, sort, sires, app]);
+  }, [mares, goals, sires, app]);
 
   const limit = budget ? Number(budget) : null;
   const assignment = useMemo(() => {
@@ -89,23 +87,12 @@ export function SeasonPlanner({ filter, setFilter }: { filter: StallionFilterSta
   const unknownCost = chosen.filter((x) => x.option?.costUnknown).length;
   const matingLink = (sire: string, dam: string) => '#/mating?' + new URLSearchParams({ sire, dam });
   const planTag = (o: Option | null) => o?.plan && <a className="tag" href={`#/plans?id=${o.plan.plan.id}`} onClick={(e) => e.stopPropagation()}>計画「{o.plan.plan.name}」{o.plan.index + 1}回目</a>;
-  const sireName = (o: Option | null) => (o ? <>{app.resolver.label(o.sire)} {planTag(o)}</> : <span className="muted small">条件を満たす種牡馬なし</span>);
-  const toggle = (mare: string) => setOpen(open === mare ? null : mare);
+  const nameButton = (key: string) => <button type="button" className="result-name-button" onClick={e => { e.stopPropagation(); setDetailHorse(key); }}>{app.resolver.label(key)}</button>;
+  const expanded = (o: Option) => <div className="result-expanded" onClick={e => e.stopPropagation()}>
+    <div className="inline-row"><a href={matingLink(o.sire, o.dam)}>配合確認で開く</a><a href={`#/search?mare=${encodeURIComponent(o.dam)}&final=${encodeURIComponent(o.sire)}`}>数世代の配合を探す</a></div>
+    <SummaryStrip j={o.judgement} /><Pedigree j={o.judgement} /><details><summary className="small">判定の根拠</summary><JudgeView j={o.judgement} showSummary={false} /></details>
+  </div>;
 
-  /** 開いた行: 候補の比較と選び直し、選んだ配合の血統表と判定 */
-  const detail = (row: Row, option: Option | null) => {
-    const sire = option && app.resolver.get(option.sire), dam = app.resolver.get(row.mare);
-    const j = sire && dam ? judge(sire, dam, app.ctx) : null;
-    return <div className="result-expanded" onClick={(e) => e.stopPropagation()}>
-      {row.options.length > 1 && <ol className="steps">{row.options.map((o) => <li key={o.sire}>
-        <b>{app.resolver.label(o.sire)}</b>（{o.costUnknown ? '種付料未確認' : `${o.cost.toLocaleString()}万`}） {planTag(o)}{' '}
-        {o.sire === option?.sire ? <span className="tag">選択中</span> : <button type="button" onClick={() => setPicked({ ...picked, [row.mare]: o.sire })}>この種牡馬にする</button>}
-        <div><Summary s={o.s} /></div>
-      </li>)}</ol>}
-      {option && <div className="inline-row"><a href={matingLink(option.sire, row.mare)}>配合確認で開く</a></div>}
-      {j && <><SummaryStrip j={j} /><Pedigree j={j} /><details><summary className="small">判定の根拠</summary><JudgeView j={j} showSummary={false} /></details></>}
-    </div>;
-  };
 
   return (
     <div>
@@ -116,7 +103,7 @@ export function SeasonPlanner({ filter, setFilter }: { filter: StallionFilterSta
           <div className="search-limits"><label className="field">種付料合計の上限（万）<input type="number" value={budget} onChange={(e) => setBudget(e.target.value)} placeholder="なし" /></label></div>
         </SearchSection>
         <div className="search-actions">
-          <button type="button" className="search-reset" onClick={() => { setGoals([]); setBudget(''); setFilter(EMPTY_FILTER); setPicked({}); }}><Icon name="reset" />条件をリセット</button>
+          <button type="button" className="search-reset" onClick={() => { setGoals([{ type: 'notDangerous' }]); setBudget(''); setFilter(EMPTY_FILTER); setPicked({}); }}><Icon name="reset" />条件をリセット</button>
         </div>
       </div>
       <div className="panel">
@@ -125,32 +112,36 @@ export function SeasonPlanner({ filter, setFilter }: { filter: StallionFilterSta
             <div><b>所有の繁殖牝馬 {rows.length}頭 · 種付料の合計 {total.toLocaleString()}万</b>{unknownCost > 0 && <span className="muted">（種付料未確認の {unknownCost}頭を除く）</span>}{limit != null && <span className="muted">　予算 {limit.toLocaleString()}万</span>}</div>
             {!assignment.fits && <div className="small">予算内に収まる組み合わせがありません。各牝馬の第1候補を表示しています。</div>}
           </div>
-          <div className="toolbar"><SortSelect value={sort} onChange={(value) => { setSort(value); setPicked({}); }} costLabel="種付料が安い順" /></div>
-          {mobile ? (
-            <div className="result-cards">
-              {chosen.map(({ row, option }) => <div key={row.mare} className={'result-card clickable' + (open === row.mare ? ' selected' : '')} onClick={() => toggle(row.mare)}>
-                <div className="result-head"><b>{app.resolver.label(row.mare)}</b><span className="num muted">{!option ? '' : option.costUnknown ? '未確認' : `${option.cost.toLocaleString()}万`}</span></div>
-                <div>{sireName(option)}</div>
-                {option && <Summary s={option.s} />}
-                {open === row.mare && detail(row, option)}
-              </div>)}
-            </div>
-          ) : (
-            <div className="table-wrap"><table>
-              <thead><tr><th>繁殖牝馬</th><th>種牡馬</th><th className="num">種付料</th><th className="wrap">判定</th></tr></thead>
-              <tbody>{chosen.map(({ row, option }) => [
-                <tr key={row.mare} className={'clickable' + (open === row.mare ? ' selected' : '')} onClick={() => toggle(row.mare)}>
-                  <td className="name">{app.resolver.label(row.mare)}</td>
-                  <td className="name">{sireName(option)}</td>
-                  <td className="num">{!option ? '' : option.costUnknown ? '—' : option.cost.toLocaleString()}</td>
-                  <td className="wrap">{option && <Summary s={option.s} />}</td>
-                </tr>,
-                open === row.mare && <tr key={'d' + row.mare} className="result-expanded-row"><td colSpan={4} className="wrap">{detail(row, option)}</td></tr>,
-              ])}</tbody>
-            </table></div>
-          )}
+          {chosen.map(({ row, option }) => <details className="season-mare-results" key={row.mare} open>
+            <summary className="season-mare-heading"><span className="season-mare-name">{app.resolver.label(row.mare)}</span><span className="small muted">候補 {row.options.length}頭</span></summary>
+            {row.options.length ? <SeasonCandidates key={`${row.mare}:${JSON.stringify(goals)}:${JSON.stringify(filter)}`} options={row.options} goals={goals} nameButton={nameButton} expanded={o => <>
+              <div className="inline-row season-choice" onClick={e => e.stopPropagation()}>{planTag(o)}{o.sire === option?.sire ? <span className="tag">今年の種付けに選択中</span> : <button type="button" onClick={() => setPicked({ ...picked, [row.mare]: o.sire })}>今年の種付けに選ぶ</button>}</div>
+              {expanded(o)}
+            </>} /> : <p className="small muted">条件を満たす種牡馬なし</p>}
+          </details>)}
         </>}
       </div>
+      {detailHorse && <HorseDialog horseKey={detailHorse} onClose={() => setDetailHorse(null)} />}
     </div>
   );
+}
+
+function SeasonCandidates({ options, goals, ...list }: {
+  options: Option[]; goals: SearchGoal[];
+} & Pick<Parameters<typeof OneGenResultList<Option>>[0], 'nameButton' | 'expanded'>) {
+  const mobile = useMobile();
+  const [sort, setSort] = useState<OneGenSort>(DEFAULT_ONEGEN_SORT);
+  const [open, setOpen] = useState<string | null>(null);
+  const results = useMemo(() => [...options].sort((a, b) => compareOneGenResults(a, b, sort, wantedEffects(goals))), [options, sort, goals]);
+  const page = useResultPage(results, 10);
+  const updateSort = (next: OneGenSort) => { setSort(next); page.setPage(0); };
+  const changeSort = (column: string) => updateSort({ column, direction: sort.column === column ? sort.direction === 'asc' ? 'desc' : 'asc' : ['sire', 'price', 'grown'].includes(column) ? 'asc' : 'desc', judgement: 'recommended' });
+  return <>
+    <div className="onegen-sort-tools">
+      {mobile && <><label className="field">並べ替える列<select value={sort.column} onChange={e => changeSort(e.target.value)}>{oneGenColumns(false, false).map(c => <option key={c.key} value={c.key}>{c.label}</option>)}</select></label><button type="button" onClick={() => updateSort({ ...sort, direction: sort.direction === 'asc' ? 'desc' : 'asc' })}>{sort.direction === 'asc' ? '↑ 昇順' : '↓ 降順'}</button></>}
+      <details><summary className="small">判定の詳細順</summary><SortSelect value={sort.column === 'judgement' ? sort.judgement : 'recommended'} onChange={value => updateSort({ column: 'judgement', direction: 'desc', judgement: value })} costLabel="種付料が安い順" stallionAttributes={false} /></details>
+    </div>
+    <OneGenResultList {...list} rows={page.rows} showOrigin={false} mobile={mobile} sort={sort} changeSort={changeSort} open={open} toggle={key => setOpen(open === key ? null : key)} constraints={() => null} label="今年の種付けの候補" />
+    <ResultPagination {...page} onChange={page.setPage} />
+  </>;
 }

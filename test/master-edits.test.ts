@@ -64,7 +64,6 @@ describe('マスターデータへの追加・修正・非表示', () => {
 describe('種牡馬・繁殖牝馬の画面からの登録', async () => {
   const { homebredBlockReason, masterFromReading, parseFee } = await import('../src/core/master-edits');
   const { owned, planned } = await import('./horse-fixtures');
-  const ancestors = new Map(M.ancestors.map((a) => [a.id, a]));
   const reading = { name: 'マチカネイワシミズ', sex: '牡' as const, age: -1, color: '鹿毛', sire: 'ファバージ', dam: 'ロッチ', dam_sire: 'ダイハード', big_system: 'Ns', small_system: 'プリンスリーギフト', fee: '無料', price: '', distance: '1800-2000m', growth: '普通', dirt: '○', kenko: 'B', kisyo: 'B', jisseki: 'C', konjo: 'C', antei: 'C', offspring: '0頭', wins: '0勝', graded: '0勝', g1: '0勝' };
 
   it('自家生産馬は拒否する（所有馬・計画馬と同名、仮名、父母が所有馬）', () => {
@@ -78,27 +77,28 @@ describe('種牡馬・繁殖牝馬の画面からの登録', async () => {
 
   it('種牡馬の読み取りを新規のマスターの馬にし、種付料「無料」は0、繁殖能力は attrs に入る', () => {
     const prepared = prepareReadingAncestors(M, reading);
-    const h = masterFromReading('stallion', reading, null, prepared.master, ancestors, prepared.parentIds);
+    const h = masterFromReading('stallion', reading, null, prepared.master, prepared.parentIds);
     const names = horseIdentities(prepared.master);
     expect(h).toMatchObject({ kind: 'stallion', sex: 'M', name: 'マチカネイワシミズ', price: 0, color: '鹿毛', bigSystem: 'Ns', smallSystem: 'プリンスリーギフト' });
     expect(h.ancestors.slice(0, 2).map(id => names.get(id)?.name)).toEqual(['ファバージ', 'ロッチ']); expect(names.get(h.ancestors[4])?.name).toBe('ダイハード');
     expect(h.attrs).toMatchObject({ dist: [1800, 2000], grown: '普通', dirt: '○', kenko: 'B', kisyo: 'B', jisseki: 'C', konjo: 'C', antei: 'C' });
-    const unknown = masterFromReading('stallion', { ...reading, sire: '', dam: '', dam_sire: '', big_system: '' }, null, M, ancestors);
-    expect(unknown).toMatchObject({ omoshiro: '????', migoto: '????' });
+    const unknown = masterFromReading('stallion', { ...reading, sire: '', dam: '', dam_sire: '', big_system: '' }, null, M);
+    expect(unknown.bigSystem).toBeNull();
+    expect(unknown.ancestors.every(id => !id)).toBe(true);
     expect(parseFee('500万円')).toBe(500); expect(parseFee('')).toBeUndefined();
   });
 
   it('既存のマスターの馬には読めた項目だけを重ね、父母がマスターの馬なら血統を補完する', () => {
     const base = M.broodmares.find((b) => b.name === 'アーモンドアイ') ?? M.broodmares[0];
     const r = { ...reading, name: base.name, sex: '牝' as const, age: 8, sire: M.stallions[0].name, dam: '', dam_sire: '', big_system: '', small_system: '', fee: '', price: '3億7000万円', distance: '', growth: '', dirt: '', kenko: '', kisyo: '', jisseki: '', konjo: '', antei: '' };
-    const h = masterFromReading('broodmare', r, base, M, ancestors);
+    const h = masterFromReading('broodmare', r, base, M);
     expect(h.id).toBe(base.id); expect(h.purchasePrice).toBe(37000); expect(h.smallSystem).toBe(base.smallSystem);
     // 父が別のマスターの馬に変わったので父側の祖先は新しい父の血統で埋まり、母側は元のまま
     expect(h.ancestors[0]).toBe(M.stallions[0].id); expect(h.ancestors[2]).toBe(M.stallions[0].ancestors[0]); expect(h.ancestors[6]).toBe(M.stallions[0].ancestors[2]);
     expect(h.ancestors[1]).toBe(base.ancestors[1]); expect(h.ancestors[5]).toBe(base.ancestors[5]);
     const changed = { ...r, sire: '', dam: '別の母' };
     const prepared = prepareReadingAncestors(M, changed);
-    const fixed = masterFromReading('broodmare', changed, base, prepared.master, ancestors, prepared.parentIds);
+    const fixed = masterFromReading('broodmare', changed, base, prepared.master, prepared.parentIds);
     expect(fixed.ancestors[1]).toBe(prepared.additions[0].id);
     expect(fixed.ancestors[5]).toBe('');
     const partial = applyMasterFields(base, h, ['purchasePrice']);
@@ -169,7 +169,7 @@ describe('種牡馬一覧の能力取り込み', () => {
       expect(next.attrs).toMatchObject({ dist: [1600, 2000], grown: '早熟', dirt: '○', kenko: 'C', kisyo: 'B', jisseki: 'C', konjo: 'A', antei: 'B' });
       expect(next.price).toBe(20);
       expect(next.ancestors).toEqual(base.ancestors);
-      const changes = masterDiffRows(base, next, M.meta.bigSystems, label);
+      const changes = masterDiffRows(base, next, label);
       expect(changes.find((d) => d.key === 'attr:kenko')).toMatchObject({ before: 'A', after: 'C' });
       const selected = applyMasterFields(base, next, ['attr:kenko', 'attr:jisseki']);
       expect(selected.attrs).toMatchObject({ kenko: 'C', jisseki: 'C', kisyo: 'A', konjo: 'B' });

@@ -48,7 +48,7 @@ export function sireOptions(app: AppCtx, { onlyAvailable = false, includePlanned
   return [...own, ...master];
 }
 /** 母候補: 繁殖牝馬 + 牝の所有馬 + 繁殖牝馬予定の計画馬 */
-export function damOptions(app: AppCtx, { onlyAvailable = false, includePlanned = true, requirePedigree = false }: OptionFilter = {}): HorseOption[] {
+export function damOptions(app: Pick<AppCtx, 'master' | 'data'>, { onlyAvailable = false, includePlanned = true, requirePedigree = false }: OptionFilter = {}): HorseOption[] {
   // 所有馬として持っているデータの繁殖牝馬は、所有馬の側に1回だけ出す
   const owned = new Set(app.data.horses.flatMap((h) => (h.masterKey ? [h.masterKey] : [])));
   const master = app.master.broodmares

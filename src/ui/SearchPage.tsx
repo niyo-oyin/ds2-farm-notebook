@@ -12,8 +12,8 @@ import { COST_UNKNOWN, makeFoalRecord } from '../core/pedigree';
 import type { HorseRecord, Judgement } from '../core/types';
 import { estimateYears, YEAR_ASSUMPTIONS } from '../core/estimate';
 import { foldDominated, wantedEffects } from '../core/result-order';
-import { ATTR_LABEL, ownedOrigins, sortCompare, type AttrKey, type OneGenOrigin, type SortItem, type SortKey } from './search-order';
-import { horseCell, horseColumns } from './master-horse-catalog';
+import { ATTR_LABEL, sortCompare, type AttrKey, type OneGenOrigin, type SortItem, type SortKey } from './search-order';
+import { OneGenResultList, oneGenColumns } from './OneGenResultList';
 import { compareOneGenResults, DEFAULT_ONEGEN_SORT, stallionValues, type OneGenSort } from './onegen-results';
 import { EffectCountChips, Pedigree } from './Pedigree';
 import { SummaryStrip, JudgeView } from './JudgeView';
@@ -247,8 +247,8 @@ function SearchPageBody({ params, job }: { params: URLSearchParams; job: SearchJ
   const app = useApp();
   const [mode, setMode] = useMemoState<'one' | 'multi' | 'loop' | 'season' | 'homebred'>('page', 'mode', 'one', job ? (job.kind === 'loop' ? 'loop' : 'multi') : params.get('mode') === 'one' || params.get('stallion') ? 'one' : params.get('mode') === 'loop' ? 'loop' : params.get('mare') || params.get('replan') ? 'multi' : null);
   const [origin, setOrigin] = useMemoState<OneGenOrigin>('one', 'origin', 'mare', params.get('stallion') ? 'stallion' : params.get('mare') ? 'mare' : null);
-  const [mares, setMares] = useMemoState<string[]>('one', 'selected:mare', ownedOrigins(app, 'mare'), params.get('mare') ? [params.get('mare')!] : null);
-  const [stallions, setStallions] = useMemoState<string[]>('one', 'selected:stallion', ownedOrigins(app, 'stallion'), params.get('stallion') ? [params.get('stallion')!] : null);
+  const [mares, setMares] = useMemoState<string[]>('one', 'selected:mare', [], params.get('mare') ? [params.get('mare')!] : null);
+  const [stallions, setStallions] = useMemoState<string[]>('one', 'selected:stallion', [], params.get('stallion') ? [params.get('stallion')!] : null);
   const [mareRun, setMareRun] = useMemoState<number>('one', 'run:mare', 0, params.get('mare') ? 1 : null);
   const [stallionRun, setStallionRun] = useMemoState<number>('one', 'run:stallion', 0, params.get('stallion') ? 1 : null);
   const oneSelection = origin === 'mare' ? { selected: mares, setSelected: setMares, run: mareRun, setRun: setMareRun } : { selected: stallions, setSelected: setStallions, run: stallionRun, setRun: setStallionRun };
@@ -289,7 +289,7 @@ function OneGen({ filter, setFilter, origin, onOriginChange, selected, setSelect
   const sOpts = useMemo(() => sireOptions(app, { onlyAvailable: true, requirePedigree: true, includePlanned: includePool, includeOverseas: filter.includeOverseas }), [app, includePool, filter.includeOverseas]);
   const hidePlanned = !!app.data.settings.hidePlanned;
   const originOptions = useMemo(() => (fromStallion ? sireOptions : damOptions)(app, { onlyAvailable: true, requirePedigree: true, includePlanned: !hidePlanned }), [app, fromStallion, hidePlanned]);
-  const [goals, setGoals] = useMemoState<SearchGoal[]>('one', 'goals', []);
+  const [goals, setGoals] = useMemoState<SearchGoal[]>('one', 'goals', [{ type: 'notDangerous' }]);
   const [sort, setSort] = useMemoState<OneGenSort>('one', `tableSort:${origin}`, DEFAULT_ONEGEN_SORT);
   // 起点を切り替えても、相手の属性条件を固定した種牡馬へ適用しない。
   const sireKeys = useMemo(() => fromStallion ? selected : sOpts.filter((o) => { const m = app.master.stallions.find((s) => s.id === o.key); return !m || matchesStallion(m, filter); }).map((o) => o.key), [fromStallion, selected, sOpts, filter, app]);
@@ -307,27 +307,17 @@ function OneGen({ filter, setFilter, origin, onOriginChange, selected, setSelect
     return [...evaluated].sort((a, b) => compareOneGenResults(a, b, sort, wanted));
   }, [evaluated, goals, sort]);
   const resultPage = useResultPage(results ?? [], mobile ? 100 : 300);
-  const abilityColumns = horseColumns('stallion').slice(2);
-  const columns = [
-    { key: fromStallion ? 'dam' : 'sire', label: fromStallion ? '母（繁殖牝馬）' : '父（種牡馬）' },
-    { key: fromStallion ? 'sire' : 'dam', label: fromStallion ? '父（起点）' : '母（起点）' },
-    { key: 'price', label: '種付料（万）', numeric: true }, ...abilityColumns,
-    { key: 'judgement', label: '判定' },
-  ];
+  const columns = oneGenColumns(fromStallion);
   const changeSort = (column: string) => {
     const direction = sort.column === column ? sort.direction === 'asc' ? 'desc' : 'asc' : ['sire', 'dam', 'price', 'grown'].includes(column) ? 'asc' : 'desc';
     setSort({ column, direction, judgement: 'recommended' });
     resultPage.setPage(0);
   };
-  const abilityCell = (r: NonNullable<typeof results>[number], key: string) => horseCell(r.stallion, key);
-  const partnerKey = (r: { sire: string; dam: string }) => fromStallion ? r.dam : r.sire;
-  const originKey = (r: { sire: string; dam: string }) => fromStallion ? r.sire : r.dam;
   const constraints = (key: string) => { const h = app.resolver.get(key); return h ? <CostUnknownTag steps={[h]} /> : null; };
   const matingLink = (r: { sire: string; dam: string }) => '#/mating?' + new URLSearchParams({ sire: r.sire, dam: r.dam });
   // 行を押すとその場で血統表と判定を展開し、相手の馬名を押すと馬の詳細をオーバーレイで開く
   const [open, setOpen] = useMemoState<string | null>('one', 'open', null);
   const [detail, setDetail] = useState<string | null>(null);
-  const rowKey = (r: { sire: string; dam: string }) => `${r.sire}:${r.dam}`;
   const nameButton = (key: string) => <button type="button" className="result-name-button" onClick={(e) => { e.stopPropagation(); setDetail(key); }}>{app.resolver.label(key)}</button>;
   const expanded = (r: { sire: string; dam: string; judgement: Judgement }) => <div className="result-expanded" onClick={(e) => e.stopPropagation()}>
     <div className="inline-row"><a href={matingLink(r)}>配合確認で開く</a><a href={`#/search?mare=${encodeURIComponent(r.dam)}&final=${encodeURIComponent(r.sire)}`}>数世代の配合を探す</a></div>
@@ -348,7 +338,7 @@ function OneGen({ filter, setFilter, origin, onOriginChange, selected, setSelect
         <GoalEditor goals={goals} setGoals={setGoals} />
         {!fromStallion && <SearchSection title="種牡馬の属性" icon="sliders"><StallionFilter value={filter} onChange={setFilter} /></SearchSection>}
         <div className="search-actions">
-          <button type="button" className="search-reset" onClick={() => { setGoals([]); if (!fromStallion) setFilter(EMPTY_FILTER); setRun(0); }}><SearchIcon name="reset" />条件をリセット</button>
+          <button type="button" className="search-reset" onClick={() => { setGoals([{ type: 'notDangerous' }]); if (!fromStallion) setFilter(EMPTY_FILTER); setRun(0); }}><SearchIcon name="reset" />条件をリセット</button>
           <button className="primary search-submit" disabled={!selected.length || !partnerCount} onClick={() => { setRun(run + 1); resultPage.setPage(0); }}><SearchIcon name="search" />総当たり<span className="search-submit-count">{originLabel} {selected.length}頭 × {partnerLabel} {partnerCount}頭</span></button>
         </div>
       </div>
@@ -360,33 +350,7 @@ function OneGen({ filter, setFilter, origin, onOriginChange, selected, setSelect
             {mobile && <button type="button" onClick={() => { setSort({ ...sort, direction: sort.direction === 'asc' ? 'desc' : 'asc' }); resultPage.setPage(0); }}>{sort.direction === 'asc' ? '↑ 昇順' : '↓ 降順'}</button>}
             <details><summary className="small">判定の詳細順</summary><SortSelect value={sort.column === 'judgement' ? sort.judgement : 'recommended'} onChange={value => { setSort({ column: 'judgement', direction: 'desc', judgement: value }); resultPage.setPage(0); }} costLabel="種付料が安い順" stallionAttributes={false} /></details>
           </div>
-          {mobile ? (
-            <div className="result-cards">
-              {resultPage.rows.map((r) => (
-                <div key={rowKey(r)} className={'result-card clickable' + (open === rowKey(r) ? ' selected' : '')} onClick={() => setOpen(open === rowKey(r) ? null : rowKey(r))}>
-                  <div className="result-head"><b>{nameButton(partnerKey(r))} {constraints(partnerKey(r))}</b><span className="num muted">{r.judgement.costUnknown ? '未確認' : `${r.judgement.cost.toLocaleString()}万`}</span></div>
-                  <div className="small muted">{fromStallion ? '父' : '母'}：{app.resolver.label(originKey(r))} {constraints(originKey(r))}</div>
-                  <dl className="onegen-card-abilities" aria-label="種牡馬の能力">{abilityColumns.map(c => <div key={c.key}><dt>{c.label}</dt><dd>{abilityCell(r, c.key)}</dd></div>)}</dl>
-                  <Summary s={r.s} />
-                  {open === rowKey(r) && expanded(r)}
-                </div>
-              ))}
-            </div>
-          ) : (
-          <div className="table-wrap"><table className="onegen-table" aria-label="総当たりの検索結果">
-            <thead><tr>{columns.map(c => <th key={c.key} className={c.numeric ? 'num' : undefined} aria-sort={sort.column === c.key ? sort.direction === 'asc' ? 'ascending' : 'descending' : 'none'}><button type="button" onClick={() => changeSort(c.key)} title={c.key === 'dist' ? '距離上限で並べ替え' : c.key === 'judgement' ? 'おすすめ順で並べ替え' : `${c.label}で並べ替え`}>{c.label}<span aria-hidden="true">{sort.column === c.key ? sort.direction === 'asc' ? ' ↑' : ' ↓' : ' ↕'}</span></button></th>)}</tr></thead>
-            <tbody>
-              {resultPage.rows.map((r) => [
-                <tr key={rowKey(r)} className={'clickable' + (open === rowKey(r) ? ' selected' : '')} onClick={() => setOpen(open === rowKey(r) ? null : rowKey(r))}>
-                  <td className="name">{nameButton(partnerKey(r))} {constraints(partnerKey(r))}</td><td className="name">{nameButton(originKey(r))} {constraints(originKey(r))}</td><td className="num">{r.judgement.costUnknown ? '—' : r.judgement.cost.toLocaleString()}</td>
-                  {abilityColumns.map(c => <td key={c.key} className={c.key === 'dist' ? 'onegen-distance' : 'onegen-rating'}><span className={abilityCell(r, c.key) === '—' ? 'muted' : undefined}>{abilityCell(r, c.key)}</span></td>)}
-                  <td className="wrap onegen-judgement"><Summary s={r.s} /></td>
-                </tr>,
-                open === rowKey(r) && <tr key={'d' + rowKey(r)} className="result-expanded-row"><td colSpan={columns.length} className="wrap">{expanded(r)}</td></tr>,
-              ])}
-            </tbody>
-          </table></div>
-          )}
+          <OneGenResultList rows={resultPage.rows} mobile={mobile} sort={sort} changeSort={changeSort} open={open} toggle={key => setOpen(open === key ? null : key)} nameButton={nameButton} constraints={constraints} expanded={expanded} fromStallion={fromStallion} label="総当たりの検索結果" />
           {results.length === 0 && <p className="empty small">条件を満たす組み合わせはありません。</p>}
           <ResultPagination {...resultPage} onChange={resultPage.setPage} />
         </div>
@@ -431,12 +395,12 @@ function MultiGen({ filter, setFilter, params, job }: { filter: StallionFilterSt
   // URL の replan・from で開いた時だけ。保存するとその計画の手順を置き換える
   const replan = useMemo(() => replanTarget(app, params), [app, params]);
   const pr = replan?.request ?? jr;
-  const [mares, setMares] = useMemoState<string[]>('multi', 'mares', ownedOrigins(app, 'mare'), replan ? [replan.dam] : params.get('mare') ? [params.get('mare')!] : jr?.startMares ?? null);
+  const [mares, setMares] = useMemoState<string[]>('multi', 'mares', [], replan ? [replan.dam] : params.get('mare') ? [params.get('mare')!] : jr?.startMares ?? null);
   const [intermediate, setIntermediate] = useMemoState<string>('multi', 'intermediate', '', params.get('mare') ? '' : pr ? (pr.intermediateStallion ?? '') : null);
   const [final, setFinal] = useMemoState<string>('multi', 'final', '', params.get('mare') ? (params.get('final') ?? '') : pr ? (pr.finalStallion ?? '') : null);
   const [minM, setMinM] = useMemoState<number>('multi', 'minM', 1, pr?.minMatings ?? null);
   const [maxM, setMaxM] = useMemoState<number>('multi', 'maxM', 2, pr?.maxMatings ?? null);
-  const [goals, setGoals] = useMemoState<SearchGoal[]>('multi', 'goals', [{ type: 'perfect' }], pr?.goals ?? null);
+  const [goals, setGoals] = useMemoState<SearchGoal[]>('multi', 'goals', [{ type: 'perfect' }, { type: 'notDangerous' }], pr?.goals ?? null);
   const [maxCost, setMaxCost] = useMemoState<string>('multi', 'maxCost', '', pr ? (pr.maxCost == null ? '' : String(pr.maxCost)) : null);
   const [maxEval, setMaxEval] = useMemoState<number>('multi', 'maxEval', 50_000_000, pr?.maxEvaluations ?? null);
   const [repeat, setRepeat] = useMemoState<boolean>('multi', 'repeat', true, pr?.allowRepeatStallion ?? null);
@@ -622,7 +586,7 @@ function MultiGen({ filter, setFilter, params, job }: { filter: StallionFilterSt
         <GoalEditor goals={goals} setGoals={setGoals} multi />
         <SearchSection title="種牡馬の属性" icon="sliders"><StallionFilter value={filter} onChange={setFilter} showIntermediate /></SearchSection>
         <div className="search-actions">
-          <button type="button" className="search-reset" disabled={running} onClick={() => { setFinal(''); setIntermediate(''); setMinM(1); setMaxM(2); setGoals([{ type: 'perfect' }]); setMaxCost(''); setMaxEval(50_000_000); setRepeat(true); setFilter(EMPTY_FILTER); setReport(null); setOpen(null); setErr(''); setStarted(null); setViewingJob(false); }}><SearchIcon name="reset" />条件をリセット</button>
+          <button type="button" className="search-reset" disabled={running} onClick={() => { setFinal(''); setIntermediate(''); setMinM(1); setMaxM(2); setGoals([{ type: 'perfect' }, { type: 'notDangerous' }]); setMaxCost(''); setMaxEval(50_000_000); setRepeat(true); setFilter(EMPTY_FILTER); setReport(null); setOpen(null); setErr(''); setStarted(null); setViewingJob(false); }}><SearchIcon name="reset" />条件をリセット</button>
           {runningProgress && <span className="search-progress-label" role="status">{jobRunning ? 'バックグラウンドで探索中 · ' : ''}判定 {runningProgress.evaluated.toLocaleString()} 回 / 発見 {runningProgress.found} 件</span>}
           {running ? <button className="search-submit" onClick={cancel}>探索を中止</button> : <span className="search-submit-group">
             <button className="search-submit" disabled={!origins.length} onClick={() => void background()}>バックグラウンドで探索</button>

@@ -18,7 +18,7 @@ export function BreedingResult({ job, reading, onDone }: { job: ImportJob; readi
   const updates = useMemo(() => rows.flatMap((row) => {
     if (!row.stallion || homebredBlockReason({ name: row.name, sire: '', dam: '' }, app.data.horses, app.data.plannedHorses)) return [];
     const next = masterFromBreedingCard(row.stallion, row.reading);
-    const diff = masterDiffRows(row.stallion, next, app.master.meta.bigSystems, id => app.resolver.label(id));
+    const diff = masterDiffRows(row.stallion, next, id => app.resolver.label(id));
     return diff.length ? [{ existing: row.stallion, next, diff }] : [];
   }), [rows, app.data.horses, app.data.plannedHorses, app.master.meta.bigSystems, app.resolver]);
   const targets = updates.map((u) => ({ ...u, keys: u.diff.map((d) => d.key).filter((key) => !excluded.has(`${u.existing.id}:${key}`)) })).filter((u) => u.keys.length);

@@ -29,9 +29,6 @@
 .master-anc-sys { display: grid; place-items: center; }
 .master-anc.sire { background: color-mix(in srgb, var(--sire) 45%, var(--paper-raised)); border-left-color: color-mix(in srgb, var(--accent) 65%, var(--rule)); }
 .master-anc.dam { background: color-mix(in srgb, var(--dam) 45%, var(--paper-raised)); border-left-color: color-mix(in srgb, #b3697a 65%, var(--rule)); }
-.master-codes { display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); gap: 10px; }
-.master-codes .field > span { display: flex; justify-content: space-between; gap: 6px; }
-.master-derived { font-style: normal; color: var(--unk); font-size: 11px; }
 .master-code-title { margin: 12px 0 6px; font: 600 12px var(--font-body); color: var(--ink-muted); }
 .hints-table th, .hints-table td:not(.wrap) { position: static; white-space: nowrap; width: 1%; }
 .hints-table td.wrap { white-space: normal; }
@@ -71,7 +68,6 @@
   .master-workspace.has-detail > .master-list-panel { display: none; }
   .master-workspace:not(.has-detail) > .master-detail-panel { display: none; }
   .master-fields { grid-template-columns: repeat(2, minmax(0, 1fr)); }
-  .master-codes { grid-template-columns: repeat(2, minmax(0, 1fr)); }
   .pairs-fields { grid-template-columns: repeat(2, minmax(0, 1fr)); }
   .master-sheet { padding: 0 14px 14px; }
 }

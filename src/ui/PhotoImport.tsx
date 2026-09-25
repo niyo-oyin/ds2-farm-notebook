@@ -7,7 +7,7 @@ import { Tip } from './Tip';
 
 const coarse = typeof matchMedia !== 'undefined' ? matchMedia('(pointer: coarse)') : null;
 const useTouch = () => useSyncExternalStore((cb) => { coarse?.addEventListener('change', cb); return () => coarse?.removeEventListener('change', cb); }, () => !!coarse?.matches);
-interface Pending { id: string; file: File; image: EncodedImage | null; rotation: number; preparing: boolean; sending: boolean; error: string }
+interface Pending { id: string; file: File; image: EncodedImage | null; rotation: number; portraitRotation?: 'left' | 'right'; preparing: boolean; sending: boolean; error: string }
 
 /** 送信元ごとの説明。scope（判別の候補）に含まれる種類の分だけ並べる */
 const SCOPE_HINTS: Record<ScreenType, string> = {
@@ -45,7 +45,7 @@ export function PhotoImport({ onClose, scope, target = null }: { onClose: () => 
     busy.current.add(p.id);
     update(p.id, { preparing: true, error: '' });
     try {
-      const image = await imageToBase64(p.file, 1600, undefined, 0, false, rotation);
+      const image = await imageToBase64(p.file, 1600, undefined, 0, false, { rotation, portraitRotation: p.portraitRotation });
       update(p.id, { image, rotation, preparing: false });
     } catch { update(p.id, { preparing: false, error: '画像を開けませんでした。もう一度読み込むか、別の写真を選んでください。' }); }
     finally { busy.current.delete(p.id); }
@@ -53,7 +53,7 @@ export function PhotoImport({ onClose, scope, target = null }: { onClose: () => 
 
   const add = (files: FileList | File[] | null | undefined) => {
     const list = [...(files ?? [])].filter((f) => f.type.startsWith('image/'));
-    const added: Pending[] = list.map(file => ({ id: String(++nextId.current), file, image: null, rotation: 0, preparing: true, sending: false, error: '' }));
+    const added: Pending[] = list.map(file => ({ id: String(++nextId.current), file, image: null, rotation: 0, portraitRotation: app.data.settings.importPortraitRotation, preparing: true, sending: false, error: '' }));
     setPending(prev => [...prev, ...added]);
     added.forEach(p => void prepare(p, 0));
   };

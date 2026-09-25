@@ -8,7 +8,7 @@ export function horseIdentities(master: MasterData): Map<string, HorseIdentity> 
 }
 
 export const isMasterKey = (key: string): boolean => /^(a|st|bm):/.test(key);
-export const newAncestorId = (): string => `a:u-${crypto.randomUUID()}`;
+export const newAncestorId = (): string => `a:u-${Array.from(crypto.getRandomValues(new Uint8Array(16)), byte => byte.toString(16).padStart(2, '0')).join('')}`;
 
 /** 読み取り表記の全半角・空白・英字の大小を揃える。個体の区別はIDで行う。 */
 export const horseNameKey = (name: string): string => name.normalize('NFKC').trim().replace(/\s+/g, ' ').toLowerCase();

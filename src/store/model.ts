@@ -32,6 +32,8 @@ export interface Settings {
   gameYear?: number;
   /** 写真の取り込み: 解析が終わったら確認ダイアログを自動で開く */
   importAutoOpen?: boolean;
+  /** 縦長の取り込み写真を90度回転する向き。未設定なら回転しない。 */
+  importPortraitRotation?: 'left' | 'right';
   /** 写真の取り込み: 反映先が確実なときは確認なしで反映する */
   importAutoApply?: boolean;
   /** 種牡馬・繁殖牝馬の画面: 同名のマスターの馬があれば確認なしで更新する */

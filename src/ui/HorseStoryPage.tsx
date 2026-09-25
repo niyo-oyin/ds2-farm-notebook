@@ -1,7 +1,7 @@
 import { useEffect, useRef, useState } from 'react';
 import { api, imageUrl } from '../api';
 import { canReadHorseStory, storyFacts } from '../core/horse-story';
-import { StoryContentSchema, StoryRequestSchema, type HorseStory, type StoryContent, type StoryRequest } from '../shared/horse-story';
+import { StoryContentSchema, StoryRequestSchema, normalizeStoryContent, type HorseStory, type StoryContent, type StoryRequest } from '../shared/horse-story';
 import { store } from '../store/userdata';
 import { checkWorkspace, workspaceGeneration } from '../store/workspace';
 import { useApp } from './app-context';
@@ -65,10 +65,10 @@ export function HorseStoryPage({ params }: { params: URLSearchParams }) {
     if (!story || !draft) return;
     const parsed = StoryContentSchema.safeParse(draft);
     if (!parsed.success) { setError('空欄や長すぎる文章があります。見出しと本文を確認してください。'); return; }
-    store.updateHorse(horse.id, { story: { ...story, content: parsed.data } }); setDraft(null); setError('');
+    store.updateHorse(horse.id, { story: { ...story, content: normalizeStoryContent(parsed.data) } }); setDraft(null); setError('');
   };
   return <div className="story-page">
-    <div className="story-toolbar"><button disabled={busy} onClick={() => navigate('/horses', { id: horse.id })}>← 所有馬へ</button><span>{horse.name}の一篇</span>{story && !busy && !draft && <div><button onClick={() => { setDirection(story.request.direction); setTone(story.request.tone); setComposing(!showComposer); setError(''); }}>{showComposer ? '記事に戻る' : '書き直す'}</button><button onClick={() => { setDraft(structuredClone(story.content)); setComposing(false); }}>文章を編集</button><button disabled={exporting} onClick={() => void exportHtml()}>{exporting ? '保存中…' : 'HTMLを保存'}</button><button className="primary" disabled={showComposer} onClick={() => window.print()}>印刷・PDF</button></div>}</div>
+    <div className="story-toolbar"><button disabled={busy} onClick={() => navigate('/horses', { id: horse.id })}>← 所有馬へ</button><span>{horse.name}の一篇</span>{story && !busy && !draft && <div><button onClick={() => { setDirection(story.request.direction); setTone(story.request.tone); setComposing(!showComposer); setError(''); }}>{showComposer ? '記事に戻る' : '書き直す'}</button><button onClick={() => { setDraft(normalizeStoryContent(structuredClone(story.content))); setComposing(false); }}>文章を編集</button><button disabled={exporting} onClick={() => void exportHtml()}>{exporting ? '保存中…' : 'HTMLを保存'}</button><button className="primary" disabled={showComposer} onClick={() => window.print()}>印刷・PDF</button></div>}</div>
     {error && <div className="error" role="alert">{error}</div>}
     {showComposer && !draft && <section className="story-composer">
       <div className="story-composer-heading"><span>STABLE JOURNAL</span><h2>記録を、一篇の物語に。</h2><p>{horse.name}の戦績と血統から、愛馬だけの読み物を綴ります。</p></div>

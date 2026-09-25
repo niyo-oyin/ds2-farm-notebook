@@ -1,10 +1,10 @@
 // 読み取り結果の反映。確認ダイアログ（ImportJobCard）と、設定による自動反映（ImportTray）で共有する。
 import { PORTRAIT_MAX_SIDE, fetchImage, hasBox, imageToBase64, uploadImage, type CardScreen, type ImportJob, type PedigreeScreen } from '../api';
 import type { AncestorInfo, MasterHorse, OwnedHorse } from '../core/types';
-import { compareAncestorFactors, diffAgainstBase, homebredBlockReason, prepareReadingAncestors, masterFromReading, type NicksProposal } from '../core/master-edits';
+import { applyMasterEdits, compareAncestorFactors, diffAgainstBase, homebredBlockReason, prepareReadingAncestors, masterFromReading, type NicksProposal } from '../core/master-edits';
 import { newAncestorId } from '../core/horse-identity';
 import { baseMaster } from '../data/base-master';
-import { applyCardReading, cardMatchCandidates, inferredGameYear, pedigreeMatchCandidates, type CardReading } from '../core/owned-horse';
+import { applyCardReading, cardMatchCandidates, inferredGameYear, parseFoalName, pedigreeMatchCandidates, type CardReading } from '../core/owned-horse';
 import { getUserData, store } from '../store/userdata';
 import { checkWorkspace, workspaceGeneration } from '../store/workspace';
 import { sireOptions, damOptions, type AppCtx, type HorseOption } from './app-context';
@@ -15,12 +15,26 @@ export interface AppliedInfo { name: string; href: string }
 
 /** 読み取った名前を父母の候補に照合する（完全一致 → 空白・記号を除いた一致） */
 export function matchName(name: string, options: HorseOption[]): string {
-  if (!name) return '';
+  const matches = matchingNames(name, options);
+  return matches.length === 1 ? matches[0].key : '';
+}
+
+function matchingNames(name: string, options: HorseOption[]): HorseOption[] {
+  if (!name) return [];
   const norm = (s: string) => s.replace(/[\s・()（）]/g, '').toLowerCase();
   const n = norm(name);
   const exact = options.filter(o => o.name === name);
-  const matches = exact.length ? exact : options.filter(o => norm(o.name) === n);
-  return matches.length === 1 ? matches[0].key : '';
+  return exact.length ? exact : options.filter(o => norm(o.name) === n);
+}
+
+/** 仮名から未設定の母を補完する。登録済みの血統は変更しない。 */
+export function inferCardDam(app: Pick<AppCtx, 'master' | 'data'>, name: string, target?: OwnedHorse) {
+  if (target?.damKey || target?.masterKey) return null;
+  const foal = parseFoalName(name);
+  if (!foal) return null;
+  const options = damOptions(app, { includePlanned: false }).filter(o => o.key !== target?.id);
+  const matches = matchingNames(foal.damName, options);
+  return { name: foal.damName, key: matches.length === 1 ? matches[0].key : '', ambiguous: matches.length > 1 };
 }
 
 const applyingCards = new Map<string, Promise<OwnedHorse>>();
@@ -54,12 +68,15 @@ async function saveCardJob(job: ImportJob, reading: CardScreen, targetId: string
   if (targetId && !target) throw new Error('反映先の所有馬が見つかりません');
   const gameYear = data.settings.gameYear;
   const patch = applyCardReading(target, card, new Date().toISOString(), gameYear);
+  const master = applyMasterEdits(baseMaster, data.masterEdits, data.ancestorEdits, data.kottaEdits, data.nicksEdits);
+  const inferredDam = inferCardDam({ master, data }, card.name, target);
+  const parents = { sireKey: target?.sireKey ?? '', damKey: target?.damKey || inferredDam?.key || '' };
   patch.observations = patch.observations?.map((o, i, all) => i === all.length - 1 ? { ...o, importJobId: job.id } : o);
   if (!patch.name.trim()) throw new Error('馬名が読み取れていません');
   let saved: OwnedHorse;
-  if (target) { store.updateHorse(target.id, { ...patch, ...(imageId ? { imageId } : {}) }); saved = { ...target, ...patch, ...(imageId ? { imageId } : {}) }; }
+  if (target) { store.updateHorse(target.id, { ...patch, ...parents, ...(imageId ? { imageId } : {}) }); saved = { ...target, ...patch, ...parents, ...(imageId ? { imageId } : {}) }; }
   // 複数タブ・端末で同じジョブを同時反映しても、同期先では同じ馬になる。
-  else saved = store.addHorse({ kind: 'owned', ...patch, id: `u:import:${job.id}`, sireKey: '', damKey: '', imageId });
+  else saved = store.addHorse({ kind: 'owned', ...patch, id: `u:import:${job.id}`, ...parents, imageId });
   const inferred = inferredGameYear(card, patch);
   if (inferred !== undefined && inferred > (gameYear ?? -Infinity)) store.setSettings({ gameYear: inferred });
   return saved;
@@ -103,11 +120,12 @@ export function autoDecision(app: AppCtx, job: ImportJob): AutoDecision | null {
   if (job.targetHorseId && !fixed) return null;
   if (r.screen_type === '育成馬' || r.screen_type === '入厩馬') {
     if (!r.card.name.trim()) return null;
-    if (fixed) return { kind: 'card', reading: r, target: fixed };
     const candidates = cardMatchCandidates(toCardReading(r), app.data.horses, (h) => (h.damKey ? app.resolver.label(h.damKey) : ''));
-    if (candidates[0]?.exact) return { kind: 'card', reading: r, target: candidates[0].horse };
-    if (!candidates.length) return { kind: 'card', reading: r, target: undefined };
-    return null;
+    const target = fixed ?? (candidates[0]?.exact ? candidates[0].horse : undefined);
+    if (!target && candidates.length) return null;
+    const dam = inferCardDam(app, r.card.name, target);
+    if (dam && !dam.key) return null;
+    return { kind: 'card', reading: r, target };
   }
   // マスターの馬の自動更新・新規追加は、それぞれの設定が有効な場合に行う。
   if (r.screen_type === '種牡馬' || r.screen_type === '繁殖牝馬') {
@@ -119,7 +137,7 @@ export function autoDecision(app: AppCtx, job: ImportJob): AutoDecision | null {
     const existing = matches[0] ?? null;
     const prepared = prepareReadingAncestors(app.master, r.master);
     if (prepared.ambiguous.length || !(existing ? importAutoMasterUpdate : importAutoMasterAdd)) return null;
-    return { kind: 'master', existing, next: masterFromReading(kind, r.master, existing, prepared.master, app.ctx.ancestors, prepared.parentIds), additions: prepared.additions };
+    return { kind: 'master', existing, next: masterFromReading(kind, r.master, existing, prepared.master, prepared.parentIds), additions: prepared.additions };
   }
   if (!importAutoApply) return null;
   if (r.screen_type === '血統') {

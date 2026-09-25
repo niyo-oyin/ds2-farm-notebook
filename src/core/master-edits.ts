@@ -93,7 +93,6 @@ export function nicksProposals(rows: BreedingCardRow[], mareSmall: string, curre
   }).sort((a, b) => a.sire.localeCompare(b.sire, 'ja'));
 }
 
-export const SYS_CHARS = 'abcdefghijklmno';
 /** 追加した馬のID。初期データと衝突しないよう "st:u-…" / "bm:u-…" にする。 */
 export const newMasterId = (kind: 'stallion' | 'broodmare') => `${kind === 'stallion' ? 'st' : 'bm'}:u-${Date.now().toString(36)}${Math.random().toString(36).slice(2, 8)}`;
 
@@ -126,7 +125,7 @@ export function applyMasterEdits(base: MasterData, edits: MasterEdit[], ancestor
     return [{ ...h, ...e.data, id: h.id, kind: h.kind }];
   });
   const addedOf = (kind: MasterHorse['kind']) => edits.filter((e) => e.added && e.kind === kind && !e.hidden).map((e) => ({
-    kind, id: e.id, sex: kind === 'stallion' ? 'M' : 'F', name: '', price: 0, color: null, bigSystem: null, smallSystem: null, omoshiro: null, migoto: null,
+    kind, id: e.id, sex: kind === 'stallion' ? 'M' : 'F', name: '', price: 0, color: null, bigSystem: null, smallSystem: null,
     ancestors: Array<string>(30).fill(''), unlock: null, purchasePrice: null, attrs: {}, ...e.data,
   } as MasterHorse));
   const names = new Map<string, { name: string; at: string }>();
@@ -141,28 +140,6 @@ export function applyMasterEdits(base: MasterData, edits: MasterEdit[], ancestor
     known.add(h.id); return true;
   }).map((h): AncestorInfo => ({ id: h.id, name: h.name, sex: h.sex, system: h.bigSystem ? base.meta.bigSystems.indexOf(h.bigSystem) + 1 || null : null, effects: [], effectsKnown: false }));
   return { ...base, ancestors: [...ancestors, ...identities].map(rename), kotta, nicks, stallions, broodmares };
-}
-
-/** 血統表の位置（祖先配列の添字）。面白用は 自身・父母父・母父・母母父、見事用は 父父母父・父母母父・母父母父・母母母父 */
-export const OMOSHIRO_SLOTS: (number | 'self')[] = ['self', 8, 4, 12];
-export const MIGOTO_SLOTS: number[] = [16, 20, 24, 28];
-export const SLOT_LABELS: Record<string, string> = { self: '本馬', 8: '父母父', 4: '母父', 12: '母母父', 16: '父父母父', 20: '父母母父', 24: '母父母父', 28: '母母母父' };
-
-/** 大系統の略号から系統コードの1文字へ。不明は '?' */
-export const sysChar = (bigSystem: string | null | undefined, bigSystems: string[]) => {
-  const i = bigSystem ? bigSystems.indexOf(bigSystem) : -1;
-  return i >= 0 ? SYS_CHARS[i] : '?';
-};
-export const charSys = (c: string, bigSystems: string[]) => { const i = SYS_CHARS.indexOf(c); return i >= 0 ? bigSystems[i] : null; };
-
-/** 系統コードを祖先マスターから導出する。大系統が不明な位置は '?'。 */
-export function deriveCodes(bigSystem: string | null, ancestors: string[], ancestorMaster: Map<string, AncestorInfo>, bigSystems: string[]): { omoshiro: string; migoto: string } {
-  const at = (slot: number | 'self') => {
-    if (slot === 'self') return sysChar(bigSystem, bigSystems);
-    const info = ancestorMaster.get(ancestors[slot] ?? '');
-    return info?.system ? SYS_CHARS[info.system - 1] : '?';
-  };
-  return { omoshiro: OMOSHIRO_SLOTS.map(at).join(''), migoto: MIGOTO_SLOTS.map(at).join('') };
 }
 
 /** 父母のIDが登録済みの馬に一致すれば、その血統で2代目以降を埋める。手入力済みの欄は上書きしない */
@@ -185,7 +162,7 @@ export function fillFromParents(ancestors: string[], horsesById: Map<string, Mas
 /** 変更した項目だけを保存用の差分として返す。 */
 export function diffAgainstBase(base: MasterHorse, next: MasterHorse): MasterEdit['data'] {
   const data: Record<string, unknown> = {};
-  for (const key of ['name', 'price', 'priceUnknown', 'overseas', 'color', 'bigSystem', 'smallSystem', 'omoshiro', 'migoto', 'ancestors', 'unlock', 'breedingRightPrice', 'purchasePrice', 'attrs'] as const) {
+  for (const key of ['name', 'price', 'priceUnknown', 'overseas', 'color', 'bigSystem', 'smallSystem', 'ancestors', 'unlock', 'breedingRightPrice', 'purchasePrice', 'attrs'] as const) {
     if (key === 'priceUnknown' && !!base[key] === !!next[key]) continue;
     if (key === 'overseas' && !!base[key] === !!next[key]) continue;
     if (JSON.stringify(base[key] ?? null) !== JSON.stringify(next[key] ?? null)) data[key] = next[key];
@@ -193,13 +170,12 @@ export function diffAgainstBase(base: MasterHorse, next: MasterHorse): MasterEdi
   return data as MasterEdit['data'];
 }
 
-export function validateMasterHorse(h: Pick<MasterHorse, 'name' | 'price' | 'purchasePrice' | 'breedingRightPrice' | 'ancestors' | 'omoshiro' | 'migoto'>) {
+export function validateMasterHorse(h: Pick<MasterHorse, 'name' | 'price' | 'purchasePrice' | 'breedingRightPrice' | 'ancestors'>) {
   if (!h.name.trim()) throw new Error('馬名を入力してください');
   if (!Number.isFinite(h.price) || h.price < 0) throw new Error('種付料は0以上の数値で入力してください');
   if (h.purchasePrice != null && (!Number.isFinite(h.purchasePrice) || h.purchasePrice < 0)) throw new Error('購入価格は0以上の数値で入力してください');
   if (h.breedingRightPrice != null && (!Number.isFinite(h.breedingRightPrice) || h.breedingRightPrice < 0)) throw new Error('種付け権購入額は0以上の数値で入力してください');
   if (h.ancestors.length !== 30) throw new Error('血統は30頭分の欄が必要です');
-  for (const code of [h.omoshiro, h.migoto]) if (code != null && !/^[a-o?]{4}$/.test(code)) throw new Error('系統コードが不正です');
 }
 
 // ---- 種牡馬・繁殖牝馬の画面の読み取りをマスターデータに変換する ----
@@ -253,9 +229,9 @@ export function masterFromBreedingCard(base: MasterHorse, card: BreedingReading[
 
 /**
  * 読み取りを種牡馬・繁殖牝馬のレコードにする。base があれば読めた項目だけを上書きし、なければ新規。
- * 父・母・母父は血統の該当欄に入れ、父母が登録済みなら残りを補完する。系統コードは祖先マスターから導出する
+ * 父・母・母父は血統の該当欄に入れ、父母が登録済みなら残りを補完する
  */
-export function masterFromReading(kind: 'stallion' | 'broodmare', r: MasterReading, base: MasterHorse | null, master: MasterData, ancestorMaster: Map<string, AncestorInfo>, parentIds: Partial<Record<'sire' | 'dam' | 'dam_sire', string>> = {}): MasterHorse {
+export function masterFromReading(kind: 'stallion' | 'broodmare', r: MasterReading, base: MasterHorse | null, master: MasterData, parentIds: Partial<Record<'sire' | 'dam' | 'dam_sire', string>> = {}): MasterHorse {
   const known = (v: string) => (v.trim() ? v.trim() : undefined);
   const set = <T,>(v: T | undefined, fallback: T): T => (v === undefined ? fallback : v);
   const ancestors = [...(base?.ancestors ?? Array<string>(30).fill(''))];
@@ -280,18 +256,12 @@ export function masterFromReading(kind: 'stallion' | 'broodmare', r: MasterReadi
     id: base?.id ?? uniqueHorseNamed(master.ancestors, r.name)?.id ?? newMasterId(kind), kind, sex: kind === 'stallion' ? 'M' : 'F',
     name: set(known(r.name), base?.name ?? ''), price: kind === 'stallion' ? set(parseFee(r.fee), base?.price ?? 0) : base?.price ?? 0,
     color: set(known(r.color), base?.color ?? null), bigSystem, smallSystem: set(known(r.small_system), base?.smallSystem ?? null),
-    omoshiro: base?.omoshiro ?? null, migoto: base?.migoto ?? null,
     overseas: base?.overseas,
     ancestors: filled, unlock: base?.unlock ?? null, breedingRightPrice: base?.breedingRightPrice ?? null,
     priceUnknown: kind === 'stallion' ? parseFee(r.fee) == null && !!base?.priceUnknown : parseManYen(r.price) == null && !!base?.priceUnknown,
     purchasePrice: kind === 'broodmare' ? set(parseManYen(r.price), base?.purchasePrice ?? null) : null,
     attrs,
   };
-  const derived = deriveCodes(next.bigSystem, next.ancestors, ancestorMaster, master.meta.bigSystems);
-  // 導出できた位置だけ更新し、既存の値が導出値と矛盾しない限り残す
-  const mergeCode = (cur: string | null, d: string) => d.split('').map((c, i) => (c !== '?' ? c : cur?.[i] ?? '?')).join('');
-  next.omoshiro = mergeCode(next.omoshiro, derived.omoshiro);
-  next.migoto = kind === 'stallion' ? mergeCode(next.migoto, derived.migoto) : null;
   return next;
 }
 
@@ -315,13 +285,13 @@ export function prepareReadingAncestors(master: MasterData, reading: Pick<Master
 }
 
 /** 反映する項目の単位。血統は父母・母父・補完をまとめて1つ、能力は項目ごと */
-export type MasterFieldKey = 'name' | 'color' | 'bigSystem' | 'smallSystem' | 'price' | 'purchasePrice' | 'ancestors' | 'omoshiro' | 'migoto' | `attr:${string}`;
+export type MasterFieldKey = 'name' | 'color' | 'bigSystem' | 'smallSystem' | 'price' | 'purchasePrice' | 'ancestors' | `attr:${string}`;
 export interface MasterDiffRow { key: MasterFieldKey; label: string; before: string; after: string }
 const ATTR_LABEL: Record<string, string> = { dist: '距離', grown: '成長', dirt: 'ダート', kenko: '体質', kisyo: '気性', jisseki: '実績', konjo: '底力', antei: '安定' };
 const text = (v: unknown) => (v == null || v === '' ? '' : Array.isArray(v) ? v.join('-') : String(v));
 
 /** 読み取りの反映で変わる項目。項目ごとに選んで反映できるよう key を付ける */
-export function masterDiffRows(base: MasterHorse | null, next: MasterHorse, bigSystems: string[], label: (id: string) => string): MasterDiffRow[] {
+export function masterDiffRows(base: MasterHorse | null, next: MasterHorse, label: (id: string) => string): MasterDiffRow[] {
   const rows: MasterDiffRow[] = [];
   const push = (key: MasterFieldKey, label: string, b: unknown, a: unknown) => { const bs = text(b), as = text(a); if (bs !== as) rows.push({ key, label, before: bs || '未登録', after: as || '未登録' }); };
   push('name', '馬名', base?.name, next.name); push('color', '毛色', base?.color, next.color); push('bigSystem', '大系統', base?.bigSystem, next.bigSystem); push('smallSystem', '小系統', base?.smallSystem, next.smallSystem);
@@ -333,8 +303,6 @@ export function masterDiffRows(base: MasterHorse | null, next: MasterHorse, bigS
     rows.push({ key: 'ancestors', label: '血統', before: '', after: parts.join('、') || '祖先の表記を更新' });
   }
   for (const [k, label] of Object.entries(ATTR_LABEL)) push(`attr:${k}`, label, base?.attrs[k], next.attrs[k]);
-  const codeText = (c: string | null) => (c ? c.split('').map((x) => charSys(x, bigSystems) ?? '?').join(' ') : '');
-  push('omoshiro', '面白用系統', codeText(base?.omoshiro ?? null), codeText(next.omoshiro)); push('migoto', '見事用系統', codeText(base?.migoto ?? null), codeText(next.migoto));
   return rows;
 }
 
@@ -348,7 +316,6 @@ export function applyMasterFields(existing: MasterHorse, next: MasterHorse, keys
       case 'bigSystem': out.bigSystem = next.bigSystem; break; case 'smallSystem': out.smallSystem = next.smallSystem; break;
       case 'price': out.price = next.price; out.priceUnknown = next.priceUnknown; break; case 'purchasePrice': out.purchasePrice = next.purchasePrice; out.priceUnknown = next.priceUnknown; break;
       case 'ancestors': out.ancestors = [...next.ancestors]; break;
-      case 'omoshiro': out.omoshiro = next.omoshiro; break; case 'migoto': out.migoto = next.migoto; break;
     }
   }
   return out;

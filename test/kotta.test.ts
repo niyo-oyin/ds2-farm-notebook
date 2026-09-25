@@ -2,14 +2,20 @@ import { describe, expect, it } from 'vitest';
 import { baseMaster as master } from '../src/data/base-master';
 import { kottaParents, kottaProfile, compareKottaProfiles, type KottaParents } from '../src/core/kotta';
 import { judge, makeContext } from '../src/core/judge';
-import { masterToRecord } from '../src/core/pedigree';
+import { HorseResolver } from '../src/core/pedigree';
+import { DEFAULT_RULES } from '../src/core/rules';
+import type { MasterHorse } from '../src/core/types';
 import { horseIdentities } from '../src/core/horse-identity';
 import { applyMasterEdits, kottaHints } from '../src/core/master-edits';
 import { owned } from './horse-fixtures';
 
 const identities = horseIdentities(master);
 const id = (name: string) => [...identities.values()].find(h => h.name === name)!.id;
-const record = (horse: Parameters<typeof masterToRecord>[0]) => masterToRecord(horse, identities);
+const record = (horse: MasterHorse) => new HorseResolver({
+  ...master,
+  stallions: horse.kind === 'stallion' ? [horse] : master.stallions,
+  broodmares: horse.kind === 'broodmare' ? [horse] : master.broodmares,
+}, [], DEFAULT_RULES).get(horse.id)!;
 const parents = kottaParents(master);
 const infos = new Map(master.ancestors.map(a => [a.id, a.effects]));
 const compare = (sire: string, dam: string, pedigree = parents) => compareKottaProfiles(kottaProfile(id(sire), pedigree), kottaProfile(id(dam), pedigree), key => infos.get(key));
