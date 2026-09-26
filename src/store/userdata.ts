@@ -3,7 +3,8 @@ import { useSyncExternalStore } from 'react';
 import type { HorseKey, OwnedHorse, PlannedHorse } from '../core/types';
 import { validateOwnedDetails } from '../core/owned-horse';
 import { applyMasterEdits, pairKey, type AncestorEdit, type KottaEdit, type MasterEdit, type NicksEdit } from '../core/master-edits';
-import type { SearchGoal, SearchRequest, SearchResult } from '../core/search';
+import type { SearchGoal } from '../core/search';
+import type { DesignResult } from '../core/design-search';
 import { EMPTY_RACE_FIELDS, validateRace, type RaceEdit } from '../core/races';
 import { baseMaster } from '../data/base-master';
 import { baseRaces } from '../data/races';
@@ -234,21 +235,21 @@ export const store = {
 type FinalRole = 'stallion' | 'broodmare' | 'none';
 
 /** 経路の各配合に計画馬を作る。途中産駒は繁殖牝馬の予定、最後は指定した役割。offset は計画の中での通し番号の開始 */
-function plannedSteps(planId: string, planName: string, startKey: HorseKey, result: SearchResult, finalRole: FinalRole, offset: number) {
+function plannedSteps(planId: string, planName: string, startKey: HorseKey, sires: HorseKey[], finalRole: FinalRole, offset: number) {
   const steps: PlanStep[] = [];
   const created: PlannedHorse[] = [];
   let dam = startKey;
-  result.steps.forEach((st, i) => {
-    const last = i === result.steps.length - 1;
+  sires.forEach((sire, i) => {
+    const last = i === sires.length - 1;
     const foal: PlannedHorse = {
       id: uid('p'), kind: 'planned', name: last ? `${planName} 最終産駒` : `${planName} ${offset + i + 1}代目`, sex: null,
       desiredSex: last ? (finalRole === 'stallion' ? 'M' : finalRole === 'broodmare' ? 'F' : undefined) : 'F',
       role: last ? (finalRole === 'none' ? undefined : finalRole) : 'broodmare',
-      sireKey: st.sire, damKey: dam, status: '繁殖入り予定', planId,
+      sireKey: sire, damKey: dam, status: '繁殖入り予定', planId,
       achieved: { born: false, sexOk: false, bred: false }, realizedIds: [], createdAt: now(), updatedAt: now(),
     };
     created.push(foal);
-    steps.push({ sire: st.sire, dam, foalId: foal.id });
+    steps.push({ sire, dam, foalId: foal.id });
     dam = foal.id;
   });
   return { steps, created };
@@ -267,35 +268,57 @@ function dropPlannedHorses(data: UserData, planId: string, foalIds: Set<string>,
   return all.filter((h) => !foalIds.has(h.id) || keep.has(h.id)).map((h) => foalIds.has(h.id) && h.planId === planId ? { ...h, planId: undefined, updatedAt: t } : h);
 }
 
-/** 探索結果を計画として保存する。途中産駒は計画馬（繁殖牝馬予定）として登録する */
-export function savePlanFromResult(
-  name: string, startKey: HorseKey, result: SearchResult, goals: SearchGoal[], request: SearchRequest | undefined,
-  rulesVersion: string, dataVersion: string, finalRole: FinalRole,
-): Plan {
+/** 配合の手順（種牡馬の列）を計画として保存する。途中産駒は計画馬（繁殖牝馬予定）として登録する */
+export function savePlan(name: string, startKey: HorseKey, sires: HorseKey[], goals: SearchGoal[], rulesVersion: string, dataVersion: string, finalRole: FinalRole): Plan {
   const planId = uid('plan');
-  const { steps, created } = plannedSteps(planId, name, startKey, result, finalRole, 0);
-  const plan: Plan = { id: planId, name, createdAt: now(), updatedAt: now(), startKey, steps, goals, request, rulesVersion, dataVersion, memo: '' };
+  const { steps, created } = plannedSteps(planId, name, startKey, sires, finalRole, 0);
+  const plan: Plan = { id: planId, name, createdAt: now(), updatedAt: now(), startKey, steps, goals, rulesVersion, dataVersion, memo: '' };
   set({ ...state, plannedHorses: [...state.plannedHorses, ...created], plans: [...state.plans, plan] });
   return plan;
 }
 
+/** 牡の系統の計画名。牝の系統の計画と並べて見分けられるようにする */
+const coltPlanName = (name: string) => `${name}（牡）`;
+
 /**
- * 計画の fromIndex 回目以降を、同じ母から探し直した経路に置き換える。
- * それより前の手順と、外した手順のうち所有馬を紐付けた計画馬は残す。
+ * 血統設計の結果を計画にする。牡の系統があれば、牡を作る計画（最後は種牡馬）を別に作り、その牡を牝の系統の計画の最後の配合の父にする。
+ * replace を指定すると、新しい計画を作らずにその計画の from 回目以降を牝の系統と最後の配合に置き換える。
  */
-export function replacePlanSteps(
-  planId: string, fromIndex: number, result: SearchResult, goals: SearchGoal[], request: SearchRequest | undefined,
-  rulesVersion: string, dataVersion: string, finalRole: FinalRole,
-): Plan {
-  const plan = state.plans.find((p) => p.id === planId);
-  if (!plan) throw new Error('計画が見つかりません');
-  const from = plan.steps[fromIndex];
-  if (!from) throw new Error('計画の手順が見つかりません');
-  if (result.steps[0]?.dam !== from.dam) throw new Error('経路の起点が計画の手順の母と違います');
-  const { steps, created } = plannedSteps(planId, plan.name, from.dam, result, finalRole, fromIndex);
-  const next: Plan = { ...plan, steps: [...plan.steps.slice(0, fromIndex), ...steps], goals, request, rulesVersion, dataVersion, updatedAt: now() };
-  const plans = state.plans.map((p) => (p.id === planId ? next : p));
-  const removed = new Set(plan.steps.slice(fromIndex).map((s) => s.foalId));
-  set({ ...state, plans, plannedHorses: dropPlannedHorses(state, planId, removed, plans, created) });
-  return next;
+export function saveDesign(
+  name: string, design: DesignResult, goals: SearchGoal[], rulesVersion: string, dataVersion: string, finalRole: FinalRole,
+  replace?: { planId: string; from: number },
+): { plan: Plan; coltPlan: Plan | null } {
+  const target = replace ? state.plans.find((p) => p.id === replace.planId) : null;
+  if (replace) {
+    if (!target) throw new Error('計画が見つかりません');
+    if (!target.steps[replace.from]) throw new Error('計画の手順が見つかりません');
+    if (target.steps[replace.from].dam !== design.filly.start) throw new Error('牝の系統の起点が計画の手順の母と違います');
+  }
+  const planName = target?.name ?? name;
+  const created: PlannedHorse[] = [];
+  const plans: Plan[] = [];
+  let coltPlan: Plan | null = null;
+  let mergeSire = design.colt.start;
+  if (design.colt.steps.length) {
+    const id = uid('plan'), coltName = coltPlanName(planName);
+    const colt = plannedSteps(id, coltName, design.colt.start, design.colt.steps.map((s) => s.sire), 'stallion', 0);
+    coltPlan = { id, name: coltName, createdAt: now(), updatedAt: now(), startKey: design.colt.start, steps: colt.steps, goals: [], rulesVersion, dataVersion, memo: '' };
+    created.push(...colt.created);
+    plans.push(coltPlan);
+    mergeSire = colt.steps[colt.steps.length - 1].foalId;
+  }
+  const sires = [...design.filly.steps.map((s) => s.sire), mergeSire];
+  if (target && replace) {
+    const main = plannedSteps(target.id, target.name, design.filly.start, sires, finalRole, replace.from);
+    const plan: Plan = { ...target, steps: [...target.steps.slice(0, replace.from), ...main.steps], goals, rulesVersion, dataVersion, updatedAt: now() };
+    const next = [...state.plans.map((p) => (p.id === target.id ? plan : p)), ...plans];
+    const removed = new Set(target.steps.slice(replace.from).map((s) => s.foalId));
+    set({ ...state, plans: next, plannedHorses: dropPlannedHorses(state, target.id, removed, next, [...created, ...main.created]) });
+    return { plan, coltPlan };
+  }
+  const id = uid('plan');
+  const main = plannedSteps(id, planName, design.filly.start, sires, finalRole, 0);
+  const plan: Plan = { id, name: planName, createdAt: now(), updatedAt: now(), startKey: design.filly.start, steps: main.steps, goals, rulesVersion, dataVersion, memo: '' };
+  set({ ...state, plannedHorses: [...state.plannedHorses, ...created, ...main.created], plans: [...state.plans, ...plans, plan] });
+  return { plan, coltPlan };
 }

@@ -34,9 +34,18 @@ export function closeCapture() { captureRequest = { open: false, scope: [], targ
 export function resetImportJobs() {
   poll.reset();
   closeCapture();
+  reviewJob(null);
 }
 export function useCaptureRequest() {
   return useSyncExternalStore((l) => { captureListeners.add(l); return () => captureListeners.delete(l); }, () => captureRequest);
+}
+
+// ---- 読み取り結果の確認ダイアログで開いているジョブ。取り込みトレイのほか、カメラの画面からも開く ----
+let reviewing: string | null = null;
+const reviewListeners = new Set<() => void>();
+export function reviewJob(id: string | null) { reviewing = id; reviewListeners.forEach((l) => l()); }
+export function useReviewJob() {
+  return useSyncExternalStore((l) => { reviewListeners.add(l); return () => reviewListeners.delete(l); }, () => reviewing);
 }
 
 /** ジョブ一覧を購読する。購読中だけ定期取得が動く */

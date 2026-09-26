@@ -9,7 +9,7 @@ const STATUS: Record<SearchJob['status'], string> = { queued: '待機中', runni
 const time = (iso: string) => new Date(iso).toLocaleTimeString('ja-JP', { hour: '2-digit', minute: '2-digit' });
 
 /**
- * バックグラウンドの数世代探索・ループ探索の状況を表示するトレイ。
+ * バックグラウンドの血統設計・ループ探索の状況を表示するトレイ。
  * 探索中も、見つかった結果を探索画面で開ける。
  */
 export function SearchTray() {
@@ -25,12 +25,15 @@ export function SearchTray() {
     document.addEventListener('mousedown', away); document.addEventListener('keydown', esc);
     return () => { document.removeEventListener('mousedown', away); document.removeEventListener('keydown', esc); };
   }, [open]);
-  const title = (job: SearchJob) => job.kind === 'lineage'
-    ? `数世代探索: ${job.request.startMares.length > 1 ? `起点 ${job.request.startMares.length}頭` : app.resolver.label(job.request.startMares[0])}${job.request.finalStallion ? ` → ${app.resolver.label(job.request.finalStallion)}` : ''}`
-    : `ループ探索: 周期 ${job.request.minLength}〜${job.request.maxLength}`;
+  const title = (job: SearchJob) => {
+    if (job.kind === 'loop') return `ループ探索: 周期 ${job.request.minLength}〜${job.request.maxLength}`;
+    const { colt, filly } = job.request;
+    const mares = filly.starts.length > 1 ? `牝の起点 ${filly.starts.length}頭` : app.resolver.label(filly.starts[0]);
+    return `血統設計: ${mares}${colt.maxGenerations === 0 && colt.sires.length === 1 ? ` × ${app.resolver.label(colt.sires[0])}` : ''}`;
+  };
   const detail = (job: SearchJob) => {
     const goals = job.request.goals.map(goalLabel).join('・') || '条件なし';
-    const range = job.kind === 'lineage' ? `配合 ${job.request.minMatings}〜${job.request.maxMatings} 回` : `種牡馬 ${job.request.stallionPool.length} 頭`;
+    const range = job.kind === 'design' ? `牡 ${job.request.colt.minGenerations}〜${job.request.colt.maxGenerations}世代 · 牝 ${job.request.filly.minGenerations}〜${job.request.filly.maxGenerations}世代` : `種牡馬 ${job.request.stallionPool.length} 頭`;
     return `${range} · ${goals}`;
   };
   const state = (job: SearchJob) => {

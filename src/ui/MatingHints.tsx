@@ -32,7 +32,7 @@ export function MatingHints({ horse }: { horse: MasterHorse }) {
     {nicks.length ? <div className="pairs-chips">{nicks.map((n) => <span key={n.partner} className={'pairs-chip' + (n.level === 0 ? ' zero' : '')}><span className="pairs-chip-name">{side} {n.partner}系</span><span className="pairs-chip-level">{n.level > 0 ? stars(n.level) : '0'}</span></span>)}</div>
       : <p className="small muted">相性表に登録がありません（未確認）。</p>}
     {partners.nicks.length > 0 && <p className="small">成立する相手 {partners.nicks.length}頭: {partners.nicks.slice(0, 20).map((p) => `${p.name} ${stars(p.level)}`).join('、')}{partners.nicks.length > 20 ? ` 他${partners.nicks.length - 20}頭` : ''}</p>}
-    <h4 className="master-code-title">凝ったペア（本馬を1代目とする{app.rules.kottaGenerations}代血統）</h4>
+    <h4 className="master-code-title">凝ったペア（本馬を除く{app.rules.kottaGenerations - 1}代前までの牡馬の祖先）</h4>
     {kotta.length ? <table className="small hints-table"><tbody>{kotta.map((k) => <tr key={k.path}><th>{k.path}</th><td>{app.resolver.label(k.name)}</td><td className="wrap">{k.partners.map(id => app.resolver.label(id)).join('、')}</td></tr>)}</tbody></table>
       : <p className="small muted">対象範囲の牡馬はペア表に載っていません。</p>}
     <p className="small">{partners.kotta.length ? <>凝った配合になる相手 {partners.kotta.length}頭: {partners.kotta.slice(0, 20).join('、')}{partners.kotta.length > 20 ? ` 他${partners.kotta.length - 20}頭` : ''}</> : <span className="muted">凝った配合になる相手はいません。</span>}</p>

@@ -1,17 +1,18 @@
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
 import { baseMaster } from '../src/data/base-master';
-import type { SearchHooks, SearchReport, SearchRequest, SearchResult } from '../src/core/search';
+import type { SearchHooks } from '../src/core/search';
+import type { DesignReport, DesignRequest, DesignResult } from '../src/core/design-search';
 import type { LoopReport, LoopRequest, LoopResult } from '../src/core/loop-search';
 import type { WorkerIn, WorkerOut } from '../src/core/worker';
 
-const searches = vi.hoisted(() => ({ lineage: vi.fn(), loop: vi.fn() }));
-vi.mock('../src/core/search', () => ({ searchLineage: searches.lineage }));
+const searches = vi.hoisted(() => ({ design: vi.fn(), loop: vi.fn() }));
+vi.mock('../src/core/design-search', () => ({ searchDesigns: searches.design }));
 vi.mock('../src/core/loop-search', () => ({ searchLoops: searches.loop }));
 
-const request: SearchRequest = {
-  startMares: [baseMaster.broodmares[0].id], stallionPool: [baseMaster.stallions[0].id],
-  intermediateStallion: null, finalStallion: null, finalPool: null, minMatings: 1, maxMatings: 2,
-  goals: [], maxCost: null, maxEvaluations: 10_000, allowRepeatStallion: true,
+const request: DesignRequest = {
+  colt: { starts: [], sires: [baseMaster.stallions[0].id], minGenerations: 0, maxGenerations: 0, required: null },
+  filly: { starts: [baseMaster.broodmares[0].id], minGenerations: 0, maxGenerations: 1, required: null },
+  stallionPool: [baseMaster.stallions[0].id], goals: [], strongLines: false, maxCost: null, maxEvaluations: 10_000,
 };
 const loopRequest: LoopRequest = { stallionPool: request.stallionPool, minLength: 5, maxLength: 6, goals: [], maxCost: null, maxEvaluations: 10_000 };
 
@@ -30,13 +31,13 @@ describe('探索 Worker の進捗通知', () => {
   });
   afterEach(() => { vi.useRealTimers(); vi.unstubAllGlobals(); });
 
-  it.each(['start', 'startLoop'] as const)('%s は通知をまとめ、未送信の結果も完了時に届ける', async (type) => {
-    const results = Array.from({ length: 8 }, (_, cost) => ({ steps: [], matings: 1, length: 5, cost, goals: [] }));
-    const report: SearchReport | LoopReport = type === 'start'
-      ? { status: '完了', results, evaluated: 8, pruned: 0, dataIssues: 0, elapsedMs: 800, request }
+  it.each(['startDesign', 'startLoop'] as const)('%s は通知をまとめ、未送信の結果も完了時に届ける', async (type) => {
+    const results = Array.from({ length: 8 }, (_, cost) => ({ steps: [], length: 5, cost, goals: [] }) as unknown as DesignResult & LoopResult);
+    const report: DesignReport | LoopReport = type === 'startDesign'
+      ? { status: '完了', results, evaluated: 8, pruned: 0, dataIssues: 0, folded: 0, elapsedMs: 800, request }
       : { status: '完了', results, evaluated: 8, pruned: 0, elapsedMs: 800, request: loopRequest };
-    const search = type === 'start' ? searches.lineage : searches.loop;
-    search.mockImplementation(async (_env, _request, hooks: SearchHooks<SearchResult | LoopResult>) => {
+    const search = type === 'startDesign' ? searches.design : searches.loop;
+    search.mockImplementation(async (_env, _request, hooks: SearchHooks<DesignResult | LoopResult>) => {
       for (let i = 0; i < results.length; i++) {
         hooks.onFound?.(results[i]);
         await hooks.onProgress?.({ evaluated: i + 1, pruned: 0, found: i + 1, depth: 1 });
@@ -44,7 +45,7 @@ describe('探索 Worker の進捗通知', () => {
       }
       return report;
     });
-    const input: WorkerIn = type === 'start'
+    const input: WorkerIn = type === 'startDesign'
       ? { type, master: baseMaster, userHorses: [], rules: {}, request }
       : { type, master: baseMaster, userHorses: [], rules: {}, request: loopRequest };
     const done = scope.onmessage({ data: input });
@@ -57,22 +58,22 @@ describe('探索 Worker の進捗通知', () => {
     const delivered = updates.flatMap(({ message }) => message.type === 'progress' ? message.results : []);
     expect(delivered).toEqual(results.slice(0, delivered.length));
     expect(delivered.length).toBeLessThan(results.length);
-    expect(sent.at(-1)?.message).toEqual({ type: type === 'start' ? 'done' : 'loopDone', report });
+    expect(sent.at(-1)?.message).toEqual({ type: type === 'startDesign' ? 'designDone' : 'loopDone', report });
   });
 
   it('表示の通知を省いた区切りでも中止を受け取り、直前に見つけた結果を残す', async () => {
-    const result: SearchResult = { steps: [], matings: 1, cost: 100, goals: [] };
-    searches.lineage.mockImplementation(async (_env, _request, hooks: SearchHooks) => {
+    const result = { cost: 100, goals: [] } as unknown as DesignResult;
+    searches.design.mockImplementation(async (_env, _request, hooks: SearchHooks<DesignResult>) => {
       hooks.onFound?.(result);
       setTimeout(() => { void scope.onmessage({ data: { type: 'cancel' } }); }, 0);
       await hooks.onProgress?.({ evaluated: 1, pruned: 2000, found: 1, depth: 1 });
       expect(hooks.shouldStop?.()).toBe(true);
-      return { status: '中止', results: [result], evaluated: 1, pruned: 2000, dataIssues: 0, elapsedMs: 1, request } satisfies SearchReport;
+      return { status: '中止', results: [result], evaluated: 1, pruned: 2000, dataIssues: 0, folded: 0, elapsedMs: 1, request } satisfies DesignReport;
     });
-    const done = scope.onmessage({ data: { type: 'start', master: baseMaster, userHorses: [], rules: {}, request } });
+    const done = scope.onmessage({ data: { type: 'startDesign', master: baseMaster, userHorses: [], rules: {}, request } });
     await vi.runAllTimersAsync();
     await done;
     expect(sent).toHaveLength(1);
-    expect(sent[0].message).toMatchObject({ type: 'done', report: { status: '中止', results: [result] } });
+    expect(sent[0].message).toMatchObject({ type: 'designDone', report: { status: '中止', results: [result] } });
   });
 });

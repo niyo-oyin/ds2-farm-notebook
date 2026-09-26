@@ -1,5 +1,6 @@
 import { describe, expect, it, vi } from 'vitest';
-import { readScreenAs } from '../server/llm';
+import sharp from 'sharp';
+import { classifyScreen, readScreenAs } from '../server/llm';
 import * as llmClient from '../server/llm-client';
 import { applyCardReading, cardMatchCandidates, cardPatchDiff, horseAge, inferredGameYear, mergeRaces, parseFoalName, parseManYen, pedigreeMatchCandidates, sexAgeLabel, type CardReading, type PedigreeReading } from '../src/core/owned-horse';
 import { owned } from './horse-fixtures';
@@ -20,6 +21,41 @@ const stabled = (): CardReading => card({
 });
 
 describe('カード読み取りの解釈', () => {
+  it('画面判別で得た範囲を端の余白も含めて拡大し、元画像と同じ読み取り要求に添える', async () => {
+    const image = (await sharp(Buffer.from('<svg width="100" height="80"><rect width="50" height="80" fill="red"/><rect x="50" width="50" height="80" fill="blue"/></svg>')).png().toBuffer()).toString('base64');
+    const completion = vi.spyOn(llmClient, 'chatCompletion');
+    try {
+      completion.mockResolvedValueOnce({ text: JSON.stringify({ screen_type: '入厩馬', reason: '', ability_box: { x0: 0.5, y0: 0, x1: 1, y1: 1 } }) })
+        .mockResolvedValueOnce({ text: JSON.stringify({ ...card(), notes: '' }) });
+      const { result: classification } = await classifyScreen(image, 'image/png', ['入厩馬']);
+      await readScreenAs('入厩馬', image, 'image/png', classification.ability_box);
+      expect(completion).toHaveBeenCalledTimes(2);
+      const messages = completion.mock.calls[1][0] as { role: string; content: { type: string; image_url?: { url: string } }[] }[];
+      const photos = messages.find((m) => m.role === 'user')!.content.filter((c) => c.type === 'image_url');
+      expect(photos).toHaveLength(2);
+      expect(photos[0].image_url?.url).toBe(`data:image/png;base64,${image}`);
+      const crop = sharp(Buffer.from(photos[1].image_url!.url.split(',')[1], 'base64'));
+      expect(await crop.metadata()).toMatchObject({ format: 'png', width: 106, height: 160 });
+      const { data, info } = await crop.removeAlpha().raw().toBuffer({ resolveWithObject: true });
+      const pixel = (x: number, y: number) => [...data.subarray((y * info.width + x) * 3, (y * info.width + x) * 3 + 3)];
+      expect(pixel(0, 80)).toEqual([255, 0, 0]);
+      expect(pixel(50, 80)).toEqual([0, 0, 255]);
+    } finally { completion.mockRestore(); }
+  });
+
+  it('能力欄の位置が不明でも元画像を読み取れる', async () => {
+    const completion = vi.spyOn(llmClient, 'chatCompletion');
+    try {
+      completion.mockResolvedValueOnce({ text: JSON.stringify({ screen_type: '育成馬', reason: '能力欄が隠れている', ability_box: null }) })
+        .mockResolvedValueOnce({ text: JSON.stringify({ ...card(), notes: '能力欄が隠れている' }) });
+      const { result: classification } = await classifyScreen('image', 'image/png', ['育成馬']);
+      const { result } = await readScreenAs('育成馬', 'image', 'image/png', classification.ability_box);
+      expect(result).toMatchObject({ screen_type: '育成馬', card: { name: 'アディクティドの27' } });
+      const messages = completion.mock.calls[1][0] as { role: string; content: { type: string }[] }[];
+      expect(messages.find((m) => m.role === 'user')!.content.filter((c) => c.type === 'image_url')).toHaveLength(1);
+    } finally { completion.mockRestore(); }
+  });
+
   it('写真の評価を登録・表示用の差分まで保ち、項目にない印は拒否する', async () => {
     const response = { ...stabled(), abilities: { ...stabled().abilities, speed: '◉', dirt: '×' }, traits: { ...stabled().traits, growth: '晩成', legs: '×', constitution: '×', heavy_track: '×', rough_track: '×', fast_track: '×', concentration: '△' }, races: [], notes: '' };
     const completion = vi.spyOn(llmClient, 'chatCompletion');
@@ -122,16 +158,35 @@ describe('カード読み取りの解釈', () => {
     expect(cardMatchCandidates(card({ name: '', sex: '不明', color: '' }), horses, damNameOf)).toEqual([]);
   });
 
-  it('競走成績は日付・場所・レース名で重複を除き、新しい行を先頭に足す', () => {
+  it('同じ出走の一致する情報を照合し、空欄を補完して新しい行を先頭に足す', () => {
     const existing = [{ date: '10.3', place: '新潟', race: '新潟牝', finish: '', surface: '芝' as const, distance: 1800, going: '稍重' as const, grade: 'GⅢ', carriedWeight: 55, bodyWeight: 426, jockey: 'ルメール' }, { date: '8.5', place: '札幌', race: '丹頂ス', finish: '3' }];
-    const merged = mergeRaces(existing, [{ date: '12.2', place: '中京', race: '中日新', finish: '' }, { date: '10.3', place: '新潟', race: '新潟牝', finish: '5', going: '良', popularity: 2, jockey: '', bodyWeight: undefined }]);
+    const merged = mergeRaces(existing, [{ date: '12.2', place: '中京', race: '中日新', finish: '' }, { date: '10.3', place: '新潟', race: '新潟牝', finish: '5', going: '稍重', popularity: 2, jockey: '', bodyWeight: undefined }]);
     expect(merged.map((r) => r.race)).toEqual(['中日新', '新潟牝', '丹頂ス']);
     expect(merged[1].finish).toBe('5');
-    expect(merged[1]).toMatchObject({ surface: '芝', distance: 1800, going: '良', grade: 'GⅢ', carriedWeight: 55, bodyWeight: 426, jockey: 'ルメール', popularity: 2 });
+    expect(merged[1]).toMatchObject({ surface: '芝', distance: 1800, going: '稍重', grade: 'GⅢ', carriedWeight: 55, bodyWeight: 426, jockey: 'ルメール', popularity: 2 });
     const update = applyCardReading(owned('u:race', { profile: { races: existing } }), card({ races: merged.slice(1) }), '2026-09-24T00:00:00Z');
     expect(cardPatchDiff(owned('u:race', { profile: { races: existing } }), update)).toContainEqual({ label: '競走成績', before: '2行', after: '2行（内容更新）' });
     expect(merged[2].finish).toBe('3');
     expect(mergeRaces(undefined, [{ date: '', place: '', race: '', finish: '' }])).toEqual([]);
+  });
+
+  it('月・週と競馬場とレース名が同じでも、結果や出走条件が違えば追加する', () => {
+    const original = { date: '12.4', place: '中山', race: '有馬記念', finish: '1', jockey: 'ルメール', bodyWeight: 480, going: '良' as const, runners: 16, popularity: 1, carriedWeight: 56, strategy: '先' as const };
+    for (const change of [{ finish: '2' }, { jockey: '武豊' }, { bodyWeight: 486 }, { going: '重' as const }, { runners: 15 }, { popularity: 2 }, { carriedWeight: 58 }, { strategy: '差' as const }]) {
+      const incoming = { ...original, ...change };
+      const result = mergeRaces([original], [incoming]);
+      expect(result).toEqual([incoming, original]);
+      expect(mergeRaces(result, [incoming])).toEqual(result);
+    }
+  });
+
+  it('画面内の同名レースを潰さず、既存行と一対一で照合して再取り込みの増殖を防ぐ', () => {
+    const race = { date: '12.4', place: '中山', race: '有馬記念', finish: '1' };
+    expect(mergeRaces([], [race, race])).toEqual([race, race]);
+    expect(mergeRaces([race], [race, race])).toEqual([race, race]);
+    expect(mergeRaces([race, race], [race, race])).toEqual([race, race]);
+    const undated = { ...race, date: '' };
+    expect(mergeRaces([undated], [undated])).toHaveLength(2);
   });
 });
 

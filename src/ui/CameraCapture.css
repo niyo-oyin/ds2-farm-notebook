@@ -1,0 +1,43 @@
+/* アプリ内カメラ。映像を全画面に出し、操作は右端（縦持ちでは下端）に寄せる */
+.camera-capture { position: fixed; inset: 0; z-index: 100; display: flex; background: #000; color: #fff; }
+.camera-video { flex: 1; min-width: 0; min-height: 0; width: 100%; height: 100%; object-fit: contain; }
+.camera-flash { position: absolute; inset: 0; background: #fff; pointer-events: none; animation: camera-flash .25s ease-out forwards; }
+@keyframes camera-flash { from { opacity: .7; } to { opacity: 0; } }
+.camera-error { position: absolute; left: 16px; top: 16px; right: 140px; padding: 10px 12px; border-radius: var(--r-sm); background: rgba(160, 40, 30, .9); font-size: 14px; }
+.camera-controls { flex: 0 0 auto; display: flex; flex-direction: column; align-items: center; justify-content: space-between; gap: 12px; width: 112px; padding: 16px 8px; padding-right: calc(8px + env(safe-area-inset-right)); background: rgba(0, 0, 0, .55); }
+.camera-close-space { display: block; width: 80px; height: 44px; }
+.camera-close { min-height: 44px; min-width: 80px; border: 1px solid rgba(255, 255, 255, .6); background: transparent; color: #fff; font-size: 14px; }
+.camera-shutter { display: grid; place-items: center; width: 84px; height: 84px; padding: 0; border: 4px solid #fff; border-radius: 50%; background: transparent; }
+.camera-shutter span { width: 66px; height: 66px; border-radius: 50%; background: #fff; transition: transform .08s; }
+.camera-shutter:active span { transform: scale(.88); }
+.camera-shutter:disabled { opacity: .4; }
+.camera-status { display: grid; justify-items: center; gap: 4px; min-height: 80px; font-size: 12px; text-align: center; }
+.camera-thumb { position: relative; display: block; width: 88px; height: 50px; padding: 0; border: 1px solid rgba(255, 255, 255, .6); border-radius: 3px; background: rgba(255, 255, 255, .08); }
+.camera-thumb:disabled { opacity: 1; }
+.camera-thumb img { display: block; width: 100%; height: 100%; object-fit: cover; border-radius: 2px; }
+.camera-thumb-empty { display: block; width: 100%; height: 100%; }
+.camera-thumb-badge { position: absolute; top: -9px; right: -9px; display: grid; place-items: center; min-width: 22px; height: 22px; padding: 0 6px; border-radius: 999px; background: var(--ok); color: #fff; font-size: 12px; line-height: 1; }
+/* 16:9 の枠は四隅の鉤だけを描き、映像を隠さない */
+.camera-guide { position: absolute; pointer-events: none; }
+.camera-guide i { position: absolute; width: 28px; height: 28px; border: 0 solid rgba(255, 255, 255, .85); }
+.camera-guide i:nth-child(1) { left: 0; top: 0; border-left-width: 3px; border-top-width: 3px; }
+.camera-guide i:nth-child(2) { right: 0; top: 0; border-right-width: 3px; border-top-width: 3px; }
+.camera-guide i:nth-child(3) { left: 0; bottom: 0; border-left-width: 3px; border-bottom-width: 3px; }
+.camera-guide i:nth-child(4) { right: 0; bottom: 0; border-right-width: 3px; border-bottom-width: 3px; }
+@media (orientation: portrait) {
+  .camera-capture { flex-direction: column; }
+  .camera-controls { flex-direction: row; width: auto; padding: 12px 16px calc(16px + env(safe-area-inset-bottom)); }
+  .camera-error { right: 16px; }
+}
+/*
+ * 画面の回転をロックして横に持っている時（縦長の映像を左・右に回して送る）。持ち方から見た右端に操作を置き、上から閉じる・シャッター・サムネイルの順にして、文字とサムネイルを持ち方の向きに回す。
+ * 左に回す時は画面の下端、右に回す時は画面の上端が、持ち方から見た右端になる。
+ */
+.camera-capture.turn-left .camera-controls { flex-direction: row-reverse; }
+.camera-capture.turn-right { flex-direction: column-reverse; }
+.camera-capture.turn-right .camera-controls { padding-top: calc(12px + env(safe-area-inset-top)); padding-bottom: 12px; }
+.camera-capture.turn-left .camera-close, .camera-capture.turn-left .camera-status { transform: rotate(90deg); }
+.camera-capture.turn-right .camera-close, .camera-capture.turn-right .camera-status { transform: rotate(-90deg); }
+/* どの画面からでも1回で撮影に入れる、右下のカメラボタン（タッチ端末だけ） */
+.camera-fab { position: fixed; right: calc(16px + env(safe-area-inset-right)); bottom: calc(16px + env(safe-area-inset-bottom)); z-index: 30; display: grid; place-items: center; width: 60px; height: 60px; padding: 0; border: 0; border-radius: 50%; background: var(--accent); color: var(--accent-ink); box-shadow: 0 4px 14px rgba(28, 26, 23, .3); }
+.camera-fab svg { width: 28px; height: 28px; }

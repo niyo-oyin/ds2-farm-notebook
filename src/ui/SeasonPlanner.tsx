@@ -89,7 +89,7 @@ export function SeasonPlanner({ filter, setFilter }: { filter: StallionFilterSta
   const planTag = (o: Option | null) => o?.plan && <a className="tag" href={`#/plans?id=${o.plan.plan.id}`} onClick={(e) => e.stopPropagation()}>計画「{o.plan.plan.name}」{o.plan.index + 1}回目</a>;
   const nameButton = (key: string) => <button type="button" className="result-name-button" onClick={e => { e.stopPropagation(); setDetailHorse(key); }}>{app.resolver.label(key)}</button>;
   const expanded = (o: Option) => <div className="result-expanded" onClick={e => e.stopPropagation()}>
-    <div className="inline-row"><a href={matingLink(o.sire, o.dam)}>配合確認で開く</a><a href={`#/search?mare=${encodeURIComponent(o.dam)}&final=${encodeURIComponent(o.sire)}`}>数世代の配合を探す</a></div>
+    <div className="inline-row"><a href={matingLink(o.sire, o.dam)}>配合確認で開く</a><a href={`#/search?mode=design&mare=${encodeURIComponent(o.dam)}&sire=${encodeURIComponent(o.sire)}`}>血統設計で探す</a></div>
     <SummaryStrip j={o.judgement} /><Pedigree j={o.judgement} /><details><summary className="small">判定の根拠</summary><JudgeView j={o.judgement} showSummary={false} /></details>
   </div>;
 

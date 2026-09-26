@@ -1,0 +1,14 @@
+{
+  "name": "ダビスタ2 牧場ノート",
+  "short_name": "牧場ノート",
+  "lang": "ja",
+  "start_url": "/?camera=1",
+  "scope": "/",
+  "display": "standalone",
+  "background_color": "#f7f4ee",
+  "theme_color": "#2f5d8a",
+  "icons": [
+    { "src": "/apple-touch-icon.png", "sizes": "180x180", "type": "image/png" },
+    { "src": "/favicon.svg", "sizes": "any", "type": "image/svg+xml" }
+  ]
+}

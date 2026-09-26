@@ -3,22 +3,20 @@ import type { MasterData, UserHorse } from './types';
 import { DEFAULT_RULES, type RuleOptions } from './rules';
 import { HorseResolver } from './pedigree';
 import { makeContext } from './judge';
-import { searchLineage, type SearchReport, type SearchRequest, type SearchResult } from './search';
-import { searchHomebredSires, type HomebredReport, type HomebredRequest, type HomebredResult } from './homebred';
+import type { SearchResult } from './search';
+import { searchDesigns, type DesignReport, type DesignRequest, type DesignResult } from './design-search';
 import { searchLoopEntry, searchLoops, type LoopEntryReport, type LoopEntryRequest, type LoopReport, type LoopRequest, type LoopResult } from './loop-search';
 
 export type WorkerIn =
-  | { type: 'start'; master: MasterData; userHorses: UserHorse[]; rules: Partial<RuleOptions>; request: SearchRequest }
+  | { type: 'startDesign'; master: MasterData; userHorses: UserHorse[]; rules: Partial<RuleOptions>; request: DesignRequest }
   | { type: 'startLoop'; master: MasterData; userHorses: UserHorse[]; rules: Partial<RuleOptions>; request: LoopRequest }
   | { type: 'startLoopEntry'; master: MasterData; userHorses: UserHorse[]; rules: Partial<RuleOptions>; request: LoopEntryRequest }
-  | { type: 'startHomebred'; master: MasterData; userHorses: UserHorse[]; rules: Partial<RuleOptions>; request: HomebredRequest }
   | { type: 'cancel' };
 export type WorkerOut =
-  | { type: 'progress'; evaluated: number; pruned: number; found: number; depth: number; results: (SearchResult | LoopResult | HomebredResult)[] }
-  | { type: 'done'; report: SearchReport }
+  | { type: 'progress'; evaluated: number; pruned: number; found: number; depth: number; results: (DesignResult | LoopResult | SearchResult)[] }
+  | { type: 'designDone'; report: DesignReport }
   | { type: 'loopDone'; report: LoopReport }
   | { type: 'loopEntryDone'; report: LoopEntryReport }
-  | { type: 'homebredDone'; report: HomebredReport }
   | { type: 'error'; message: string };
 
 let cancelled = false;
@@ -32,11 +30,11 @@ self.onmessage = async (e: MessageEvent<WorkerIn>) => {
     const resolver = new HorseResolver(msg.master, msg.userHorses, rules);
     const ctx = makeContext(msg.master, rules, msg.userHorses);
     const env = { ctx, rules, resolve: (k: string) => resolver.get(k) };
-    let found: (SearchResult | LoopResult | HomebredResult)[] = [];
+    let found: (DesignResult | LoopResult | SearchResult)[] = [];
     let lastPost = performance.now();
     const hooks = {
       shouldStop: () => cancelled,
-      onFound: (r: SearchResult | LoopResult | HomebredResult) => { found.push(r); },
+      onFound: (r: DesignResult | LoopResult | SearchResult) => { found.push(r); },
       onProgress: (p: { evaluated: number; pruned: number; found: number; depth: number }) => new Promise<void>((resolve) => {
         const now = performance.now();
         if (now - lastPost >= POST_INTERVAL_MS) {
@@ -49,11 +47,6 @@ self.onmessage = async (e: MessageEvent<WorkerIn>) => {
         setTimeout(resolve, 0); // cancel メッセージを受け取る区切り
       }),
     };
-    if (msg.type === 'startHomebred') {
-      const report = await searchHomebredSires(env, msg.request, hooks);
-      (self as unknown as Worker).postMessage({ type: 'homebredDone', report } satisfies WorkerOut);
-      return;
-    }
     if (msg.type === 'startLoopEntry') {
       const report = await searchLoopEntry(env, msg.request, hooks);
       (self as unknown as Worker).postMessage({ type: 'loopEntryDone', report } satisfies WorkerOut);
@@ -64,8 +57,8 @@ self.onmessage = async (e: MessageEvent<WorkerIn>) => {
       (self as unknown as Worker).postMessage({ type: 'loopDone', report } satisfies WorkerOut);
       return;
     }
-    const report = await searchLineage(env, msg.request, hooks);
-    (self as unknown as Worker).postMessage({ type: 'done', report } satisfies WorkerOut);
+    const report = await searchDesigns(env, msg.request, hooks);
+    (self as unknown as Worker).postMessage({ type: 'designDone', report } satisfies WorkerOut);
   } catch (err) {
     (self as unknown as Worker).postMessage({ type: 'error', message: (err as Error).message } satisfies WorkerOut);
   }

@@ -28,9 +28,9 @@ export interface KottaEdit { sire: string; dam: string; active: boolean; source:
 export interface NicksEdit { sire: string; dam: string; level: number; source: PairSource; note: string; updatedAt: string }
 export const pairKey = (sire: string, dam: string) => `${sire}|${dam}`;
 
-/** 本馬を1代目とする対象世代内の牡馬から、凝ったペアを引く（種牡馬は父側、繁殖牝馬は母側）。 */
+/** 本馬を除き、対象世代内の牡馬の祖先から凝ったペアを引く（種牡馬は父側、繁殖牝馬は母側）。 */
 export function kottaHints(horse: Pick<MasterHorse, 'id' | 'ancestors' | 'kind'>, kotta: [string, string][], generations = 4): { name: string; path: string; partners: string[] }[] {
-  const own = horse.kind === 'stallion' ? [{ name: horse.id, path: '本馬' }] : [];
+  const own: { name: string; path: string }[] = [];
   for (let i = 0; i < horse.ancestors.length; i++) {
     const node = i + 2;
     if (Math.floor(Math.log2(node)) > generations - 1) break;
@@ -118,12 +118,10 @@ export function applyMasterEdits(base: MasterData, edits: MasterEdit[], ancestor
       ...nicksEdits.filter((e) => !known.has(pairKey(e.sire, e.dam))).map((e) => ({ sire: e.sire, dam: e.dam, level: e.level }))];
   })() : base.nicks;
   const byId = new Map(edits.map((e) => [e.id, e]));
-  const merge = (list: MasterHorse[]) => list.flatMap((h) => {
-    const e = byId.get(h.id);
-    if (!e) return [h];
-    if (e.hidden) return [];
-    return [{ ...h, ...e.data, id: h.id, kind: h.kind }];
-  });
+  const edited = (h: MasterHorse): MasterHorse => { const e = byId.get(h.id); return e ? { ...h, ...e.data, id: h.id, kind: h.kind } : h; };
+  const merge = (list: MasterHorse[]) => list.filter((h) => !byId.get(h.id)?.hidden).map(edited);
+  // 非表示は候補に出さないだけで、実在の馬の血統表は祖先をたどる材料に残す
+  const hiddenHorses = [...base.stallions, ...base.broodmares].filter((h) => byId.get(h.id)?.hidden).map(edited);
   const addedOf = (kind: MasterHorse['kind']) => edits.filter((e) => e.added && e.kind === kind && !e.hidden).map((e) => ({
     kind, id: e.id, sex: kind === 'stallion' ? 'M' : 'F', name: '', price: 0, color: null, bigSystem: null, smallSystem: null,
     ancestors: Array<string>(30).fill(''), unlock: null, purchasePrice: null, attrs: {}, ...e.data,
@@ -139,7 +137,7 @@ export function applyMasterEdits(base: MasterData, edits: MasterEdit[], ancestor
     if (known.has(h.id)) return false;
     known.add(h.id); return true;
   }).map((h): AncestorInfo => ({ id: h.id, name: h.name, sex: h.sex, system: h.bigSystem ? base.meta.bigSystems.indexOf(h.bigSystem) + 1 || null : null, effects: [], effectsKnown: false }));
-  return { ...base, ancestors: [...ancestors, ...identities].map(rename), kotta, nicks, stallions, broodmares };
+  return { ...base, ancestors: [...ancestors, ...identities].map(rename), kotta, nicks, stallions, broodmares, hiddenHorses: hiddenHorses.map(rename) };
 }
 
 /** 父母のIDが登録済みの馬に一致すれば、その血統で2代目以降を埋める。手入力済みの欄は上書きしない */

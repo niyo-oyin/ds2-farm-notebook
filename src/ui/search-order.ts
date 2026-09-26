@@ -1,5 +1,5 @@
 // 探索画面で共用する並べ替えと起点の既定。
-import type { AppCtx } from './app-context';
+import type { AppCtx, HorseOption } from './app-context';
 import { breedingKey, pedigreeIssue } from '../core/owned-horse';
 import { recommendedCompare, type Ranked } from '../core/result-order';
 
@@ -34,3 +34,9 @@ export function sortCompare(sort: SortKey, a: SortItem, b: SortItem, wanted: str
 }
 /** 探索の起点の既定: 探索から外していない所有の繁殖牝馬・種牡馬 */
 export const ownedOrigins = (app: AppCtx, side: OneGenOrigin) => app.data.horses.filter((h) => h.sex === (side === 'mare' ? 'F' : 'M') && h.category === (side === 'mare' ? '繁殖牝馬' : '種牡馬') && !h.excludeFromSearch && !pedigreeIssue(h)).map(breedingKey);
+
+/** 探索結果に現れる馬の、絞り込みの選択肢（名前順、重複なし） */
+export function resultOptions(horses: { key: string; name: string }[], group: string): HorseOption[] {
+  const map = new Map(horses.map((h) => [h.key, { key: h.key, name: h.name, group }]));
+  return [...map.values()].sort((a, b) => a.name.localeCompare(b.name, 'ja'));
+}

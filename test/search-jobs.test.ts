@@ -7,16 +7,18 @@ import { baseMaster } from '../src/data/base-master';
 import { HorseResolver } from '../src/core/pedigree';
 import { makeContext } from '../src/core/judge';
 import { DEFAULT_RULES } from '../src/core/rules';
-import { searchLineage, type SearchRequest } from '../src/core/search';
+import { searchDesigns, type DesignRequest } from '../src/core/design-search';
 import { SearchJobQueue, searchJobRoutes, type SearchJob } from '../server/search-jobs';
 import { emptyUserData } from '../src/store/model';
 import { toRecords } from '../src/store/sync';
 
 const M = { ...baseMaster, stallions: baseMaster.stallions.map(h => ({ ...h, price: h.price + 321 })) };
 const catalog = { revision: 'test-master', data: { master: M, races: [], searchAliases: [] } };
-const request: SearchRequest = {
-  startMares: [M.broodmares[0].id], stallionPool: M.stallions.slice(0, 12).map((s) => s.id), intermediateStallion: null, finalStallion: null, finalPool: null,
-  minMatings: 1, maxMatings: 2, goals: [{ type: 'notDangerous' }], maxCost: null, maxEvaluations: 1_000_000, allowRepeatStallion: true,
+const pool = M.stallions.slice(0, 12).map((s) => s.id);
+const request: DesignRequest = {
+  colt: { starts: [], sires: pool, minGenerations: 0, maxGenerations: 0, required: null },
+  filly: { starts: [M.broodmares[0].id], minGenerations: 0, maxGenerations: 1, required: null },
+  stallionPool: pool, goals: [{ type: 'notDangerous' }], strongLines: false, maxCost: null, maxEvaluations: 1_000_000,
 };
 const wait = (ms: number) => new Promise((r) => setTimeout(r, ms));
 async function until(queue: SearchJobQueue, id: string, done: (j: SearchJob) => boolean, timeoutMs = 30000): Promise<SearchJob> {
@@ -39,7 +41,7 @@ describe('探索ジョブ', () => {
     const app = searchJobRoutes(queue, () => 0);
     const submit = (masterRevision: string) => app.request('/search-jobs', {
       method: 'POST', headers: { 'content-type': 'application/json' },
-      body: JSON.stringify({ kind: 'lineage', request, generation: 0, masterRevision }),
+      body: JSON.stringify({ kind: 'design', request, generation: 0, masterRevision }),
     });
     const rejected = await submit('old-master');
     expect(rejected.status).toBe(409);
@@ -52,7 +54,7 @@ describe('探索ジョブ', () => {
 
   it('再起動時に別のマスターへ変わった待機中・実行中の探索を再実行しない', () => {
     queue = new SearchJobQueue(db, () => [], catalog, 0);
-    const waiting = queue.enqueue('lineage', request), running = queue.enqueue('lineage', request);
+    const waiting = queue.enqueue('design', request), running = queue.enqueue('design', request);
     db.prepare("UPDATE search_jobs SET status = 'running' WHERE id = ?").run(running.id);
     queue = new SearchJobQueue(db, () => [], { ...catalog, revision: 'new-master' }, 1);
     for (const id of [waiting.id, running.id]) {
@@ -60,16 +62,16 @@ describe('探索ジョブ', () => {
     }
   });
 
-  it('同じマスターで再起動した探索を継続し、途中の種牡馬指定も含めて画面の探索と同じ結果を残す', async () => {
-    const req = { ...request, intermediateStallion: request.stallionPool[0] };
+  it('同じマスターで再起動した探索を継続し、系統で使う種牡馬の指定も含めて画面の探索と同じ結果を残す', async () => {
+    const req = { ...request, filly: { ...request.filly, required: pool[0] } };
     queue = new SearchJobQueue(db, () => toRecords(emptyUserData()), catalog, 0);
-    const pending = queue.enqueue('lineage', req);
+    const pending = queue.enqueue('design', req);
     queue = new SearchJobQueue(db, () => toRecords(emptyUserData()), catalog, 1);
     const job = await until(queue, pending.id, (j) => j.status === 'done' || j.status === 'failed');
     expect(job.status).toBe('done');
     expect(job.masterRevision).toBe(catalog.revision);
     const resolver = new HorseResolver(M, [], DEFAULT_RULES);
-    const direct = await searchLineage({ ctx: makeContext(M), rules: DEFAULT_RULES, resolve: (k) => resolver.get(k) }, req);
+    const direct = await searchDesigns({ ctx: makeContext(M), rules: DEFAULT_RULES, resolve: (k) => resolver.get(k) }, req);
     expect(job.outcome).toMatchObject({ status: direct.status, evaluated: direct.evaluated, pruned: direct.pruned });
     expect(job.results).toEqual(direct.results);
     expect(job.progress.found).toBe(direct.results.length);
@@ -79,8 +81,9 @@ describe('探索ジョブ', () => {
 
   it('待機中の中止は即座に、探索中の中止は区切りで止まり、それまでの結果を残す。同時実行は上限まで', async () => {
     queue = new SearchJobQueue(db, () => toRecords(emptyUserData()), catalog, 1);
-    const heavy: SearchRequest = { ...request, stallionPool: M.stallions.map((s) => s.id), maxMatings: 3, maxEvaluations: 1_000_000_000 };
-    const first = queue.enqueue('lineage', heavy), second = queue.enqueue('lineage', request);
+    const all = M.stallions.map((s) => s.id);
+    const heavy: DesignRequest = { ...request, colt: { ...request.colt, sires: all }, filly: { ...request.filly, maxGenerations: 2 }, stallionPool: all, maxEvaluations: 1_000_000_000 };
+    const first = queue.enqueue('design', heavy), second = queue.enqueue('design', request);
     expect(queue.get(second.id)!.status).toBe('queued');
     expect(queue.cancel(second.id)!.status).toBe('cancelled');
     await until(queue, first.id, (j) => j.status === 'running' && j.progress.found > 0);

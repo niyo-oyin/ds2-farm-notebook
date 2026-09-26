@@ -6,7 +6,7 @@ import { StallionFilter, EMPTY_FILTER, matchesStallion, isFilterActive, type Sta
 import type { SearchGoal, SearchResult } from '../core/search';
 import { type LoopEntryReport, type LoopReport, type LoopRequest, type LoopResult } from '../core/loop-search';
 import type { WorkerIn, WorkerOut } from '../core/worker';
-import { savePlanFromResult, allUserHorses } from '../store/userdata';
+import { savePlan, allUserHorses } from '../store/userdata';
 import { ConditionTags, CostUnknownTag, EvalLimitField, GoalEditor, SearchSection, Summary, useMemoState, useMobile } from './SearchPage';
 import { isSearchJobActive, type SearchJob } from '../api';
 import { loopReport, stopSearchJob, submitSearchJob } from '../store/search-jobs';
@@ -14,6 +14,7 @@ import { loopReport, stopSearchJob, submitSearchJob } from '../store/search-jobs
 import { ResultPagination } from './ResultPagination';
 import { useResultPage } from './use-result-page';
 import { SearchResultFilters } from './SearchResultFilters';
+import { resultOptions } from './search-order';
 import { SavePlanDialog } from './SavePlanDialog';
 import { Tip } from './Tip';
 
@@ -140,7 +141,7 @@ export function LoopSearch({ filter, setFilter, job }: { filter: StallionFilterS
   const save = (r: LoopResult, name: string) => {
     const entry = entryOf(r);
     if (entry?.kind !== 'found') throw new Error('起点の繁殖牝馬から周期に入る経路がありません');
-    const p = savePlanFromResult(name, mare, entry.result, loopGoals, undefined, app.ctx.rulesVersion, app.ctx.dataVersion, 'broodmare');
+    const p = savePlan(name, mare, entry.result.steps.map((s) => s.sire), loopGoals, app.ctx.rulesVersion, app.ctx.dataVersion, 'broodmare');
     setSaved({ ...saved, [resultKey(r)]: { id: p.id, name: p.name } });
     setSavedMsg({ id: p.id, name: p.name });
     setSavingResult(null);
@@ -207,7 +208,7 @@ export function LoopSearch({ filter, setFilter, job }: { filter: StallionFilterS
           <div className="toolbar loop-result-toolbar">
             <label className="field">並び順<select value={sort} onChange={(e) => { setSort(e.target.value as LoopSort); resultPage.setPage(0); }}><option value="cost">1周の費用が安い順</option><option value="perfect">完璧／凝ったの世代が多い順</option><option value="nicks">ニックス段階の合計順</option><option value="crosses">クロスが少ない順</option></select></label>
             <label className="field">起点の繁殖牝馬<HorseSelect value={mare} onChange={setMare} options={dOpts} aria-label="起点の繁殖牝馬" plannedToggle /></label>
-            <SearchResultFilters results={report.results} horse={resultHorse} count={sorted.length} onHorseChange={(key) => { setResultHorse(key); resultPage.setPage(0); }} />
+            <SearchResultFilters count={sorted.length} total={report.results.length} filters={[{ label: '経路に含む種牡馬', value: resultHorse, options: resultOptions(report.results.flatMap((r) => r.steps.map((s) => ({ key: s.sire, name: s.sireName }))), '探索結果の種牡馬'), onChange: (key) => { setResultHorse(key); resultPage.setPage(0); } }]} />
           </div>
           <ResultPagination {...resultPage} onChange={resultPage.setPage} />
           {savedMsg && <div className="notice" style={{ marginBottom: 8 }}>計画「{savedMsg.name}」を保存しました。<a href={`#/plans?id=${savedMsg.id}`}>計画を開く</a></div>}

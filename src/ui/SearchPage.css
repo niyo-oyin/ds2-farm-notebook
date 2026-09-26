@@ -29,6 +29,8 @@
 .search-origin-toggle button[aria-pressed="true"] { border-color: var(--accent); color: var(--accent); background: var(--hover); font-weight: 600; }
 .search-origin-picker { display: flex; align-items: center; gap: 12px; flex-wrap: wrap; }
 .search-origin-picker > .combo { flex: 1 1 300px; max-width: 480px; }
+.search-origin-add { min-height: 40px; font-size: 13px; }
+.search-origin-add .muted { margin-left: 2px; font-size: 12px; }
 .search-selections { display: flex; align-items: center; flex-wrap: wrap; gap: 6px; }
 .search-section-content > .search-selections { margin-top: 10px; }
 .search-selection { display: inline-flex; align-items: center; gap: 8px; padding: 2px 4px 2px 12px; border: 1px solid color-mix(in srgb, var(--accent) 35%, var(--rule)); background: var(--sire); color: var(--accent); border-radius: var(--r-sm); font-size: 13px; }
@@ -96,7 +98,7 @@
   .search-pool > span:first-child { width: 100%; text-align: right; }
   .search-pool strong { font-size: 18px; }
   .search-pool-link { padding-left: 8px; }
-  .search-mode { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); width: 100%; margin-bottom: 12px; }
+  .search-mode { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); width: 100%; margin-bottom: 12px; }
   .search-mode button { padding: 8px 4px; font-size: 12px; white-space: normal; min-height: 44px; }
   .search-section { grid-template-columns: minmax(0, 1fr); padding: 16px; gap: 12px; }
   .search-section-heading { min-height: 24px; }
@@ -107,6 +109,7 @@
   .search-origin-toggle { display: grid; grid-template-columns: 1fr 1fr; }
   .search-origin-toggle button { min-height: 44px; padding-inline: 6px; font-size: 12px; }
   .search-origin-picker > .combo { flex-basis: 100%; max-width: none; }
+  .search-origin-add { min-height: 44px; }
   .search-horse-fields { grid-template-columns: minmax(0, 1fr); gap: 12px; }
   .search-limits { grid-template-columns: repeat(2, minmax(0, 1fr)); }
   .goal-boolean-grid, .goal-count-grid { grid-template-columns: repeat(2, minmax(0, 1fr)); }
@@ -160,13 +163,13 @@ tr.result-expanded-row > td { background: var(--paper); }
 .result-filters .combo, .result-filters input { width: 100%; }
 .loop-result-toolbar > .result-filters { flex: 1 1 280px; margin-bottom: 0; }
 .loop-result-toolbar .result-filters > .field { gap: 3px; }
-.lineage-result-toolbar > .field { flex: 1 1 0; min-width: 0; }
-.lineage-result-toolbar > .field > input, .lineage-result-toolbar > .field > select { width: 100%; min-width: 0; }
-.lineage-result-toolbar > .result-filters { flex: 3 1 0; min-width: 0; margin-bottom: 0; }
-.lineage-result-toolbar .result-filters > .field { flex: 1 1 0; }
-.lineage-result-toolbar .result-filters > button, .lineage-result-toolbar .result-filters > [role="status"] { flex-shrink: 0; }
+.design-result-toolbar > .field { flex: 1 1 0; min-width: 0; }
+.design-result-toolbar > .field > input, .design-result-toolbar > .field > select { width: 100%; min-width: 0; }
+.design-result-toolbar > .result-filters { flex: 3 1 0; min-width: 0; margin-bottom: 0; }
+.design-result-toolbar .result-filters > .field { flex: 1 1 0; }
+.design-result-toolbar .result-filters > button, .design-result-toolbar .result-filters > [role="status"] { flex-shrink: 0; }
 @media (min-width: 721px) {
-  .lineage-result-toolbar, .lineage-result-toolbar > .result-filters { flex-wrap: nowrap; }
+  .design-result-toolbar, .design-result-toolbar > .result-filters { flex-wrap: nowrap; }
 }
 .result-pagination { display: flex; align-items: center; justify-content: flex-end; flex-wrap: wrap; gap: 8px; margin-block: 12px; }
 .result-pagination label { display: flex; align-items: center; gap: 8px; font-size: 12px; }
@@ -181,6 +184,22 @@ tr.result-expanded-row > td { background: var(--paper); }
   .search-horse-fields-three { grid-template-columns: repeat(3, minmax(0, 1fr)); }
 }
 .loop-detail { margin-top: 6px; }
+/* 血統設計: 世代数の範囲、系統の経路と配合の強さの印 */
+.design-gen-range { display: flex; align-items: center; gap: 8px; }
+.design-gen-range input { max-width: 96px; }
+.design-starts { margin-top: 16px; }
+.design-starts > .combo { max-width: 480px; }
+.design-route { line-height: 1.7; }
+.design-marks { display: inline-block; margin-left: 3px; padding: 0 4px; border-radius: var(--r-sm); background: var(--hover); color: var(--accent); font-size: 11px; font-weight: 600; letter-spacing: .08em; vertical-align: 1px; }
+.design-marks.weak { background: transparent; color: var(--ink-muted); font-weight: 400; }
+.design-card-lines { display: grid; gap: 4px; }
+.design-card-lines .tag { width: fit-content; }
+/* カードでは経路が長いので、世代数と費用は経路の下の行に出す */
+.result-head:has(.design-card-lines) { flex-direction: column; gap: 4px; }
+.design-side { display: inline-block; margin-right: 6px; color: var(--ink-muted); font-size: 11px; font-weight: 400; }
+.design-detail h4 { margin: 8px 0 0; font: 600 13px/1.5 var(--font-display); }
+.design-detail h4:first-child { margin-top: 0; }
+.design-detail > p { margin: 0; }
 .loop-detail h4 { margin: 12px 0 4px; font: 600 13px/1.5 var(--font-display); }
 .loop-detail h4:first-child { margin-top: 0; }
 .result-card-actions { display: flex; justify-content: flex-end; }

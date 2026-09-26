@@ -4,6 +4,10 @@ import * as llmClient from '../server/llm-client';
 import { baseMaster } from '../src/data/base-master';
 import type { MasterHorse } from '../src/core/types';
 import { horseIdentities } from '../src/core/horse-identity';
+import { HorseResolver } from '../src/core/pedigree';
+import { kottaParents } from '../src/core/kotta';
+import { DEFAULT_RULES } from '../src/core/rules';
+import { owned } from './horse-fixtures';
 import { prepareReadingAncestors, applyMasterEdits, applyMasterFields, masterDiffRows, masterFromBreedingCard, breedingCardRows, diffAgainstBase, fillFromParents, nicksProposals, type BreedingReading, type MasterEdit } from '../src/core/master-edits';
 
 const M = baseMaster;
@@ -29,6 +33,18 @@ describe('マスターデータへの追加・修正・非表示', () => {
     const added = m.broodmares.at(-1)!;
     expect(added).toMatchObject({ id: 'bm:u-1', kind: 'broodmare', sex: 'F', name: '追加の牝馬' });
     expect(M.stallions.find((s) => s.id === 'st:1')!.price).not.toBe(9999);
+  });
+  it('非表示にした馬は候補から外れても、所有馬の親や祖先の親子関係として血統をたどれる', () => {
+    const hidden = M.stallions[1];
+    const m = applyMasterEdits(M, [{ id: hidden.id, kind: 'stallion', added: false, hidden: true, data: {}, updatedAt: at }]);
+    expect(m.stallions.some((s) => s.id === hidden.id)).toBe(false);
+    const foal = owned('u:foal', { sex: 'F', sireKey: hidden.id, damKey: M.broodmares[0].id });
+    const rec = new HorseResolver(m, [foal], DEFAULT_RULES).get(foal.id)!;
+    expect(rec.nodes[2]).toBe(hidden.id);
+    expect(rec.nodes[4]).toBe(hidden.ancestors[0]);
+    expect(rec.omoshiro).toBe(new HorseResolver(M, [foal], DEFAULT_RULES).get(foal.id)!.omoshiro);
+    // 非表示の馬の血統表にある祖先の親子関係も残る
+    expect(kottaParents(m).get(hidden.ancestors[0])).toEqual(kottaParents(M).get(hidden.ancestors[0]));
   });
   it('凝ったペアはマスターデータの行を無効化・追加でき、ニックスは段階の訂正と段階0の行を持てる', () => {
     const [ks, kd] = M.kotta[0];

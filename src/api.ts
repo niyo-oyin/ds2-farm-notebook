@@ -1,7 +1,8 @@
 // サーバAPIクライアント。認証トークンは必要な場合だけ localStorage に保持する
 import type { CardReading, PedigreeReading } from './core/owned-horse';
 import type { BreedingReading, MasterReading } from './core/master-edits';
-import type { SearchRequest, SearchResult, SearchStatus } from './core/search';
+import type { SearchStatus } from './core/search';
+import type { DesignRequest, DesignResult } from './core/design-search';
 import type { LoopRequest, LoopResult } from './core/loop-search';
 import { workspaceGeneration } from './store/workspace';
 import { getCatalog } from './data/catalog';
@@ -100,17 +101,17 @@ export async function uploadImage(img: EncodedImage): Promise<string> {
 export async function deleteImage(id: string) { try { await api(`/api/images/${encodeURIComponent(id)}`, { method: 'DELETE' }); } catch { /* 孤立ファイルは無視 */ } }
 export function imageUrl(id: string) { const t = getToken(); return `/api/images/${encodeURIComponent(id)}${t ? `?token=${encodeURIComponent(t)}` : ''}`; }
 
-// ---- 探索ジョブ（サーバでバックグラウンド実行する数世代探索・ループ探索） ----
-export type SearchJobKind = 'lineage' | 'loop';
+// ---- 探索ジョブ（サーバでバックグラウンド実行する血統設計・ループ探索） ----
+export type SearchJobKind = 'design' | 'loop';
 export type SearchJobStatus = 'queued' | 'running' | 'done' | 'failed' | 'cancelled';
 export interface SearchProgress { evaluated: number; pruned: number; found: number; elapsedMs: number }
 /** 終了した探索の集計。結果本体は results（一覧では省かれ、個別取得で付く） */
-export interface SearchOutcome { status: SearchStatus; evaluated: number; pruned: number; elapsedMs: number; dataIssues?: number }
+export interface SearchOutcome { status: SearchStatus; evaluated: number; pruned: number; elapsedMs: number; dataIssues?: number; folded?: number }
 export type SearchJob = {
   id: string; masterRevision: string; status: SearchJobStatus; progress: SearchProgress; outcome?: SearchOutcome; error?: string; createdAt: string; updatedAt: string;
-} & ({ kind: 'lineage'; request: SearchRequest; results?: SearchResult[] } | { kind: 'loop'; request: LoopRequest; results?: LoopResult[] });
+} & ({ kind: 'design'; request: DesignRequest; results?: DesignResult[] } | { kind: 'loop'; request: LoopRequest; results?: LoopResult[] });
 export const isSearchJobActive = (job: SearchJob) => job.status === 'queued' || job.status === 'running';
-export async function createSearchJob(kind: SearchJobKind, request: SearchRequest | LoopRequest): Promise<SearchJob> {
+export async function createSearchJob(kind: SearchJobKind, request: DesignRequest | LoopRequest): Promise<SearchJob> {
   return (await api<{ job: SearchJob }>('/api/search-jobs', { method: 'POST', body: JSON.stringify({ kind, request, generation: workspaceGeneration(), masterRevision: getCatalog().revision }) })).job;
 }
 export const listSearchJobs = async () => (await api<{ jobs: SearchJob[] }>('/api/search-jobs')).jobs;

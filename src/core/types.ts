@@ -45,6 +45,8 @@ export interface MasterData {
   ancestors: AncestorInfo[];
   kotta: [string, string][]; // [父側の馬ID, 母側の馬ID]
   nicks: { sire: string; dam: string; level: number }[];
+  /** 非表示にした馬。候補や一覧には出さず、血統（自身の血統表と祖先の親子関係）の材料にだけ使う */
+  hiddenHorses?: MasterHorse[];
 }
 
 /** 計画馬の状態 */
@@ -120,6 +122,8 @@ export interface OwnedHorse extends UserHorseBase {
     /** 総賞金（万円） */ earnings?: number; /** 収得賞金（万円） */ earningsCurrent?: number;
     /** クラス表示（OP、1勝 など） */ rank?: string; stable?: string; weight?: string; /** 戦績（28戦6勝） */ record?: string;
     races?: RaceEntry[];
+    /** 繁殖入りした年（繁殖牝馬・種牡馬）。未登録なら最初の産駒の生年から推定する */
+    breedingSinceYear?: number;
   };
   /** サーバに保存した馬の画像ID（/api/images/:id） */
   imageId?: string;

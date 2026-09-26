@@ -1,8 +1,13 @@
 import { beforeEach, describe, expect, it, vi } from 'vitest';
-import type { SearchResult } from '../src/core/search';
+import type { DesignResult } from '../src/core/design-search';
 import { emptyUserData, horsePlanLinks, setHorsePlanLinks, validateOwnedParents } from '../src/store/model';
 import { memoryStorage, owned, planned, plan, timestamp } from './horse-fixtures';
 import { testCatalog } from './setup-catalog';
+
+/** 保存処理が使う部分だけの血統設計の結果 */
+const design = (colt: string, coltSires: string[], filly: string, fillySires: string[]) => ({
+  colt: { start: colt, steps: coltSires.map((sire) => ({ sire })) }, filly: { start: filly, steps: fillySires.map((sire) => ({ sire })) },
+}) as unknown as DesignResult;
 
 vi.mock('../src/store/sync', () => ({ pushDiff: vi.fn(), pushAll: vi.fn(), pull: vi.fn().mockResolvedValue(null) }));
 
@@ -56,10 +61,8 @@ describe('保存操作の境界', () => {
   });
 
   it('計画保存・達成チェックで所有馬が増えず、実産駒を別のIDで登録できる', async () => {
-    const { store, savePlanFromResult, getUserData } = await import('../src/store/userdata');
-    // 保存処理が使う部分だけの探索結果。
-    const result = { steps: [{ sire: 's:1' }, { sire: 's:2' }] } as SearchResult;
-    const saved = savePlanFromResult('新計画', 'b:1', result, [], undefined, '1', '1', 'none');
+    const { store, savePlan, getUserData } = await import('../src/store/userdata');
+    const saved = savePlan('新計画', 'b:1', ['s:1', 's:2'], [], '1', '1', 'none');
     const [first, last] = getUserData().plannedHorses;
     expect(getUserData().horses).toEqual([]);
     expect(last.damKey).toBe(first.id);
@@ -96,13 +99,32 @@ describe('保存操作の境界', () => {
     expect(horsePlanLinks(getUserData(), 'u:1')[0].foal?.id).toBe('p:2');
   });
 
-  it('計画の途中から探し直した経路で置き換えると、前の手順を保ち、外した計画馬は所有馬の紐付けがあるものだけ残す', async () => {
-    const { store, replacePlanSteps, savePlanFromResult, getUserData } = await import('../src/store/userdata');
-    const saved = savePlanFromResult('計画', 'b:1', { steps: [{ sire: 's:1' }, { sire: 's:2' }, { sire: 's:3' }] } as SearchResult, [], undefined, '1', '1', 'broodmare');
+  it('血統設計を保存すると、牡の系統を種牡馬にする計画を別に作り、その牡を牝の系統の最後の配合の父にする', async () => {
+    const { saveDesign, getUserData } = await import('../src/store/userdata');
+    const { plan, coltPlan } = saveDesign('設計', design('b:c', ['s:1', 's:2'], 'b:f', ['s:3']), [{ type: 'perfect' }], '1', '1', 'broodmare');
+    expect(coltPlan).toMatchObject({ name: '設計（牡）', startKey: 'b:c', goals: [] });
+    expect(coltPlan!.steps.map((s) => s.sire)).toEqual(['s:1', 's:2']);
+    const colt = coltPlan!.steps[1].foalId;
+    expect(getUserData().plannedHorses.find((h) => h.id === colt)).toMatchObject({ role: 'stallion', desiredSex: 'M', planId: coltPlan!.id });
+    expect(plan).toMatchObject({ name: '設計', startKey: 'b:f', goals: [{ type: 'perfect' }] });
+    expect(plan.steps.map((s) => s.sire)).toEqual(['s:3', colt]);
+    expect(plan.steps[1].dam).toBe(plan.steps[0].foalId);
+    expect(getUserData().plannedHorses.find((h) => h.id === plan.steps[1].foalId)).toMatchObject({ role: 'broodmare', desiredSex: 'F', sireKey: colt });
+    // 牡の系統がなければ、既存の種牡馬を父にした計画だけを作る
+    const single = saveDesign('単独', design('s:9', [], 'b:f', []), [], '1', '1', 'none');
+    expect(single.coltPlan).toBeNull();
+    expect(single.plan.steps.map((s) => [s.sire, s.dam])).toEqual([['s:9', 'b:f']]);
+  });
+
+  it('計画の途中から探し直した設計で置き換えると、前の手順を保ち、外した計画馬は所有馬の紐付けがあるものだけ残す', async () => {
+    const { store, savePlan, saveDesign, getUserData } = await import('../src/store/userdata');
+    const saved = savePlan('計画', 'b:1', ['s:1', 's:2', 's:3'], [], '1', '1', 'broodmare');
     const [first, second, third] = saved.steps.map((s) => s.foalId);
     store.addHorse(owned('u:2'), [second]);
-    const replaced = replacePlanSteps(saved.id, 1, { steps: [{ sire: 's:4', dam: first }, { sire: 's:5' }] } as SearchResult, [{ type: 'kotta' }], undefined, '1', '1', 'stallion');
-    expect(replaced.steps.map((s) => s.sire)).toEqual(['s:1', 's:4', 's:5']);
+    const { plan: replaced, coltPlan } = saveDesign('無視される名前', design('b:c', ['s:6'], first, ['s:4']), [{ type: 'kotta' }], '1', '1', 'stallion', { planId: saved.id, from: 1 });
+    expect(coltPlan?.name).toBe('計画（牡）');
+    expect(replaced.name).toBe('計画');
+    expect(replaced.steps.map((s) => s.sire)).toEqual(['s:1', 's:4', coltPlan!.steps[0].foalId]);
     expect(replaced.steps[0].foalId).toBe(first);
     expect(replaced.steps[1].dam).toBe(first);
     expect(replaced.steps[2].dam).toBe(replaced.steps[1].foalId);
@@ -112,7 +134,8 @@ describe('保存操作の境界', () => {
     expect(ids).not.toContain(third);
     expect(getUserData().plannedHorses.find((h) => h.id === second)?.planId).toBeUndefined();
     expect(getUserData().plannedHorses.find((h) => h.id === replaced.steps[2].foalId)).toMatchObject({ role: 'stallion', desiredSex: 'M', planId: saved.id });
-    expect(() => replacePlanSteps(saved.id, 1, { steps: [{ sire: 's:4', dam: 'b:other' }] } as SearchResult, [], undefined, '1', '1', 'none')).toThrow();
+    expect(getUserData().plans).toHaveLength(2);
+    expect(() => saveDesign('x', design('s:9', [], 'b:other', []), [], '1', '1', 'none', { planId: saved.id, from: 1 })).toThrow();
   });
 
   it('所有馬を削除すると紐付けだけを除き、計画は維持する', async () => {

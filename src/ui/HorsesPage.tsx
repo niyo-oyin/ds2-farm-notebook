@@ -1,6 +1,6 @@
 import { useMemo, useRef, useState, useSyncExternalStore } from 'react';
 import type { OwnedHorse } from '../core/types';
-import { HORSE_CATEGORIES, horseAge, sexAgeLabel } from '../core/owned-horse';
+import { HORSE_CATEGORIES, horseAge, sexAgeLabel, breedingSince, breedingYears } from '../core/owned-horse';
 import { PageHeading } from './icons';
 import { useApp, ownedParentKeys } from './app-context';
 import { ActionDialog } from './ActionDialog';
@@ -106,7 +106,7 @@ export function HorsesPage({ params }: { params: URLSearchParams }) {
           return <button key={h.id} className={'horse-list-item' + (selected?.id === h.id ? ' selected' : '')} aria-pressed={selected?.id === h.id} onClick={() => { if ((!editing && selected?.id === h.id) || !leave()) return; setSelectedId(h.id); setEditing(null); setError(''); if (narrow) scrollTop(); }}>
             <span className="portrait horse-list-thumb">{h.imageId ? <img src={imageUrl(h.imageId)} alt="" loading="lazy" /> : <HorsePlaceholder category={h.category} sex={h.sex} />}</span>
             <span className="horse-list-body">
-              <span className="horse-list-title"><b className="horse-list-name">{h.name}</b><span className={`pill cat-${h.category}`}>{h.category}</span><span className={`pill sex-${h.sex ?? 'none'}`}>{sexAgeLabel(h.sex, horseAge(h.profile?.birthYear, app.data.settings.gameYear))}</span>{h.profile?.color && <span className="pill">{h.profile.color}</span>}{sort.key === 'earnings' && <span className="horse-sort-value">{h.profile?.earnings == null ? '賞金未確認' : `${h.profile.earnings.toLocaleString()}万`}</span>}{(['speed', 'stamina', 'power'] as string[]).includes(sort.key) && <span className="horse-sort-value">{OWNED_SORTS.find(s => s.key === sort.key)?.label} {h.abilities?.race?.[sort.key as 'speed' | 'stamina' | 'power'] ?? '—'}</span>}</span>
+              <span className="horse-list-title"><b className="horse-list-name">{h.name}</b><span className={`pill cat-${h.category}`}>{h.category}</span><span className={`pill sex-${h.sex ?? 'none'}`}>{sexAgeLabel(h.sex, horseAge(h.profile?.birthYear, app.data.settings.gameYear))}</span>{h.profile?.color && <span className="pill">{h.profile.color}</span>}{(() => { if (!['繁殖牝馬', '種牡馬'].includes(h.category)) return null; const s = breedingSince(h, app.data.horses); const y = breedingYears(s?.year, app.data.settings.gameYear); return y !== undefined ? <span className="pill" title={`${s!.year}年に繁殖入り${s!.inferred ? '（最初の産駒の生年から推定）' : ''}`}>繁殖{y}年目{s!.inferred ? '?' : ''}</span> : null; })()}{sort.key === 'earnings' && <span className="horse-sort-value">{h.profile?.earnings == null ? '賞金未確認' : `${h.profile.earnings.toLocaleString()}万`}</span>}{(['speed', 'stamina', 'power'] as string[]).includes(sort.key) && <span className="horse-sort-value">{OWNED_SORTS.find(s => s.key === sort.key)?.label} {h.abilities?.race?.[sort.key as 'speed' | 'stamina' | 'power'] ?? '—'}</span>}</span>
               {missing
                 ? <span className="horse-list-parents missing">血統未登録</span>
                 : <span className="horse-list-parents" title={parents}>{sire ? label(sire) : <em className="missing">未登録</em>} × {dam ? label(dam) : <em className="missing">未登録</em>}</span>}

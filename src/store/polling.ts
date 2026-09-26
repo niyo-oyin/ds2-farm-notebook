@@ -11,6 +11,8 @@ export function pollingStore<T extends { id: string }>(fetchAll: () => Promise<T
   const setState = (patch: Partial<PollState<T>>) => { state = { ...state, ...patch }; listeners.forEach((l) => l()); };
   let timer: ReturnType<typeof setTimeout> | null = null;
   let subscribers = 0;
+  // 手元で一覧を書き換えた回数。取得中に書き換わったら、その取得結果は古いので捨てて取り直す
+  let revision = 0;
   const stop = () => { if (timer) { clearTimeout(timer); timer = null; } };
   const schedule = () => {
     stop();
@@ -18,8 +20,13 @@ export function pollingStore<T extends { id: string }>(fetchAll: () => Promise<T
     timer = setTimeout(() => void refresh(), state.items.some(isActive) ? ACTIVE_INTERVAL : IDLE_INTERVAL);
   };
   const refresh = async () => {
-    const generation = workspaceGeneration();
-    try { const items = await fetchAll(); if (generation === workspaceGeneration()) setState({ items, error: '', loaded: true }); }
+    const generation = workspaceGeneration(), started = revision;
+    try {
+      const items = await fetchAll();
+      if (generation !== workspaceGeneration()) return schedule();
+      if (started !== revision) return void refresh();
+      setState({ items, error: '', loaded: true });
+    }
     catch (e) { if (generation === workspaceGeneration()) setState({ error: (e as Error).message, loaded: true }); }
     schedule();
   };
@@ -28,7 +35,7 @@ export function pollingStore<T extends { id: string }>(fetchAll: () => Promise<T
   return {
     refresh,
     /** 一覧を手元で書き換え、取得の間隔を状態に合わせ直す */
-    update(fn: (items: T[]) => T[]) { setState({ items: fn(state.items) }); schedule(); },
+    update(fn: (items: T[]) => T[]) { revision++; setState({ items: fn(state.items) }); schedule(); },
     reset() { setState({ items: [], error: '', loaded: false }); },
     /** 一覧を購読する。購読中だけ定期取得が動く */
     use(): PollState<T> {

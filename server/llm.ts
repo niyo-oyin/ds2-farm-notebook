@@ -2,6 +2,7 @@
 // 画面の種類を判別してから、種類ごとのプロンプトで読み取る。
 // 読み取り対象の項目を絞り、異なる画面の項目が混ざるのを防ぐ。
 import { z } from 'zod';
+import { abilityCloseup, type AbilityBox } from './ability-closeup.js';
 import type { RaceEntry } from '../src/core/types.js';
 import { CARD_ABILITY_KEYS as ABILITY_KEYS, CARD_TRAIT_KEYS as TRAIT_KEYS, DIRT_APTITUDES, mergeRaces, RACE_ABILITY_FIELDS, RACE_TRAIT_FIELDS } from '../src/core/owned-horse.js';
 
@@ -15,11 +16,18 @@ export const isScreenType = (v: unknown): v is ScreenType => SCREEN_TYPES.includ
 const READ_TASK = '競走馬育成ゲーム『ダービースタリオン2』の画面から、表示されている文字と印を正確に書き写してください。';
 const COPY_RULES = '表示されている通りに写します。「-」は "-" のまま、印や文字は項目ごとの選択肢に従ってそのまま。見えない・隠れている項目は推測せず、notes に書きます。';
 const OUTPUT_RULE = '出力は次の JSON Schema に従う JSON だけを返してください（説明文やコードフェンスは不要）。';
+const TOP_MARK_RULE = '最上位印は "◉" と出力してください。外側の輪の中心に塗りつぶされた丸がある形です。通常の二重丸 "◎" は内側も輪で、その中心は白抜きです。最上位印はピンク色の表示だけでなく、黒・濃紺の表示でも中心の塗りつぶしで見分けます。';
+const CARD_MARK_RULES = [
+  '【能力印の読み取り】丸印は、外側の輪だけでなく中心の塗りつぶしも確認してください。',
+  TOP_MARK_RULE,
+  'スピード・スタミナ・パワー・根性・ダートでは、丸印ごとに◉・◎・○を区別してください。同じ画面内の印を比較し、色が黒・濃紺でも最上位印を◎に置き換えないでください。馬の能力・戦績から印を推測しないでください。',
+  '形や色が判別できず◉と◎を区別できない場合は、その項目を空文字にし、notesに項目名と判別できない理由を書いてください。',
+].join('\n');
 
 /** 画面の種類ごとの見分け方。判別と書き写しの両方のプロンプトで使う */
 const TYPE_DESC: Record<ScreenType, string> = {
   育成馬: '左上の見出しが「育成馬」。左上に馬の基本情報パネル（馬名、性別と年齢、毛色、距離適性、7つの能力欄、12の特性欄）、下に競走成績表',
-  入厩馬: '左上の見出しが「入厩馬」。育成馬と同じ構成で、見出し行に所属厩舎、戦績・賞金の欄がある',
+  入厩馬: '左上の見出しが「入厩馬」。育成馬と同じ構成で、見出し行に所属厩舎、戦績・賞金の欄がある。カード形式では馬体画像の下に基本能力7欄、馬名・クラス・性齢、その下に特性12欄が並び、戦績表や「入厩馬」の見出しが写らないこともある',
   血統: '血統・クロスの画面。馬名は写らない。左に「父」「母」のラベル付きの馬名、その上下に祖父母、右へ3代の祖先が並び、馬名の右に因子のチップ（1文字の略号）が付く。下部にクロスの一覧（馬名、n×m、%）',
   種牡馬: '種牡馬の画面。馬名、性別、毛色、父・母・母父、大系統（略号）、小系統、種付料、ニックス、配合理論、繁殖能力（距離適性、成長、ダート、体質、気性、実績、底力、安定）、産駒・勝利・重賞・GI の数、右に代表産駒の表',
   繁殖牝馬: '左上の見出しが「繁殖牝馬」。馬名、性別と年齢、毛色、父・母・母父、大系統（略号）、小系統、販売価格',
@@ -99,7 +107,11 @@ const markProps = (keys: readonly string[]) => ({
   type: 'object', additionalProperties: false,
   properties: Object.fromEntries(keys.map((k) => [k, {
     type: 'string', enum: markValues(k),
-    description: k === 'growth' ? '成長型。未判明は "-"、読めなければ空' : k === 'corner' ? 'コーナーの適性。両○・右○・左○を文字ごと写す。未判明は "-"、読めなければ空' : '項目の選択肢に従って印を写す。基本能力欄のピンク色の最上位印は◉、赤の二重丸は◎、青の丸は○。表示が「-」なら "-"、読めなければ空',
+    description: k === 'growth' ? '成長型。未判明は "-"、読めなければ空' : k === 'corner' ? 'コーナーの適性。両○・右○・左○を文字ごと写す。未判明は "-"、読めなければ空' : [
+      '項目の選択肢に従って印を写す。',
+      ...(markValues(k).includes('◉') ? [TOP_MARK_RULE] : []),
+      '表示が「-」なら "-"、読めなければ空。',
+    ].join(''),
   }])), required: [...keys],
 });
 const CARD_JSON_SCHEMA = {
@@ -187,10 +199,16 @@ const BREEDING_JSON_SCHEMA = {
 };
 
 // ---- API 呼び出し ----
-async function ask<T>(image: string, mediaType: string, system: string, question: string, schema: { name: string; schema: unknown }, parser: z.ZodType<T>): Promise<{ result: T; model?: string; usage?: unknown }> {
+async function ask<T>(image: string, mediaType: string, system: string, question: string, schema: { name: string; schema: unknown }, parser: z.ZodType<T>, closeup?: Buffer): Promise<{ result: T; model?: string; usage?: unknown }> {
   const messages = [
     { role: 'system', content: system },
-    { role: 'user', content: [{ type: 'image_url', image_url: { url: `data:${mediaType};base64,${image}` } }, { type: 'text', text: question }] },
+    { role: 'user', content: [
+      { type: 'image_url', image_url: { url: `data:${mediaType};base64,${image}` } }, { type: 'text', text: question },
+      ...(closeup ? [
+        { type: 'text', text: '次の画像は同じ画面の能力欄の拡大です。◉の中心の塗りつぶしと◎の中心の白抜きをここで確認してください。同じ馬の同じ情報なので、別の馬やレースとして重複して数えないでください。' },
+        { type: 'image_url', image_url: { url: `data:image/png;base64,${closeup.toString('base64')}` } },
+      ] : []),
+    ] },
   ];
   const { text, usage, model } = await chatCompletion(messages, schema);
   const parsed = parser.safeParse(extractJson(text));
@@ -199,7 +217,11 @@ async function ask<T>(image: string, mediaType: string, system: string, question
 }
 
 // ---- 第1段階: 画面の種類の判別 ----
-export interface Classification { screen_type: ScreenType | 'その他'; reason: string }
+export interface Classification { screen_type: ScreenType | 'その他'; reason: string; ability_box: AbilityBox | null }
+const AbilityBoxSchema = z.object({
+  x0: z.number().min(0).max(1), y0: z.number().min(0).max(1),
+  x1: z.number().min(0).max(1), y1: z.number().min(0).max(1),
+}).nullable();
 
 /** 画面の種類を scope の中から判別する。どれでもなければ「その他」と、その理由 */
 export async function classifyScreen(image: string, mediaType: string, scope: readonly ScreenType[]): Promise<{ result: Classification; model?: string; usage?: unknown }> {
@@ -209,17 +231,20 @@ export async function classifyScreen(image: string, mediaType: string, scope: re
     properties: {
       screen_type: { type: 'string', enum: options, description: '画面の種類。候補のどれにも当てはまらなければ「その他」' },
       reason: { type: 'string', description: 'そう判断した根拠（見出しや配置）。1〜2文' },
+      ability_box: z.toJSONSchema(AbilityBoxSchema),
     },
-    required: ['screen_type', 'reason'],
+    required: ['screen_type', 'reason', 'ability_box'],
   };
   const system = [
     '競走馬育成ゲーム『ダービースタリオン2』の画面を、見出しと配置から分類してください。',
     '候補は次の通りです。見出しと配置で見分け、内容の書き写しはしません。',
     ...scope.map((t) => `- ${t}: ${TYPE_DESC[t]}`),
     '- その他: 上のどれにも当てはまらない画面（メニュー、レース、別の一覧など）',
+    '育成馬・入厩馬の場合のみ、能力欄を拡大して読むためのability_boxを答えてください。スピード・スタミナ・パワー・根性・気性・芝・ダートの見出しと印、および成長から反応までの特性の見出しと印をすべて含む、軸に平行な最小の長方形です。間に馬名等があるカード形式ではそれらも範囲に含め、能力欄を欠かさないでください。',
+    '座標は画像全体に対する0〜1の比率です。左上が(0,0)、右下が(1,1)。x0,y0が左上、x1,y1が右下です。育成馬・入厩馬以外、能力欄が隠れている場合、範囲を特定できない場合はnull。',
     OUTPUT_RULE, JSON.stringify(schema),
   ].join('\n');
-  return ask(image, mediaType, system, 'この画面はどの種類ですか。', { name: 'ds2_screen_type', schema }, z.object({ screen_type: z.enum(options as [string, ...string[]]), reason: z.string() }) as z.ZodType<Classification>);
+  return ask(image, mediaType, system, '画面の種類と能力欄の範囲を答えてください。', { name: 'ds2_screen_type', schema }, z.object({ screen_type: z.enum(options as [string, ...string[]]), reason: z.string(), ability_box: AbilityBoxSchema }) as z.ZodType<Classification>);
 }
 
 // ---- 第2段階: 種類ごとの書き写し ----
@@ -234,10 +259,11 @@ const READ_QUESTION = 'この画面の内容を JSON で書き写してくださ
 const readSystem = (type: ScreenType, extra: string[], schema: unknown) => [READ_TASK, `画面は「${type}」です。${TYPE_DESC[type]}。`, ...extra, COPY_RULES, OUTPUT_RULE, JSON.stringify(schema)].join('\n');
 
 /** 判別済みの種類として画面を書き写す */
-export async function readScreenAs(type: ScreenType, image: string, mediaType: string): Promise<{ result: ScreenReading; model?: string; usage?: unknown }> {
+export async function readScreenAs(type: ScreenType, image: string, mediaType: string, abilityBox?: AbilityBox | null): Promise<{ result: ScreenReading; model?: string; usage?: unknown }> {
   if (type === '育成馬' || type === '入厩馬') {
-    const system = readSystem(type, ['スピード・スタミナ・パワー・根性は○＜◎＜◉（ピンク色の最上位印）、気性・芝は△＜○＜◎、ダートは×＜△＜○＜◎＜◉です。重馬場・荒れ馬場・高速馬場・体質・脚元では×も受け付けます。その他の評価印で表す特性は△・○・◎です。成長型・コーナーの文字もそのまま写し、未判明の「-」と評価の「×」を区別してください。', '騎手欄は先頭3文字で切れることがあります。jockeyには表示を写し、jockey_candidatesに実在騎手の名前の補完候補を別途挙げてください。これは騎手名だけの補完です。候補が曖昧なら複数挙げ、不明なら空配列とし、レースや勝敗から特定しないでください。', '競走成績の列は左から月.週、場所、レース名、クラス、コース、馬場、頭数、人気、着順、騎手、負担重量、馬体重、作戦です。見出しを優先し、見える結果行だけを上から順に写してください。出走予定の行は含めません。父母名と「誕生」が並ぶ行や、セール購入・入厩・放牧などの履歴行はレースではないのでracesに含めません。隠れた数値はnull、文字は空文字にし、上部の馬体重を各レースに転記しないでください。'], CARD_JSON_SCHEMA);
-    const { result: { notes, ...card }, ...r } = await ask(image, mediaType, system, READ_QUESTION, { name: 'ds2_card', schema: CARD_JSON_SCHEMA }, CardSchema);
+    const system = readSystem(type, [CARD_MARK_RULES, 'スピード・スタミナ・パワー・根性は○＜◎＜◉（中心が塗りつぶされた最上位印）、気性・芝は△＜○＜◎、ダートは×＜△＜○＜◎＜◉です。重馬場・荒れ馬場・高速馬場・体質・脚元では×も受け付けます。その他の評価印で表す特性は△・○・◎です。成長型・コーナーの文字もそのまま写し、未判明の「-」と評価の「×」を区別してください。', '騎手欄は先頭3文字で切れることがあります。jockeyには表示を写し、jockey_candidatesに実在騎手の名前の補完候補を別途挙げてください。これは騎手名だけの補完です。候補が曖昧なら複数挙げ、不明なら空配列とし、レースや勝敗から特定しないでください。', '競走成績の列は左から月.週、場所、レース名、クラス、コース、馬場、頭数、人気、着順、騎手、負担重量、馬体重、作戦です。見出しを優先し、見える結果行だけを上から順に写してください。出走予定の行は含めません。父母名と「誕生」が並ぶ行や、セール購入・入厩・放牧などの履歴行はレースではないのでracesに含めません。隠れた数値はnull、文字は空文字にし、上部の馬体重を各レースに転記しないでください。'], CARD_JSON_SCHEMA);
+    const closeup = abilityBox ? await abilityCloseup(Buffer.from(image, 'base64'), abilityBox) : undefined;
+    const { result: { notes, ...card }, ...r } = await ask(image, mediaType, system, READ_QUESTION, { name: 'ds2_card', schema: CARD_JSON_SCHEMA }, CardSchema, closeup);
     return { ...r, result: { screen_type: type, card: { ...card, races: mergeRaces([], card.races) }, notes } };
   }
   if (type === '血統') {

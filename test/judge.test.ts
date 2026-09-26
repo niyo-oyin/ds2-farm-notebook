@@ -10,6 +10,59 @@ const M = baseMaster;
 const ctx = makeContext(M);
 const resolver = new HorseResolver(M, [], DEFAULT_RULES);
 
+describe('実機で確認した合計血量と危険判定', () => {
+  const masterKey = (name: string) => [...M.stallions, ...M.broodmares].find(h => h.name === name)!.id;
+  const horses = [
+    owned('u:ムース', { sireKey: masterKey('フェノーメノ'), damKey: masterKey('ドナブルーハ') }),
+    owned('u:エルク', { sireKey: masterKey('フリオーソ'), damKey: 'u:ムース' }),
+    owned('u:ルビア', { sireKey: masterKey('コパノリッキー'), damKey: masterKey('ドナブルーハ') }),
+    owned('u:ルビアーロ', { sireKey: masterKey('リアルスティール'), damKey: 'u:ルビア' }),
+  ];
+  const r = new HorseResolver(M, horses, DEFAULT_RULES), c = makeContext(M, {}, horses);
+  it.each([
+    ['u:エルク', 'エスポワールシチー', '成立'],
+    ['u:エルク', 'ゴールドアリュール', '不成立'],
+    ['u:エルク', 'ディーマジェスティ', '不成立'],
+    ['u:エルク', 'トゥザワールド', '不成立'],
+    ['u:エルク', 'ゴールドドリーム', '不成立'],
+    ['u:エルク', 'コパノリッキー', '不成立'],
+    ['u:エルク', 'クリソベリル', '不成立'],
+    ['u:ルビアーロ', 'ワールドプレミア', '不成立'],
+    ['u:ルビアーロ', 'エピカリス', '成立'],
+    ['u:ルビアーロ', 'ディープブリランテ', '成立'],
+  ])('%s × %s の危険判定が %s', (dam, sire, verdict) => {
+    const j = judge(r.get(masterKey(sire))!, r.get(dam)!, c);
+    expect(j.hasUnknownSlots).toBe(false);
+    expect(j.dangerous.verdict).toBe(verdict);
+    if (verdict === '成立') expect(j.kotta.verdict).toBe('不成立');
+  });
+  it('危険境界より下では、成立する凝った配合を維持する', () => {
+    const j = judge(r.get(masterKey('ワールドプレミア'))!, r.get('u:ルビアーロ')!, c);
+    expect(j.kotta.verdict).toBe('成立');
+  });
+});
+
+describe('クロスの出現位置', () => {
+  it('独立した経路がある祖先は、別のクロスに従属する出現位置も表示する', () => {
+    const sire = { ...resolver.get(M.stallions[0].id)!, nodes: Array.from({ length: 32 }, (_, i) => `s:${i}`) };
+    const dam = { ...resolver.get(M.broodmares[0].id)!, nodes: Array.from({ length: 32 }, (_, i) => `d:${i}`) };
+    // 産駒の3×3となる共通祖先と、その父（4×4）、父父（5×5）。
+    sire.nodes[6] = dam.nodes[4] = 'a:near';
+    sire.nodes[12] = dam.nodes[8] = 'a:parent';
+    sire.nodes[24] = dam.nodes[16] = 'a:remote';
+    // 父側に別経路の5代目を追加し、remote は（5×5）×5になる。
+    sire.nodes[16] = 'a:remote';
+    const j = judge(sire, dam, ctx);
+    expect(j.crosses.map(c => c.key)).toEqual(['a:near', 'a:remote']);
+    expect(j.crosses.find(c => c.key === 'a:remote')).toMatchObject({
+      sireGens: [5, 5], damGens: [5], sireNodes: [32, 40], damNodes: [48],
+    });
+    // 別経路をなくすと、すべて near に従属するので独立したクロスにはしない。
+    sire.nodes[16] = 's:16';
+    expect(judge(sire, dam, ctx).crosses.map(c => c.key)).toEqual(['a:near']);
+  });
+});
+
 describe('自家製馬と不明枠', () => {
   it('産駒は父母の系統と血統を引き継ぎ、父との配合は危険と判定される', () => {
     const st = { ...M.stallions[0], bigSystem: 'Ec', ancestors: [...M.stallions[0].ancestors] }, bm = { ...M.broodmares[0], bigSystem: 'Ne', ancestors: [...M.broodmares[0].ancestors] };

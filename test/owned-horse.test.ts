@@ -68,6 +68,31 @@ describe('所有馬の血統内の因子数', () => {
 });
 
 describe('データの繁殖牝馬を所有馬にする', () => {
+  it('引退を保存・復元でき、血統の参照を保ったまま探索候補から外し、繁殖に戻すと候補に復帰する', async () => {
+    vi.resetModules(); vi.stubGlobal('localStorage', memoryStorage());
+    (await import('../src/data/catalog')).initializeCatalog(testCatalog);
+    const { store, getUserData } = await import('../src/store/userdata');
+    const { damOptions } = await import('../src/ui/app-context');
+    const { HorseResolver } = await import('../src/core/pedigree');
+    const { DEFAULT_RULES } = await import('../src/core/rules');
+    const master = testCatalog.data.master;
+    const mare = master.broodmares[0];
+    const mother = store.addHorse(owned('u:mare', { name: mare.name, category: '繁殖牝馬', masterKey: mare.id, goodMotherComment: true }));
+    const child = store.addHorse(owned('u:foal', { damKey: mare.id, sireKey: master.stallions[0].id }));
+    const options = (onlyAvailable: boolean) => damOptions({ master, data: getUserData() }, { onlyAvailable }).map(o => o.key);
+    const pedigree = () => new HorseResolver(master, getUserData().horses, DEFAULT_RULES).get(child.id)!.nodes;
+    const before = pedigree();
+    expect(options(true)).toContain(mare.id);
+    store.updateHorse(mother.id, { category: '引退' });
+    store.importJson(store.exportJson());
+    expect(getUserData().horses.find(h => h.id === mother.id)).toMatchObject({ category: '引退', masterKey: mare.id, goodMotherComment: true });
+    expect(options(true)).not.toContain(mare.id);
+    expect(options(false)).toContain(mare.id);
+    expect(pedigree()).toEqual(before);
+    store.updateHorse(mother.id, { category: '繁殖牝馬' });
+    expect(options(true)).toContain(mare.id);
+  });
+
   it('所有馬として引いてもデータの馬そのものとして判定し、購入の制約を付けない', async () => {
     const { baseMaster: M } = await import('../src/data/base-master');
     const { HorseResolver } = await import('../src/core/pedigree');

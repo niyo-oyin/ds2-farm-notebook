@@ -16,7 +16,7 @@ export function kottaParents(master: MasterData, horses: UserHorse[] = []): Kott
     }
     parents.set(key, [sire || previous?.[0] || '', dam || previous?.[1] || '']);
   };
-  const masterHorses = [...master.stallions, ...master.broodmares];
+  const masterHorses = [...master.stallions, ...master.broodmares, ...(master.hiddenHorses ?? [])];
   for (const ancestor of master.ancestors) {
     if (ancestor.sireId || ancestor.damId) add(ancestor.id, ancestor.sireId ?? '', ancestor.damId ?? '');
   }
@@ -49,17 +49,25 @@ export function kottaProfile(key: string, parents: KottaParents): KottaProfile {
   };
 }
 
-/** 父側の各枝を最大1本と数える。同じ祖先が別枝に現れる場合は別々に数える。 */
+/**
+ * 父側の各枝を最大1本と数える。同じ祖先が別枝に現れる場合は別々に数える。
+ * complete はペアかどうかが確定したか。血統や因子に不明があっても、不明な部分がすべてクロスになっても3本に届かなければ「ペアでない」と確定する。
+ */
 export function compareKottaProfiles(sire: KottaProfile, dam: KottaProfile, effects: (key: string) => readonly string[] | undefined): { pair: boolean; complete: boolean; crosses: string[] } {
   const crosses: string[] = [];
-  let complete = sire.complete && dam.complete;
+  // まだクロスが見つかっていないが、不明な部分しだいでクロスになり得る枝の数
+  let open = 0;
   for (const branch of sire.branches) {
+    let matched = false, possible = false;
     for (const key of branch) {
-      if (!key || !dam.ancestors.has(key)) continue;
+      if (!key) { possible = true; continue; }
+      if (!dam.ancestors.has(key)) { if (!dam.complete) possible = true; continue; }
       const e = effects(key);
-      if (!e) complete = false;
-      if (e?.length) { crosses.push(key); break; }
+      if (!e) { possible = true; continue; }
+      if (e.length) { crosses.push(key); matched = true; break; }
     }
+    if (!matched && possible) open++;
   }
-  return { pair: crosses.length >= 3, complete, crosses };
+  const pair = crosses.length >= 3;
+  return { pair, complete: pair || crosses.length + open < 3, crosses };
 }

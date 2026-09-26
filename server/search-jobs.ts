@@ -1,4 +1,4 @@
-// 数世代探索とループ探索をワーカースレッドで並列実行し、途中経過と結果を SQLite に保存する。
+// 血統設計とループ探索をワーカースレッドで並列実行し、途中経過と結果を SQLite に保存する。
 // 画面を閉じても探索は継続する。
 import { Worker } from 'node:worker_threads';
 import type { DatabaseSync } from 'node:sqlite';
@@ -7,22 +7,23 @@ import { Hono } from 'hono';
 import { MASTER_CHANGED_MESSAGE, type MasterCatalog } from '../src/shared/master-catalog.js';
 import type { MasterData } from '../src/core/types.js';
 import type { SyncRecord } from '../src/shared/save-data.js';
-import type { SearchReport, SearchRequest, SearchResult, SearchStatus } from '../src/core/search.js';
+import type { SearchStatus } from '../src/core/search.js';
+import type { DesignReport, DesignRequest, DesignResult } from '../src/core/design-search.js';
 import type { LoopReport, LoopRequest, LoopResult } from '../src/core/loop-search.js';
 
-export type SearchJobKind = 'lineage' | 'loop';
+export type SearchJobKind = 'design' | 'loop';
 export type SearchJobStatus = 'queued' | 'running' | 'done' | 'failed' | 'cancelled';
 export interface SearchProgress { evaluated: number; pruned: number; found: number; elapsedMs: number }
 /** 終了した探索の集計（結果本体は results に持つ） */
-export interface SearchOutcome { status: SearchStatus; evaluated: number; pruned: number; elapsedMs: number; dataIssues?: number }
+export interface SearchOutcome { status: SearchStatus; evaluated: number; pruned: number; elapsedMs: number; dataIssues?: number; folded?: number }
 export type SearchJob = {
   id: string; masterRevision: string; status: SearchJobStatus; progress: SearchProgress; outcome?: SearchOutcome; error?: string; createdAt: string; updatedAt: string;
-} & ({ kind: 'lineage'; request: SearchRequest; results?: SearchResult[] } | { kind: 'loop'; request: LoopRequest; results?: LoopResult[] });
+} & ({ kind: 'design'; request: DesignRequest; results?: DesignResult[] } | { kind: 'loop'; request: LoopRequest; results?: LoopResult[] });
 
-export interface SearchWorkerIn { kind: SearchJobKind; request: SearchRequest | LoopRequest; records: SyncRecord[]; master: MasterData }
+export interface SearchWorkerIn { kind: SearchJobKind; request: DesignRequest | LoopRequest; records: SyncRecord[]; master: MasterData }
 export type SearchWorkerOut =
-  | { type: 'progress'; evaluated: number; pruned: number; found: number; elapsedMs: number; results: (SearchResult | LoopResult)[] }
-  | { type: 'done'; report: SearchReport | LoopReport }
+  | { type: 'progress'; evaluated: number; pruned: number; found: number; elapsedMs: number; results: (DesignResult | LoopResult)[] }
+  | { type: 'done'; report: DesignReport | LoopReport }
   | { type: 'error'; message: string };
 
 interface Row { id: string; status: SearchJobStatus; kind: SearchJobKind; request: string; progress: string; results: string | null; outcome: string | null; error: string | null; created_at: string; updated_at: string }
@@ -60,7 +61,7 @@ export class SearchJobQueue {
     const row = this.db.prepare('SELECT * FROM search_jobs WHERE id = ?').get(id) as unknown as Row | undefined;
     return row ? toJob(row) : null;
   }
-  enqueue(kind: SearchJobKind, request: SearchRequest | LoopRequest): SearchJob {
+  enqueue(kind: SearchJobKind, request: DesignRequest | LoopRequest): SearchJob {
     const id = `search_${randomBytes(6).toString('hex')}`, t = now();
     this.db.prepare(`INSERT INTO search_jobs (id, status, kind, request, progress, results, created_at, updated_at) VALUES (?, 'queued', ?, ?, ?, '[]', ?, ?)`).run(id, kind, JSON.stringify({ ...request, masterRevision: this.masterRevision }), JSON.stringify(ZERO), t, t);
     this.tick();
@@ -140,8 +141,8 @@ export function searchJobRoutes(queue: SearchJobQueue, generation: () => number)
     const body = await c.req.json<{ kind: unknown; request: unknown; generation: number; masterRevision: string }>();
     if (body.generation !== generation()) return c.json({ error: 'セーブデータがロードされました。同期してから探索してください。' }, 409);
     if (body.masterRevision !== queue.masterRevision) return c.json({ error: MASTER_CHANGED_MESSAGE }, 409);
-    if ((body.kind !== 'lineage' && body.kind !== 'loop') || !body.request || typeof body.request !== 'object') return c.json({ error: '探索の指定が不正です' }, 400);
-    return c.json({ job: queue.enqueue(body.kind, body.request as SearchRequest | LoopRequest) });
+    if ((body.kind !== 'design' && body.kind !== 'loop') || !body.request || typeof body.request !== 'object') return c.json({ error: '探索の指定が不正です' }, 400);
+    return c.json({ job: queue.enqueue(body.kind, body.request as DesignRequest | LoopRequest) });
   });
   app.post('/search-jobs/:id/cancel', c => {
     const job = queue.cancel(c.req.param('id'));

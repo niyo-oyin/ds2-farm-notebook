@@ -1,7 +1,7 @@
 import type { HorseKey, OwnedHorse, PlannedHorse, UserHorse } from '../core/types';
 import { isBreedingHorse } from '../core/owned-horse';
 import type { RuleOptions } from '../core/rules';
-import type { SearchGoal, SearchRequest } from '../core/search';
+import type { SearchGoal } from '../core/search';
 import type { AncestorEdit, KottaEdit, MasterEdit, NicksEdit } from '../core/master-edits';
 import type { RaceEdit } from '../core/races';
 
@@ -9,7 +9,9 @@ export interface PlanStep { sire: HorseKey; dam: HorseKey; foalId: string; }
 export interface Plan {
   id: string; name: string; createdAt: string; updatedAt: string;
   startKey: HorseKey; steps: PlanStep[]; goals: SearchGoal[];
-  request?: SearchRequest; rulesVersion: string; dataVersion: string; memo: string;
+  rulesVersion: string; dataVersion: string; memo: string;
+  /** 計画馬に複数の実馬が紐付く場合、この計画で使う実馬。 */
+  realizedSelections?: Record<string, string>;
 }
 export interface HorseNameAffix { text: string; position: 'prefix' | 'suffix'; }
 export interface FarmSettings {
@@ -26,7 +28,7 @@ export interface Settings {
   hidePurchase?: boolean;
   /** 父母の選択リストに計画馬を出さない。表示だけの設定で、探索の相手の候補には影響しない */
   hidePlanned?: boolean;
-  /** 探索の相手の候補（総当たりの相手、数世代探索・ループ探索の種牡馬）に計画馬を入れない。既定はオン（未設定なら除外）。選択リストの表示とは連動しない */
+  /** 探索の相手の候補（総当たりの相手、血統設計・ループ探索の種牡馬）に計画馬を入れない。既定はオン（未設定なら除外）。選択リストの表示とは連動しない */
   excludePlannedFromSearch?: boolean;
   /** ゲーム内の現在年（例 29）。年齢 = 年 − 生年。カードの反映で推定した年が進んでいれば自動で更新する */
   gameYear?: number;

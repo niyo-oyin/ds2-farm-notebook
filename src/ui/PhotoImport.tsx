@@ -1,12 +1,12 @@
-import { useMemo, useRef, useState, useSyncExternalStore } from 'react';
+import { useMemo, useRef, useState } from 'react';
 import { submitJob, useImportJobs, type CaptureTarget } from '../store/jobs';
 import { imageToBase64, type EncodedImage, type ScreenType } from '../api';
 import { damOptions, useApp } from './app-context';
 import './PhotoImport.css';
 import { Tip } from './Tip';
+import { CameraCapture } from './CameraCapture';
+import { inAppCameraAvailable, useTouch } from './use-touch';
 
-const coarse = typeof matchMedia !== 'undefined' ? matchMedia('(pointer: coarse)') : null;
-const useTouch = () => useSyncExternalStore((cb) => { coarse?.addEventListener('change', cb); return () => coarse?.removeEventListener('change', cb); }, () => !!coarse?.matches);
 interface Pending { id: string; file: File; image: EncodedImage | null; rotation: number; portraitRotation?: 'left' | 'right'; preparing: boolean; sending: boolean; error: string }
 
 /** 送信元ごとの説明。scope（判別の候補）に含まれる種類の分だけ並べる */
@@ -36,6 +36,7 @@ export function PhotoImport({ onClose, scope, target = null }: { onClose: () => 
   const [mareKey, setMareKey] = useState('');
   const mares = useMemo(() => (scope.includes('種付け') && !target ? damOptions(app, { includePlanned: false }) : []), [app, scope, target]);
   const [dragging, setDragging] = useState(false);
+  const [camera, setCamera] = useState(false);
   const busy = useRef(new Set<string>());
   const nextId = useRef(0);
   const { jobs } = useImportJobs();
@@ -81,7 +82,9 @@ export function PhotoImport({ onClose, scope, target = null }: { onClose: () => 
     <div className={'photo-capture' + (dragging ? ' active' : '')}
       onDragOver={(e) => { e.preventDefault(); setDragging(true); }} onDragLeave={() => setDragging(false)}
       onDrop={(e) => { e.preventDefault(); setDragging(false); add(e.dataTransfer.files); }}>
-      {touch && <label className="photo-capture-camera"><input type="file" accept="image/*" capture="environment" onChange={(e) => { add(e.target.files); e.target.value = ''; }} />カメラで撮影</label>}
+      {touch && (inAppCameraAvailable()
+        ? <button type="button" className="photo-capture-camera" onClick={() => setCamera(true)}>カメラで撮影</button>
+        : <label className="photo-capture-camera"><input type="file" accept="image/*" capture="environment" onChange={(e) => { add(e.target.files); e.target.value = ''; }} />カメラで撮影</label>)}
       <label className="photo-capture-pick"><input type="file" accept="image/*" multiple onChange={(e) => { add(e.target.files); e.target.value = ''; }} />{touch ? '写真を選ぶ' : '画像を選ぶ（複数可）またはここにドロップ'}</label>
     </div>
 
@@ -103,6 +106,7 @@ export function PhotoImport({ onClose, scope, target = null }: { onClose: () => 
       </figure>)}</div>
     </div>}
 
+    {camera && <CameraCapture scope={scope} targetId={target?.id ?? (mareKey || undefined)} onClose={() => setCamera(false)} />}
     <p className="small muted photo-import-status">{active ? `${active}枚を解析中。` : ''}{waiting ? `${waiting}件が確認待ち。` : ''}{jobs.length ? '結果は画面右上の「取り込み」から、どの画面にいても確認できます。' : '送信した写真は画面右上の「取り込み」に並び、解析が終わるとそこから登録・更新できます。'}</p>
   </div>;
 }

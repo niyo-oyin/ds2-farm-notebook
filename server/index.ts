@@ -36,7 +36,7 @@ const jobs = new JobQueue(db, async (job) => {
   const type = cls.result.screen_type;
   if (type === 'その他') return { result: { screen_type: 'その他', notes: cls.result.reason }, model: cls.model };
   const isCard = type === '育成馬' || type === '入厩馬';
-  const [read, box] = await Promise.all([readScreenAs(type, base64, img.mediaType), isCard ? detectHorseBox(base64, img.mediaType).catch((e: Error) => { console.warn(`SAM: ${e.message}`); return null; }) : null]);
+  const [read, box] = await Promise.all([readScreenAs(type, base64, img.mediaType, cls.result.ability_box), isCard ? detectHorseBox(base64, img.mediaType).catch((e: Error) => { console.warn(`SAM: ${e.message}`); return null; }) : null]);
   const result = read.result.screen_type === '育成馬' || read.result.screen_type === '入厩馬'
     ? { ...read.result, card: { ...read.result.card, horse_box: box ?? { x0: 0, y0: 0, x1: 0, y1: 0 } } }
     : read.result;

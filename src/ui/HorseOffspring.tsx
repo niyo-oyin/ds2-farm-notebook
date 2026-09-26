@@ -1,9 +1,9 @@
 import type { OwnedHorse } from '../core/types';
 
-export function HorseOffspring({ damId, horses, label }: {
-  damId: string; horses: OwnedHorse[]; label: (key: string) => string;
+export function HorseOffspring({ dam, horses, label }: {
+  dam: Pick<OwnedHorse, 'id' | 'masterKey'>; horses: OwnedHorse[]; label: (key: string) => string;
 }) {
-  const foals = horses.filter(h => h.damKey === damId && h.id !== damId).sort((a, b) =>
+  const foals = horses.filter(h => (h.damKey === dam.id || (dam.masterKey && h.damKey === dam.masterKey)) && h.id !== dam.id).sort((a, b) =>
     (b.profile?.birthYear ?? -Infinity) - (a.profile?.birthYear ?? -Infinity) || a.name.localeCompare(b.name, 'ja'));
   return <section className="sheet-section">
     <div className="sheet-section-heading"><h3>産駒 <span>{foals.length}頭</span></h3></div>

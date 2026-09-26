@@ -5,7 +5,7 @@ import { applyMasterEdits } from '../src/core/master-edits.js';
 import { DEFAULT_RULES } from '../src/core/rules.js';
 import { HorseResolver } from '../src/core/pedigree.js';
 import { makeContext } from '../src/core/judge.js';
-import { searchLineage, type SearchRequest, type SearchResult } from '../src/core/search.js';
+import { searchDesigns, type DesignRequest, type DesignResult } from '../src/core/design-search.js';
 import { searchLoops, type LoopRequest, type LoopResult } from '../src/core/loop-search.js';
 import { allUserHorses } from '../src/store/model.js';
 import { userDataFromRecords } from './user-data.js';
@@ -26,10 +26,10 @@ try {
   const resolver = new HorseResolver(master, userHorses, rules);
   const env = { ctx: makeContext(master, rules, userHorses), rules, resolve: (k: string) => resolver.get(k) };
   const t0 = Date.now();
-  let found: (SearchResult | LoopResult)[] = [], lastPost = performance.now();
+  let found: (DesignResult | LoopResult)[] = [], lastPost = performance.now();
   const hooks = {
     shouldStop: () => cancelled,
-    onFound: (r: SearchResult | LoopResult) => { found.push(r); },
+    onFound: (r: DesignResult | LoopResult) => { found.push(r); },
     onProgress: async (p: { evaluated: number; pruned: number; found: number }) => {
       const now = performance.now();
       // 保存と画面更新が頻発しないよう、発見した結果も通知間隔に合わせてまとめて送る。
@@ -40,7 +40,7 @@ try {
       await new Promise<void>((resolve) => setImmediate(resolve)); // 中止メッセージを受け取る区切り
     },
   };
-  const report = input.kind === 'loop' ? await searchLoops(env, input.request as LoopRequest, hooks) : await searchLineage(env, input.request as SearchRequest, hooks);
+  const report = input.kind === 'loop' ? await searchLoops(env, input.request as LoopRequest, hooks) : await searchDesigns(env, input.request as DesignRequest, hooks);
   post({ type: 'done', report });
 } catch (e) {
   post({ type: 'error', message: (e as Error).message });

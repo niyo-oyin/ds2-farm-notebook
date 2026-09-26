@@ -81,16 +81,17 @@
 .sheet-pedigree-notice > span { flex: 1; }
 .sheet-pedigree-notice > button { flex: 0 0 auto; font-size: 12px; min-height: 32px; }
 .sheet-tab-count { margin-left: 5px; padding: 0 6px; border-radius: 999px; background: var(--hover); font-size: 11px; }
-.sheet-tabs { display: flex; gap: 16px; overflow-x: auto; border-bottom: 1px solid var(--rule-strong); }
+.sheet-tabs { display: flex; gap: 16px; overflow-x: auto; overflow-y: hidden; border-bottom: 1px solid var(--rule-strong); }
 .sheet-tabs > button { flex-shrink: 0; white-space: nowrap; }
-.sheet-tabs > button { padding: 12px 18px; margin-bottom: -1px; border: 0; border-bottom: 3px solid transparent; border-radius: 0; background: transparent; color: var(--ink-muted); }
+.sheet-tabs > button { padding: 12px 18px; border: 0; border-bottom: 3px solid transparent; border-radius: 0; background: transparent; color: var(--ink-muted); }
 .sheet-tabs > button[aria-selected="true"] { color: var(--accent); border-bottom-color: var(--accent); font-weight: 600; }
 .sheet-tab-panel { padding-top: 16px; }
 .sheet-tab-panel[hidden] { display: none; }
 .sheet-basic-layout { display: grid; grid-template-columns: minmax(0, .9fr) minmax(0, 1.3fr); grid-template-areas: "details abilities" "factors abilities"; align-items: stretch; gap: 16px; }
-.sheet-details { grid-area: details; }
-.sheet-abilities { grid-area: abilities; }
-.sheet-factors { grid-area: factors; }
+.sheet-basic-layout > .sheet-details { grid-area: details; }
+.sheet-basic-layout > .sheet-abilities { grid-area: abilities; }
+.sheet-basic-layout > .sheet-factors { grid-area: factors; }
+.sheet-master-layout { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 16px; }
 .sheet-section { min-width: 0; padding: 16px; border: 1px solid var(--rule); border-radius: var(--r-sm); }
 .sheet-section-heading { display: flex; align-items: center; justify-content: space-between; gap: 10px; margin-bottom: 12px; }
 .sheet-section-heading h3, .sheet-section-heading h4 { margin: 0; font-family: var(--font-display); font-size: 16px; }
@@ -182,6 +183,7 @@
   .horse-sheet .sheet-memo textarea { min-height: 72px; resize: vertical; }
 }
 @container (max-width: 700px) {
+  .sheet-master-layout { grid-template-columns: minmax(0, 1fr); }
   .sheet-overview { grid-template-columns: 120px minmax(0, 1fr); gap: 16px; align-items: start; }
   .sheet-portrait .portrait { width: 120px; height: 120px; }
   .sheet-basic-layout { grid-template-columns: minmax(0, 1fr); grid-template-areas: "details" "abilities" "factors"; }

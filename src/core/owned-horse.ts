@@ -23,6 +23,24 @@ export const RACE_TRAIT_FIELDS: CardField<RaceTraitKey>[] = [
 /** 配合確認・探索・計画で使う馬のキー。データの繁殖牝馬を所有している場合はその馬のキー */
 export const breedingKey = (horse: Pick<OwnedHorse, 'id' | 'masterKey'>): string => horse.masterKey ?? horse.id;
 
+/** この馬の産駒（母または父として） */
+export const foalsOf = (horse: Pick<OwnedHorse, 'id' | 'masterKey' | 'sex'>, horses: OwnedHorse[]): OwnedHorse[] => {
+  const keys = new Set([horse.id, breedingKey(horse)]);
+  return horses.filter((h) => h.id !== horse.id && (horse.sex === 'M' ? keys.has(h.sireKey) : keys.has(h.damKey)));
+};
+
+/**
+ * 繁殖入りした年。登録値があればそれを、なければ最初の産駒の生年の前年（種付けの年）を推定として返す。
+ */
+export function breedingSince(horse: OwnedHorse, horses: OwnedHorse[]): { year: number; inferred: boolean } | undefined {
+  if (horse.profile?.breedingSinceYear !== undefined) return { year: horse.profile.breedingSinceYear, inferred: false };
+  const years = foalsOf(horse, horses).map((f) => f.profile?.birthYear).filter((y): y is number => y !== undefined);
+  return years.length ? { year: Math.min(...years) - 1, inferred: true } : undefined;
+}
+
+/** 繁殖入りからの年数（繁殖入りの年を1年目とする） */
+export const breedingYears = (since: number | undefined, gameYear: number | undefined) => since !== undefined && gameYear !== undefined && gameYear >= since ? gameYear - since + 1 : undefined;
+
 /** 血統（父母）が登録されていない所有馬は配合確認・探索の候補にしない。理由の文言も返す */
 export function pedigreeIssue(horse: Pick<OwnedHorse, 'sireKey' | 'damKey' | 'masterKey'>): string | null {
   if (horse.masterKey) return null;
@@ -37,7 +55,7 @@ export function isBreedingHorse(horse: OwnedHorse) {
 
 export function validateOwnedDetails(horse: Pick<OwnedHorse, 'profile' | 'abilities'> & Partial<Pick<OwnedHorse, 'category' | 'sex' | 'masterKey'>>) {
   if (horse.category !== undefined && !HORSE_CATEGORIES.includes(horse.category)) throw new Error('区分が不正です');
-  if (horse.masterKey && (horse.sex !== 'F' || horse.category !== '繁殖牝馬')) throw new Error('データの繁殖牝馬は、区分を繁殖牝馬・性別を牝として登録してください');
+  if (horse.masterKey && (horse.sex !== 'F' || (horse.category !== '繁殖牝馬' && horse.category !== '引退'))) throw new Error('データの繁殖牝馬は、区分を繁殖牝馬または引退・性別を牝として登録してください');
   if ((horse.category === '繁殖牝馬' && horse.sex !== 'F') || (horse.category === '種牡馬' && horse.sex !== 'M')) throw new Error('区分と性別が一致していません');
   const a = horse.abilities;
   const number = (value: number | undefined, label: string) => {
@@ -154,8 +172,10 @@ export function pedigreeMatchCandidates(reading: PedigreeReading, horses: OwnedH
   return out.sort((a, b) => b.score - a.score || a.horse.name.localeCompare(b.horse.name, 'ja'));
 }
 
-const sameRace = (a: RaceEntry, b: RaceEntry) => a.date === b.date && a.place === b.place && a.race === b.race;
-/** 競走成績を統合する。新しい行を先頭に足し、既存行は見えている列だけ埋める。 */
+const visibleRaceValue = (value: unknown) => value !== undefined && value !== null && value !== '' && value !== '-' && value !== '—';
+const sameRace = (a: RaceEntry, b: RaceEntry) => !!a.date && !!a.place && a.date === b.date && a.place === b.place && a.race === b.race
+  && (Object.keys(b) as (keyof RaceEntry)[]).every((key) => !visibleRaceValue(a[key]) || !visibleRaceValue(b[key]) || a[key] === b[key]);
+/** 年を持たない月・週だけでは出走を特定できない。見える列が矛盾しない既存行に一対一で照合し、新規行を先頭に足す。 */
 export function mergeRaces(existing: RaceEntry[] = [], incoming: RaceEntry[] = []): RaceEntry[] {
   const results = incoming.filter((r) => {
     const cells = [r.place, r.race, r.finish, r.jockey ?? ''].map((v) => v.trim());
@@ -163,10 +183,11 @@ export function mergeRaces(existing: RaceEntry[] = [], incoming: RaceEntry[] = [
   });
   const rows = existing.map((e) => ({ ...e }));
   const added: RaceEntry[] = [];
+  const matched = new Set<number>();
   for (const result of results) {
-    const hit = [...rows, ...added].find((r) => sameRace(r, result));
-    const visible = Object.fromEntries(Object.entries(result).filter(([, v]) => v !== undefined && v !== null && v !== ''));
-    if (hit) Object.assign(hit, visible);
+    const hit = rows.findIndex((r, i) => !matched.has(i) && sameRace(r, result));
+    const visible = Object.fromEntries(Object.entries(result).filter(([, v]) => visibleRaceValue(v)));
+    if (hit >= 0) { Object.assign(rows[hit], visible); matched.add(hit); }
     else added.push({ ...result });
   }
   return [...added, ...rows];

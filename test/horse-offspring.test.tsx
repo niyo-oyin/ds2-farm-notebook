@@ -10,7 +10,7 @@ it('母のIDで産駒を集め、引退馬も生年の新しい順に表示し�
     owned('u:young', { name: '今年の産駒', damKey: 'u:dam', profile: { birthYear: 32, earnings: 0 } }),
     owned('u:other', { name: '別の母の産駒', damKey: 'u:other-dam', sireKey: 'u:dam' }),
   ];
-  const render = () => renderToStaticMarkup(<HorseOffspring damId="u:dam" horses={horses} label={() => '父の種牡馬'} />);
+  const render = () => renderToStaticMarkup(<HorseOffspring dam={{ id: 'u:dam' }} horses={horses} label={() => '父の種牡馬'} />);
   const html = render();
   expect(html).not.toContain('別の母の産駒');
   expect(html.indexOf('今年の産駒')).toBeLessThan(html.indexOf('引退した産駒'));
@@ -26,4 +26,17 @@ it('母のIDで産駒を集め、引退馬も生年の新しい順に表示し�
   expect(render()).toContain('10,000');
   horses.forEach(h => { h.damKey = ''; });
   expect(render()).toContain('登録済みの産駒はありません');
+});
+
+it('所有する実在馬の産駒は、マスターIDと所有馬IDのどちらで母が登録されていても表示する', () => {
+  const dam = owned('u:dam', { masterKey: 'bm:1' });
+  const horses = [dam,
+    owned('u:a', { name: 'マスターを母にした産駒', damKey: 'bm:1' }),
+    owned('u:b', { name: '所有馬を母にした産駒', damKey: dam.id }),
+    owned('u:c', { name: '別の実在馬の産駒', damKey: 'bm:2' }),
+  ];
+  const html = renderToStaticMarkup(<HorseOffspring dam={dam} horses={horses} label={key => key} />);
+  expect(html).toContain('マスターを母にした産駒');
+  expect(html).toContain('所有馬を母にした産駒');
+  expect(html).not.toContain('別の実在馬の産駒');
 });

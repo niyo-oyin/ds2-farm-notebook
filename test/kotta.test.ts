@@ -76,6 +76,18 @@ describe('方向・対象世代・自家生産馬を含む配合判定', () => {
     const h = record({ ...horse('クリソベリル'), id: `st:${name}`, name, ancestors: Array.from({ length: 30 }, (_, i) => `a:${name}-${i}`) });
     return h;
   };
+  it('種牡馬自身はペアの対象にせず、同じ馬が祖先にいる場合だけ対象にする', () => {
+    const sire = blank('父'), dam = blank('母');
+    dam.nodes[2] = 'a:相手';
+    const ctx = makeContext({ ...master, kotta: [[sire.key, 'a:相手']] });
+    expect(judge(sire, dam, ctx).kotta.verdict).toBe('不成立');
+    expect(kottaHints({ id: sire.key, kind: 'stallion', ancestors: sire.nodes.slice(2) }, [[sire.key, 'a:相手']])).toEqual([]);
+    const descendant = { ...sire, key: 'st:子', nodes: [...sire.nodes] };
+    descendant.nodes[1] = descendant.key;
+    descendant.nodes[2] = sire.key;
+    expect(judge(descendant, dam, ctx).kotta).toMatchObject({ verdict: '成立', pairs: [[sire.key, 'a:相手']] });
+    expect(kottaHints({ id: descendant.key, kind: 'stallion', ancestors: descendant.nodes.slice(2) }, [[sire.key, 'a:相手']])).toEqual([{ name: sire.key, path: '父', partners: ['a:相手'] }]);
+  });
   it('産駒の4代目までは対象にし、5代目と牝馬の位置は対象にしない', () => {
     const sire = blank('父'), dam = blank('母');
     const ctx = makeContext({ ...master, kotta: [['a:A', 'a:B']] });
@@ -88,7 +100,7 @@ describe('方向・対象世代・自家生産馬を含む配合判定', () => {
   });
   it('自家生産馬の完全な血統は成立・不成立を判定し、不足する場合だけ未確定にする', () => {
     const sire = blank('父'), dam = blank('母');
-    sire.nodes[1] = 'u:sire'; sire.labels['u:sire'] = '自家生産馬'; dam.nodes[8] = 'a:比較相手';
+    sire.nodes[2] = 'u:sire'; sire.labels['u:sire'] = '自家生産馬'; dam.nodes[8] = 'a:比較相手';
     const ctx = makeContext({ ...master, kotta: [] }, {}, [owned('u:sire', { sex: 'M' })]);
     // 既存ペアに頼らず、独立した3本の枝で共通祖先を作る。
     const addTree = (key: string, prefix: string) => {
@@ -110,8 +122,8 @@ describe('方向・対象世代・自家生産馬を含む配合判定', () => {
     expect(judge(sire, dam, ctx).kotta).toMatchObject({ verdict: '成立', estimated: true });
     const disabled = { ...ctx, rules: { ...ctx.rules, kottaEstimateHomebred: false } };
     expect(judge(sire, dam, disabled).kotta).toMatchObject({ verdict: '未確定', estimatedPairs: [] });
-    const registered = { ...ctx, kottaPairs: new Set([`${sire.nodes[2]}|${dam.nodes[2]}`]) };
-    expect(judge(sire, dam, registered).kotta).toMatchObject({ verdict: '成立', estimated: undefined, pairs: [[sire.nodes[2], dam.nodes[2]]] });
+    const registered = { ...ctx, kottaPairs: new Set([`${sire.nodes[4]}|${dam.nodes[2]}`]) };
+    expect(judge(sire, dam, registered).kotta).toMatchObject({ verdict: '成立', estimated: undefined, pairs: [[sire.nodes[4], dam.nodes[2]]] });
     ctx.ancestors.get('a:共通3')!.effects = [];
     expect(judge(sire, dam, ctx).kotta.verdict).toBe('不成立');
     ctx.ancestors.delete('a:共通3');
@@ -119,9 +131,13 @@ describe('方向・対象世代・自家生産馬を含む配合判定', () => {
     dam.nodes[2] = 'u:sire';
     expect(judge(sire, dam, ctx).kotta.verdict).toBe('不成立');
     // 同じ自家生産馬が遠い祖先として両側にいる場合は、危険条件に当たらなければ比較する。
-    sire.nodes[1] = 'st:父'; sire.nodes[8] = 'u:sire';
+    sire.nodes[2] = 'a:別の父系'; sire.nodes[8] = 'u:sire';
     dam.nodes[2] = 'a:別の父'; dam.nodes[8] = 'u:sire';
     ctx.ancestors.set('a:共通3', { id: 'a:共通3', name: '共通3', sex: 'M', system: null, effects: ['速力'] });
     expect(judge(sire, dam, ctx).kotta).toMatchObject({ verdict: '成立', estimated: true, estimatedPairs: [['u:sire', 'u:sire']] });
+    sire.nodes[8] = 'a:無関係'; sire.nodes[1] = 'u:sire';
+    const own = judge(sire, dam, ctx).kotta;
+    expect(own.verdict).not.toBe('成立');
+    expect(own.estimatedPairs).toEqual([]);
   });
 });

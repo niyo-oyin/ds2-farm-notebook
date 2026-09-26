@@ -1,11 +1,13 @@
 import { useEffect, useRef, useState } from 'react';
 import type { ImportJob } from '../api';
 import { ALL_SCREEN_TYPES, imageUrl } from '../api';
-import { closeCapture, dismissJob, requestCapture, retryFailedJob, useCaptureRequest, useImportJobs } from '../store/jobs';
+import { closeCapture, dismissJob, requestCapture, retryFailedJob, reviewJob, useCaptureRequest, useImportJobs, useReviewJob } from '../store/jobs';
 import { useApp } from './app-context';
 import { addMasterJob, applyCardJob, applyMasterJob, applyPedigreeJob, autoDecision, saveNewAncestorFactors, type AppliedInfo } from './import-apply';
 import { ImportJobCard } from './ImportJobCard';
 import { PhotoImport } from './PhotoImport';
+import { CameraCapture } from './CameraCapture';
+import { cameraLaunchPending, endCameraLaunch, inAppCameraAvailable, useTouch } from './use-touch';
 import './Tray.css';
 import './ImportTray.css';
 
@@ -33,9 +35,12 @@ export function ImportTray() {
   const { importAutoOpen, importAutoApply, importAutoMasterUpdate, importAutoMasterAdd } = app.data.settings;
   const anyAuto = !!(importAutoApply || importAutoMasterUpdate || importAutoMasterAdd);
   const [open, setOpen] = useState(false);
-  const [openJobId, setOpenJobId] = useState<string | null>(null);
+  const openJobId = useReviewJob();
   const [imported, setImported] = useState<AppliedInfo | null>(null);
   const capture = useCaptureRequest();
+  const touch = useTouch();
+  // 右下のカメラボタンから開いたアプリ内カメラ。判別の候補は全種類。ホーム画面のアイコンから開いた時は最初から開く
+  const [camera, setCamera] = useState(cameraLaunchPending);
   const root = useRef<HTMLDivElement>(null);
   const dialog = useRef<HTMLDialogElement>(null);
   const captureDialog = useRef<HTMLDialogElement>(null);
@@ -76,18 +81,19 @@ export function ImportTray() {
         }
       }
       if (importAutoOpen) {
-        if (openJobId || capture.open || typing()) return;
+        // 撮影中（ダイアログ・アプリ内カメラ）や入力中は開かず、終わってから開く
+        if (openJobId || capture.open || camera || typing()) return;
         handled.current.add(job.id);
-        setOpen(false); setOpenJobId(job.id);
+        setOpen(false); reviewJob(job.id);
         return;
       }
       handled.current.add(job.id);
     }
-  }, [jobs, anyAuto, importAutoOpen, openJobId, capture.open, app]);
+  }, [jobs, anyAuto, importAutoOpen, openJobId, capture.open, camera, app]);
   // ダイアログの中で処理し終えたら、閉じずに次の完了済みジョブへ差し替える（閉じてから開くと close イベントの遅延で次が閉じられる）
   const advance = (fromId: string) => {
     const next = importAutoOpen ? jobs.find((j) => j.status === 'done' && j.id !== fromId && !handled.current.has(j.id) && !applying.current.has(j.id)) : undefined;
-    if (next) { handled.current.add(next.id); setOpenJobId(next.id); } else setOpenJobId(null);
+    if (next) { handled.current.add(next.id); reviewJob(next.id); } else reviewJob(null);
   };
   useEffect(() => {
     const d = captureDialog.current;
@@ -111,7 +117,7 @@ export function ImportTray() {
           <span className="small muted">{STATUS[job.status]} · {time(job.createdAt)}{job.error ? ` · ${job.error}` : ''}</span>
         </span>
         <span className="tray-actions">
-          {job.status === 'done' && <button type="button" className="primary" onClick={() => { setOpen(false); setOpenJobId(job.id); }}>確認</button>}
+          {job.status === 'done' && <button type="button" className="primary" onClick={() => { setOpen(false); reviewJob(job.id); }}>確認</button>}
           {job.status === 'failed' && <button type="button" onClick={() => void retryFailedJob(job.id)}>再試行</button>}
           <button type="button" aria-label="このジョブを破棄" onClick={() => void dismissJob(job.id)}>破棄</button>
         </span>
@@ -119,11 +125,15 @@ export function ImportTray() {
       {imported && <div className="tray-done small">{imported.name} に反映しました <a href={imported.href} onClick={() => { setOpen(false); setImported(null); }}>開く</a></div>}
       <div className="tray-foot"><button type="button" className="primary" onClick={() => { setOpen(false); requestCapture(ALL_SCREEN_TYPES); }}>写真を送る</button></div>
     </div>}
+    {touch && !camera && <button type="button" className="camera-fab" aria-label="カメラで撮影して取り込む" onClick={() => (inAppCameraAvailable() ? setCamera(true) : requestCapture(ALL_SCREEN_TYPES))}>
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinejoin="round" aria-hidden="true"><path d="M4 8h3l2-3h6l2 3h3v11H4z" /><circle cx="12" cy="13" r="3.5" /></svg>
+    </button>}
+    {camera && <CameraCapture scope={ALL_SCREEN_TYPES} onClose={() => { endCameraLaunch(); setCamera(false); }} />}
     <dialog ref={captureDialog} className="import-dialog" onClose={() => { if (!captureDialog.current?.open) closeCapture(); }} onClick={(e) => { if (e.target === captureDialog.current) closeCapture(); }}>
       {capture.open && <div className="import-dialog-body"><PhotoImport scope={capture.scope} onClose={closeCapture} target={capture.target} /></div>}
     </dialog>
     {/* close イベントは非同期に届くため、次のジョブを続けて開いた直後に届いた古い close で閉じないよう、実際に閉じている時だけ状態を戻す */}
-    <dialog ref={dialog} className="import-dialog" onClose={() => { if (!dialog.current?.open) setOpenJobId(null); }} onClick={(e) => { if (e.target === dialog.current) setOpenJobId(null); }}>
+    <dialog ref={dialog} className="import-dialog" onClose={() => { if (!dialog.current?.open) reviewJob(null); }} onClick={(e) => { if (e.target === dialog.current) reviewJob(null); }}>
       {openJob && <div className="import-dialog-body">
         <div className="import-dialog-heading"><b>読み取り結果の確認</b><button type="button" onClick={() => advance(openJob.id)}>閉じる</button></div>
         <ImportJobCard key={openJob.id} job={openJob} onDismiss={() => { void dismissJob(openJob.id); advance(openJob.id); }} onRetry={() => void retryFailedJob(openJob.id)} onApplied={(info) => { setImported(info); void dismissJob(openJob.id); advance(openJob.id); }} />

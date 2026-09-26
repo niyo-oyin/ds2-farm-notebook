@@ -6,16 +6,21 @@ import { JudgeView, SummaryStrip } from './JudgeView';
 import { Pedigree } from './Pedigree';
 import { ActionDialog } from './ActionDialog';
 import { judge } from '../core/judge';
-import { summarize } from '../core/search';
-import { savePlanFromResult } from '../store/userdata';
+import { savePlan } from '../store/userdata';
 import { navigate } from './router';
+import { planContext } from './plan-context';
 import './MatingPage.css';
 
 /** 他のタブへ移動して戻った時に父母と表示タブを保つための記憶（アプリ内のみ。再読み込みで消える） */
 const matingMemo = { sire: '', dam: '', tab: 'pedigree' };
 
 export function MatingPage({ params }: { params: URLSearchParams }) {
-  const app = useApp();
+  const baseApp = useApp();
+  const planId = params.get('plan');
+  const app = useMemo(() => {
+    const plan = baseApp.data.plans.find((p) => p.id === planId);
+    return plan ? planContext(baseApp, plan) : baseApp;
+  }, [baseApp, planId]);
   const [sire, setSire] = useState(params.get('sire') ?? matingMemo.sire);
   const [dam, setDam] = useState(params.get('dam') ?? matingMemo.dam);
   const [tab, setTab] = useState(matingMemo.tab);
@@ -37,8 +42,9 @@ export function MatingPage({ params }: { params: URLSearchParams }) {
     const query = new URLSearchParams();
     if (sire) query.set('sire', sire);
     if (dam) query.set('dam', dam);
+    if (planId) query.set('plan', planId);
     history.replaceState(null, '', '#/mating' + (query.size ? '?' + query : ''));
-  }, [sire, dam]);
+  }, [sire, dam, planId]);
   useEffect(() => {
     const keydown = (e: KeyboardEvent) => {
       const target = e.target as HTMLElement;
@@ -70,10 +76,7 @@ export function MatingPage({ params }: { params: URLSearchParams }) {
   const save = () => {
     if (!j || !name.trim()) return;
     try {
-      const plan = savePlanFromResult(name.trim(), dam, {
-        steps: [{ sire, dam, sireName: app.resolver.label(sire), damName: app.resolver.label(dam), cost: j.cost, foalName: name.trim() + ' 産駒', judgement: summarize(j) }],
-        matings: 1, cost: j.cost, goals: [],
-      }, [], undefined, app.ctx.rulesVersion, app.ctx.dataVersion, role);
+      const plan = savePlan(name.trim(), dam, [sire], [], app.ctx.rulesVersion, app.ctx.dataVersion, role);
       navigate('/plans', { id: plan.id });
     } catch (e) { setError((e as Error).message); }
   };
@@ -93,7 +96,7 @@ export function MatingPage({ params }: { params: URLSearchParams }) {
       </div>
     </section>
     <div className="mating-actions">
-      <div><button disabled={!dam} onClick={() => navigate('/search', { mare: dam, mode: 'one' })}>この母の相手を探す</button><button disabled={!sire} onClick={() => navigate('/search', { stallion: sire, mode: 'one' })}>この父の相手を探す</button><button disabled={!dam} onClick={() => navigate('/search', { mare: dam, ...(sire ? { final: sire } : {}) })}>数世代の配合を探す</button></div>
+      <div><button disabled={!dam} onClick={() => navigate('/search', { mare: dam, mode: 'one' })}>この母の相手を探す</button><button disabled={!sire} onClick={() => navigate('/search', { stallion: sire, mode: 'one' })}>この父の相手を探す</button><button disabled={!dam} onClick={() => navigate('/search', { mode: 'design', mare: dam, ...(sire ? { sire } : {}) })}>血統設計で探す</button></div>
       <div><button disabled={!j} onClick={() => navigate('/horses', { new: '1', sire, dam })}>産まれた馬を登録</button><button className="primary" disabled={!j} onClick={() => { setName(`${app.resolver.label(dam)}の配合計画`); setError(''); setSaving(true); }}>計画として保存</button></div>
     </div>
     {error && <p className="error" role="alert">{error}</p>}

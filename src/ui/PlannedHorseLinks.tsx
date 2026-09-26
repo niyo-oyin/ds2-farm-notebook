@@ -5,7 +5,7 @@ import type { PlannedHorse } from '../core/types';
 import { HorseSelect } from './HorseSelect';
 import { navigate } from './router';
 
-export function PlannedHorseLinks({ foal }: { foal: PlannedHorse }) {
+export function PlannedHorseLinks({ foal, parents }: { foal: PlannedHorse; parents?: { sire: string; dam: string } }) {
   const app = useApp();
   const [linking, setLinking] = useState(false);
   const actual = realizedProgress(foal, app.data.horses);
@@ -19,7 +19,7 @@ export function PlannedHorseLinks({ foal }: { foal: PlannedHorse }) {
     </div>
     <div className="plan-actual-heading"><h4>対応する所有馬 <span>{linked.length}頭</span></h4></div>
     {linked.length > 0 ? <div className="plan-actual-list">{linked.map((h) => <div key={h.id}><div><a href={`#/horses?id=${encodeURIComponent(h.id)}`}>{h.name}</a><span className="small muted">{h.sex === 'F' ? '牝' : h.sex === 'M' ? '牡' : '性別未確認'}・{h.category}</span></div><button type="button" aria-label={`${h.name}の紐付けを解除`} onClick={() => store.linkPlannedHorse(foal.id, h.id, false)}>解除</button></div>)}</div> : <p className="plan-no-horses">まだ所有馬が紐付いていません。</p>}
-    <div className="plan-link-actions"><button type="button" className="primary" onClick={() => navigate('/horses', { new: '1', planned: foal.id })}>産まれた馬を登録</button><button type="button" aria-expanded={linking} onClick={() => setLinking(!linking)}>所有馬を紐付ける</button></div>
+    <div className="plan-link-actions"><button type="button" className="primary" onClick={() => navigate('/horses', { new: '1', planned: foal.id, ...parents })}>産まれた馬を登録</button><button type="button" aria-expanded={linking} onClick={() => setLinking(!linking)}>所有馬を紐付ける</button></div>
     {linking && <div className="plan-link-picker"><HorseSelect value="" options={options} onChange={(id) => { if (id) { store.linkPlannedHorse(foal.id, id, true); setLinking(false); } }} placeholder="所有馬名で検索" aria-label={`${foal.name}に紐付ける所有馬`} clearAfterSelect />{!options.length && <p className="small muted">紐付けられる所有馬がありません。</p>}</div>}
   </div>;
 }

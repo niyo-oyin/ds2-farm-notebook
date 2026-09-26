@@ -1,36 +1,26 @@
-import { useEffect, useId, useMemo, useRef, useState, useSyncExternalStore, type ReactNode } from 'react';
+import { useEffect, useId, useMemo, useState, useSyncExternalStore, type ReactNode } from 'react';
 import { useApp, sireOptions, damOptions, includePlannedInSearch, type HorseOption } from './app-context';
 import { Icon, PageHeading, type IconName } from './icons';
 import { HorseSelect } from './HorseSelect';
 import { Badge, RuleHelp } from './JudgeView';
-import { bruteForceOneGeneration, goalLabel, goalVerdict, summarize, NITRO_LABEL, type NitroStat, type SearchGoal, type SearchReport, type SearchRequest, type SearchResult, type JudgementSummary } from '../core/search';
-import type { WorkerIn, WorkerOut } from '../core/worker';
-import { savePlanFromResult, replacePlanSteps, allUserHorses } from '../store/userdata';
-import type { Plan } from '../store/model';
-import { StallionFilter, EMPTY_FILTER, matchesStallion, isFilterActive, type StallionFilterState } from './StallionFilter';
-import { COST_UNKNOWN, makeFoalRecord } from '../core/pedigree';
-import type { HorseRecord, Judgement } from '../core/types';
-import { estimateYears, YEAR_ASSUMPTIONS } from '../core/estimate';
-import { foldDominated, wantedEffects } from '../core/result-order';
-import { ATTR_LABEL, sortCompare, type AttrKey, type OneGenOrigin, type SortItem, type SortKey } from './search-order';
+import { bruteForceOneGeneration, goalLabel, goalVerdict, summarize, NITRO_LABEL, type NitroStat, type SearchGoal, type JudgementSummary } from '../core/search';
+import { StallionFilter, EMPTY_FILTER, matchesStallion, type StallionFilterState } from './StallionFilter';
+import { COST_UNKNOWN } from '../core/pedigree';
+import type { Judgement } from '../core/types';
+import { wantedEffects } from '../core/result-order';
+import { ATTR_LABEL, type AttrKey, type OneGenOrigin, type SortKey } from './search-order';
 import { OneGenResultList, oneGenColumns } from './OneGenResultList';
 import { compareOneGenResults, DEFAULT_ONEGEN_SORT, stallionValues, type OneGenSort } from './onegen-results';
 import { EffectCountChips, Pedigree } from './Pedigree';
 import { SummaryStrip, JudgeView } from './JudgeView';
-import { judge } from '../core/judge';
 import { LoopSearch } from './LoopSearch';
 import { SeasonPlanner } from './SeasonPlanner';
-import { HomebredSearch } from './HomebredSearch';
+import { DesignSearch } from './DesignSearch';
 import { HorseDialog } from './HorseDialog';
-import { SavePlanDialog } from './SavePlanDialog';
-import { ActionDialog } from './ActionDialog';
-import { navigate } from './router';
-import { isSearchJobActive, type SearchJob } from '../api';
-import { lineageReport, stopSearchJob, submitSearchJob } from '../store/search-jobs';
+import type { SearchJob } from '../api';
 import { useSearchJob } from '../store/search-jobs';
 import { ResultPagination } from './ResultPagination';
 import { useResultPage } from './use-result-page';
-import { SearchResultFilters } from './SearchResultFilters';
 import './SearchPage.css';
 import { Tip } from './Tip';
 
@@ -46,7 +36,7 @@ export function SearchSection({ title, icon, children, qualifier, help, tip }: {
     <div className="search-section-content">{children}</div>
   </section>;
 }
-/** 探索の判定回数の上限。数世代探索とループ探索で共用する */
+/** 探索の判定回数の上限。血統設計とループ探索で共用する */
 export function EvalLimitField({ value, onChange }: { value: number; onChange: (v: number) => void }) {
   return <div className="field"><span>判定回数上限<Tip label="判定回数上限">探索で判定する配合の数の上限です。届くとそこで止まり、それまでに見つかった結果を出します。大きくするほど探索に時間がかかります。</Tip></span><input type="number" aria-label="判定回数上限" value={value} onChange={(e) => onChange(Number(e.target.value))} /></div>;
 }
@@ -54,10 +44,12 @@ function SelectionChip({ name, onRemove }: { name: string; onRemove: () => void 
   return <span className="search-selection">{name}<button type="button" aria-label={`${name}を外す`} onClick={onRemove}>×</button></span>;
 }
 /** 起点の馬を検索して追加し、選んだ馬をチップで並べる */
-export function OriginPicker({ label, options, selected, onChange, ariaLabel = `起点の${label}` }: { label: string; options: HorseOption[]; selected: string[]; onChange: (keys: string[]) => void; ariaLabel?: string }) {
+/** actions は検索欄の横に置く操作（まとめて追加など） */
+export function OriginPicker({ label, options, selected, onChange, ariaLabel = `起点の${label}`, actions }: { label: string; options: HorseOption[]; selected: string[]; onChange: (keys: string[]) => void; ariaLabel?: string; actions?: ReactNode }) {
   const app = useApp();
   return <div className="search-origin-picker">
     <HorseSelect value="" onChange={(k) => { if (k && !selected.includes(k)) onChange([...selected, k]); }} options={options} placeholder={`${label}を検索して追加`} aria-label={ariaLabel} clearAfterSelect plannedToggle />
+    {actions}
     {selected.length > 0 && <div className="search-selections">{selected.map((key) => <SelectionChip key={key} name={app.resolver.label(key)} onRemove={() => onChange(selected.filter((x) => x !== key))} />)}</div>}
   </div>;
 }
@@ -66,7 +58,7 @@ export function OriginPicker({ label, options, selected, onChange, ariaLabel = `
  * 探索画面の入力と結果をページ移動後も保持するための記憶（アプリ内のみ。再読み込みで消える）。
  * URL に mare などの指定がある時は、その項目だけ URL を優先する。
  */
-const memoStore: Record<string, Record<string, unknown>> = { page: {}, one: {}, multi: {}, loop: {}, season: {}, homebred: {} };
+const memoStore: Record<string, Record<string, unknown>> = { page: {}, one: {}, design: {}, loop: {}, season: {} };
 export function useMemoState<T>(scope: string, key: string, init: T, override?: T | null): [T, (v: T | ((p: T) => T)) => void] {
   const store = memoStore[scope];
   const initial = (override != null ? override : (key in store ? (store[key] as T) : init));
@@ -81,13 +73,13 @@ export function useMobile(): boolean {
   return useSyncExternalStore((cb) => { mq?.addEventListener('change', cb); return () => mq?.removeEventListener('change', cb); }, () => !!mq?.matches);
 }
 
-export function SortSelect({ value, onChange, costLabel, matings, stallionAttributes = true }: { value: SortKey; onChange: (v: SortKey) => void; costLabel: string; matings?: boolean; stallionAttributes?: boolean }) {
+export function SortSelect({ value, onChange, costLabel, matings, matingsLabel = '配合回数が少ない順', stallionAttributes = true }: { value: SortKey; onChange: (v: SortKey) => void; costLabel: string; matings?: boolean; matingsLabel?: string; stallionAttributes?: boolean }) {
   const app = useApp();
   return (
     <label className="field">並び順
       <select value={value} onChange={(e) => onChange(e.target.value as SortKey)}>
         <option value="recommended">おすすめ順</option>
-        {matings && <option value="matings">配合回数が少ない順</option>}
+        {matings && <option value="matings">{matingsLabel}</option>}
         <option value="cost">{costLabel}</option>
         <option value="cross">クロスが多い順</option>
         <option value="nicks">ニックス段階順</option>
@@ -245,20 +237,23 @@ export function SearchPage({ params }: { params: URLSearchParams }) {
 
 function SearchPageBody({ params, job }: { params: URLSearchParams; job: SearchJob | null }) {
   const app = useApp();
-  const [mode, setMode] = useMemoState<'one' | 'multi' | 'loop' | 'season' | 'homebred'>('page', 'mode', 'one', job ? (job.kind === 'loop' ? 'loop' : 'multi') : params.get('mode') === 'one' || params.get('stallion') ? 'one' : params.get('mode') === 'loop' ? 'loop' : params.get('mare') || params.get('replan') ? 'multi' : null);
-  const [origin, setOrigin] = useMemoState<OneGenOrigin>('one', 'origin', 'mare', params.get('stallion') ? 'stallion' : params.get('mare') ? 'mare' : null);
-  const [mares, setMares] = useMemoState<string[]>('one', 'selected:mare', [], params.get('mare') ? [params.get('mare')!] : null);
-  const [stallions, setStallions] = useMemoState<string[]>('one', 'selected:stallion', [], params.get('stallion') ? [params.get('stallion')!] : null);
-  const [mareRun, setMareRun] = useMemoState<number>('one', 'run:mare', 0, params.get('mare') ? 1 : null);
-  const [stallionRun, setStallionRun] = useMemoState<number>('one', 'run:stallion', 0, params.get('stallion') ? 1 : null);
+  const urlMode = params.get('mode');
+  const [mode, setMode] = useMemoState<'one' | 'design' | 'loop' | 'season'>('page', 'mode', 'one', job ? (job.kind === 'loop' ? 'loop' : 'design') : urlMode === 'one' ? 'one' : urlMode === 'loop' ? 'loop' : urlMode === 'design' || params.get('replan') ? 'design' : null);
+  // 1世代の総当たりの起点は、mode=one で開いた時だけ URL から取る
+  const oneMare = urlMode === 'one' ? params.get('mare') : null, oneStallion = urlMode === 'one' ? params.get('stallion') : null;
+  const [origin, setOrigin] = useMemoState<OneGenOrigin>('one', 'origin', 'mare', oneStallion ? 'stallion' : oneMare ? 'mare' : null);
+  const [mares, setMares] = useMemoState<string[]>('one', 'selected:mare', [], oneMare ? [oneMare] : null);
+  const [stallions, setStallions] = useMemoState<string[]>('one', 'selected:stallion', [], oneStallion ? [oneStallion] : null);
+  const [mareRun, setMareRun] = useMemoState<number>('one', 'run:mare', 0, oneMare ? 1 : null);
+  const [stallionRun, setStallionRun] = useMemoState<number>('one', 'run:stallion', 0, oneStallion ? 1 : null);
   const oneSelection = origin === 'mare' ? { selected: mares, setSelected: setMares, run: mareRun, setRun: setMareRun } : { selected: stallions, setSelected: setStallions, run: stallionRun, setRun: setStallionRun };
   const [oneFilter, setOneFilter] = useMemoState<StallionFilterState>('one', 'filter', EMPTY_FILTER);
-  const restoredFilter = job ? { ...EMPTY_FILTER, includeOverseas: app.master.stallions.some(h => h.overseas && (job.request.stallionPool.includes(h.id) || (job.kind === 'lineage' && [job.request.finalStallion, job.request.intermediateStallion].includes(h.id)))) } : null;
-  const [multiFilter, setMultiFilter] = useMemoState<StallionFilterState>('multi', 'filter', EMPTY_FILTER, job?.kind === 'lineage' ? restoredFilter : null);
+  const jobStallions = !job ? [] : job.kind === 'loop' ? job.request.stallionPool : [...job.request.stallionPool, ...job.request.colt.sires, job.request.colt.required, job.request.filly.required];
+  const restoredFilter = job ? { ...EMPTY_FILTER, includeOverseas: app.master.stallions.some((h) => h.overseas && jobStallions.includes(h.id)) } : null;
+  const [designFilter, setDesignFilter] = useMemoState<StallionFilterState>('design', 'filter', EMPTY_FILTER, job?.kind === 'design' ? restoredFilter : null);
   const [loopFilter, setLoopFilter] = useMemoState<StallionFilterState>('loop', 'filter', EMPTY_FILTER, job?.kind === 'loop' ? restoredFilter : null);
   const [seasonFilter, setSeasonFilter] = useMemoState<StallionFilterState>('season', 'filter', EMPTY_FILTER);
-  const [homebredFilter, setHomebredFilter] = useMemoState<StallionFilterState>('homebred', 'filter', EMPTY_FILTER);
-  const currentFilter = { one: oneFilter, multi: multiFilter, loop: loopFilter, season: seasonFilter, homebred: homebredFilter }[mode];
+  const currentFilter = { one: oneFilter, design: designFilter, loop: loopFilter, season: seasonFilter }[mode];
   const marePool = mode === 'one' && origin === 'stallion';
   const availableCount = (marePool ? damOptions : sireOptions)(app, { onlyAvailable: true, requirePedigree: true, includePlanned: includePlannedInSearch(app), includeOverseas: currentFilter.includeOverseas }).length;
   const poolLabel = marePool ? '繁殖牝馬' : '種牡馬';
@@ -267,12 +262,11 @@ function SearchPageBody({ params, job }: { params: URLSearchParams; job: SearchJ
       <PageHeading icon="search" title="配合探索" actions={<a className="search-pool" href={`#/data?tab=${marePool ? 'broodmares' : 'stallions'}`} aria-label={`候補の${poolLabel} ${availableCount}頭。データを開く`}><span>候補の{poolLabel}</span><strong>{availableCount}<small>頭</small></strong><span className="search-pool-link">データ<span aria-hidden="true"> ↗</span></span></a>} />
       <div className="search-mode" role="group" aria-label="探索モード">
         <button aria-pressed={mode === 'one'} onClick={() => setMode('one')}>1世代の総当たり</button>
-        <button aria-pressed={mode === 'multi'} onClick={() => setMode('multi')}>牝系を進める数世代探索</button>
+        <button aria-pressed={mode === 'design'} onClick={() => setMode('design')}>血統設計</button>
         <button aria-pressed={mode === 'loop'} onClick={() => setMode('loop')}>凝った配合ループ探索</button>
-        <button aria-pressed={mode === 'homebred'} onClick={() => setMode('homebred')}>自家製種牡馬づくり</button>
         <button aria-pressed={mode === 'season'} onClick={() => setMode('season')}>今年の種付け</button>
       </div>
-      {mode === 'one' ? <OneGen filter={oneFilter} setFilter={setOneFilter} key={origin} origin={origin} onOriginChange={setOrigin} {...oneSelection} /> : mode === 'multi' ? <MultiGen filter={multiFilter} setFilter={setMultiFilter} params={params} job={job?.kind === 'lineage' ? job : null} /> : mode === 'loop' ? <LoopSearch filter={loopFilter} setFilter={setLoopFilter} job={job?.kind === 'loop' ? job : null} /> : mode === 'homebred' ? <HomebredSearch filter={homebredFilter} setFilter={setHomebredFilter} /> : <SeasonPlanner filter={seasonFilter} setFilter={setSeasonFilter} />}
+      {mode === 'one' ? <OneGen filter={oneFilter} setFilter={setOneFilter} key={origin} origin={origin} onOriginChange={setOrigin} {...oneSelection} /> : mode === 'design' ? <DesignSearch filter={designFilter} setFilter={setDesignFilter} params={params} job={job?.kind === 'design' ? job : null} /> : mode === 'loop' ? <LoopSearch filter={loopFilter} setFilter={setLoopFilter} job={job?.kind === 'loop' ? job : null} /> : <SeasonPlanner filter={seasonFilter} setFilter={setSeasonFilter} />}
     </div>
   );
 }
@@ -320,7 +314,7 @@ function OneGen({ filter, setFilter, origin, onOriginChange, selected, setSelect
   const [detail, setDetail] = useState<string | null>(null);
   const nameButton = (key: string) => <button type="button" className="result-name-button" onClick={(e) => { e.stopPropagation(); setDetail(key); }}>{app.resolver.label(key)}</button>;
   const expanded = (r: { sire: string; dam: string; judgement: Judgement }) => <div className="result-expanded" onClick={(e) => e.stopPropagation()}>
-    <div className="inline-row"><a href={matingLink(r)}>配合確認で開く</a><a href={`#/search?mare=${encodeURIComponent(r.dam)}&final=${encodeURIComponent(r.sire)}`}>数世代の配合を探す</a></div>
+    <div className="inline-row"><a href={matingLink(r)}>配合確認で開く</a><a href={`#/search?mode=design&mare=${encodeURIComponent(r.dam)}&sire=${encodeURIComponent(r.sire)}`}>血統設計で探す</a></div>
     <SummaryStrip j={r.judgement} />
     <Pedigree j={r.judgement} />
     <details><summary className="small">判定の根拠</summary><JudgeView j={r.judgement} showSummary={false} /></details>
@@ -356,315 +350,6 @@ function OneGen({ filter, setFilter, origin, onOriginChange, selected, setSelect
         </div>
       )}
       {detail && <HorseDialog horseKey={detail} onClose={() => setDetail(null)} />}
-    </div>
-  );
-}
-
-/** 計画の手順から探し直す時の起点と、計画の探索条件を残りの手順に合わせて戻した条件 */
-function replanTarget(app: ReturnType<typeof useApp>, params: URLSearchParams): { plan: Plan; from: number; dam: string; request: SearchRequest } | null {
-  const plan = app.data.plans.find((p) => p.id === params.get('replan'));
-  const from = Number(params.get('from'));
-  const step = plan?.steps[from];
-  if (!plan || !step) return null;
-  const before = plan.steps.slice(0, from);
-  const spent = before.reduce((c, s) => c + (app.resolver.get(s.sire)?.price ?? 0), 0);
-  const r = plan.request;
-  const remaining = plan.steps.length - from;
-  return { plan, from, dam: step.dam, request: {
-    startMares: [step.dam], stallionPool: r?.stallionPool ?? [], finalPool: null,
-    intermediateStallion: r?.intermediateStallion && !before.some((s) => s.sire === r.intermediateStallion) ? r.intermediateStallion : null,
-    finalStallion: r?.finalStallion ?? null,
-    minMatings: Math.max(1, (r?.minMatings ?? 1) - from), maxMatings: Math.max(1, r ? r.maxMatings - from : remaining),
-    goals: plan.goals, maxCost: r?.maxCost == null ? null : Math.max(0, r.maxCost - spent),
-    maxEvaluations: r?.maxEvaluations ?? 50_000_000, allowRepeatStallion: r?.allowRepeatStallion ?? true,
-  } };
-}
-
-function MultiGen({ filter, setFilter, params, job }: { filter: StallionFilterState; setFilter: (filter: StallionFilterState) => void; params: URLSearchParams; job: (SearchJob & { kind: 'lineage' }) | null }) {
-  const app = useApp();
-  const mobile = useMobile();
-  // バックグラウンドの探索を開いた時は、その条件を入力欄に戻し、結果は取り直すたびに差し替える（この画面で新しく探索を始めたら切り離す）
-  const jr = job?.request ?? null;
-  const [viewingJob, setViewingJob] = useState(!!job);
-  // sOpts は途中・最後の種牡馬の候補（探索に使う集合）で設定 excludePlannedFromSearch に従う。選択リストは表示設定 hidePlanned に従う（連動しない）
-  const sOpts = useMemo(() => sireOptions(app, { onlyAvailable: true, requirePedigree: true, includePlanned: includePlannedInSearch(app), includeOverseas: filter.includeOverseas }), [app, filter.includeOverseas]);
-  const hidePlanned = !!app.data.settings.hidePlanned;
-  const damPick = useMemo(() => damOptions(app, { onlyAvailable: true, requirePedigree: true, includePlanned: !hidePlanned }), [app, hidePlanned]);
-  const sirePick = useMemo(() => sireOptions(app, { onlyAvailable: true, requirePedigree: true, includePlanned: !hidePlanned, includeOverseas: filter.includeOverseas }), [app, hidePlanned, filter.includeOverseas]);
-  // 計画の途中から探し直す時は、その手順の母を起点に、計画の探索条件から残りの手順の分を入力欄に戻す
-  // URL の replan・from で開いた時だけ。保存するとその計画の手順を置き換える
-  const replan = useMemo(() => replanTarget(app, params), [app, params]);
-  const pr = replan?.request ?? jr;
-  const [mares, setMares] = useMemoState<string[]>('multi', 'mares', [], replan ? [replan.dam] : params.get('mare') ? [params.get('mare')!] : jr?.startMares ?? null);
-  const [intermediate, setIntermediate] = useMemoState<string>('multi', 'intermediate', '', params.get('mare') ? '' : pr ? (pr.intermediateStallion ?? '') : null);
-  const [final, setFinal] = useMemoState<string>('multi', 'final', '', params.get('mare') ? (params.get('final') ?? '') : pr ? (pr.finalStallion ?? '') : null);
-  const [minM, setMinM] = useMemoState<number>('multi', 'minM', 1, pr?.minMatings ?? null);
-  const [maxM, setMaxM] = useMemoState<number>('multi', 'maxM', 2, pr?.maxMatings ?? null);
-  const [goals, setGoals] = useMemoState<SearchGoal[]>('multi', 'goals', [{ type: 'perfect' }, { type: 'notDangerous' }], pr?.goals ?? null);
-  const [maxCost, setMaxCost] = useMemoState<string>('multi', 'maxCost', '', pr ? (pr.maxCost == null ? '' : String(pr.maxCost)) : null);
-  const [maxEval, setMaxEval] = useMemoState<number>('multi', 'maxEval', 50_000_000, pr?.maxEvaluations ?? null);
-  const [repeat, setRepeat] = useMemoState<boolean>('multi', 'repeat', true, pr?.allowRepeatStallion ?? null);
-  const origins = replan ? [replan.dam] : mares;
-  const [progress, setProgress] = useState<{ evaluated: number; pruned: number; found: number } | null>(null);
-  const [report, setReport] = useMemoState<SearchReport | null>('multi', 'report', null, job ? lineageReport(job) : null);
-  const [err, setErr] = useState('');
-  const [started, setStarted] = useState<SearchJob | null>(null);
-  useEffect(() => { if (job && viewingJob) setReport(lineageReport(job)); }, [job, viewingJob, setReport]);
-  const jobRunning = viewingJob && !!job && isSearchJobActive(job);
-  const running = !!progress || jobRunning;
-  const runningProgress = progress ?? (jobRunning ? job.progress : null);
-  const [sort, setSort] = useMemoState<SortKey>('multi', 'sort', 'recommended');
-  const [showFolded, setShowFolded] = useState(false);
-  const [open, setOpen] = useMemoState<string | null>('multi', 'open', null);
-  const [resultHorse, setResultHorse] = useState('');
-  const [resultFinal, setResultFinal] = useState('');
-  const [resultOrigin, setResultOrigin] = useState('');
-  const [replacing, setReplacing] = useState<SearchResult | null>(null);
-  const [savingResult, setSavingResult] = useState<SearchResult | null>(null);
-  const [saveRole, setSaveRole] = useMemoState<'stallion' | 'broodmare' | 'none'>('multi', 'saveRole', 'none');
-  const [saved, setSaved] = useMemoState<Record<string, { id: string; name: string }>>('multi', 'saved', {});
-  const [previewStep, setPreviewStep] = useMemoState<number>('multi', 'previewStep', -1);
-  const [savedMsg, setSavedMsg] = useState<{ id: string; name: string } | null>(null);
-  const resultKey = (r: SearchResult) => r.steps.map((st) => st.sire).join('>');
-  const worker = useRef<Worker | null>(null);
-  useEffect(() => () => worker.current?.terminate(), []);
-  const makeFoal = (s: HorseRecord, m: HorseRecord, k: number) => makeFoalRecord(s, m, { key: `p:l${k}:${s.key}`, name: `${m.name}の${k + 1}代目（${s.name}産駒）`, sex: 'F', kind: 'planned' }, app.rules);
-  /** 経路の k 回目の配合を判定し直す。途中の母（計画上の娘）は探索と同じ手順で組み立てる */
-  const stepJudgement = (r: SearchResult, stepIdx: number) => {
-    const st = r.steps[stepIdx];
-    const s = app.resolver.get(st.sire);
-    let dam = app.resolver.get(st.dam);
-    if (!dam) {
-      let m = app.resolver.get(r.steps[0].dam);
-      for (let k = 0; k < stepIdx && m; k++) { const sk = app.resolver.get(r.steps[k].sire); m = sk ? makeFoal(sk, m, k) : null; }
-      dam = m;
-    }
-    return s && dam ? judge(s, dam, app.ctx) : null;
-  };
-  /** 展開した経路の中身: 手順の一覧と、選んだ回の血統表・判定 */
-  const expanded = (r: SearchResult) => {
-    const stepIdx = previewStep < 0 || previewStep >= r.steps.length ? r.steps.length - 1 : previewStep;
-    const st = r.steps[stepIdx];
-    const j = stepJudgement(r, stepIdx);
-    return <div className="result-expanded" onClick={(e) => e.stopPropagation()}>
-      <ol className="steps">
-        {r.steps.map((s, k) => (
-          <li key={k}>
-            <b>{s.sireName}</b> × {s.damName}（{s.cost}万）→ {k < r.steps.length - 1 ? '牝馬を残して繁殖入り' : '最終産駒'} <ConditionTags constraints={s.constraints} />
-            <div><Summary s={s.judgement} /></div>
-          </li>
-        ))}
-      </ol>
-      <div className="small">目標: {r.goals.map((g, k) => <span key={k} className="tag">{goalLabel(g.goal)}: {g.verdict}</span>)}</div>
-      <div className="small">所要年数の目安: 最短 {estimateYears(r.matings).minYears} 年、途中で牝馬を得るための期待生産 {estimateYears(r.matings).expectedFoals.toFixed(0)} 頭 <Tip label="所要年数の目安">{YEAR_ASSUMPTIONS.note}</Tip></div>
-      <div className="inline-row">
-        {r.steps.length > 1 && <select value={stepIdx} onChange={(e) => setPreviewStep(Number(e.target.value))}>{r.steps.map((x, k) => <option key={k} value={k}>{k + 1}回目: {x.sireName}</option>)}</select>}
-        <a href={`#/mating?sire=${encodeURIComponent(st.sire)}&dam=${encodeURIComponent(st.dam)}`}>{r.steps.length > 1 ? 'この回を' : ''}配合確認で開く</a>
-      </div>
-      {j ? <><SummaryStrip j={j} /><Pedigree j={j} /><details><summary className="small">判定の根拠</summary><JudgeView j={j} showSummary={false} /></details></> : <div className="muted small">この手順の血統は表示できません</div>}
-    </div>;
-  };
-
-  const buildRequest = (): SearchRequest => {
-    const passes = (key: string) => { const m = app.master.stallions.find((s) => s.id === key); return !m || matchesStallion(m, filter); };
-    const all = sOpts.map((o) => o.key);
-    const filtered = isFilterActive(filter) ? all.filter(passes) : all;
-    return {
-      startMares: origins, intermediateStallion: intermediate || null, stallionPool: filter.applyToIntermediate ? filtered : all, finalStallion: final || null, finalPool: final ? null : (isFilterActive(filter) ? filtered : null),
-      minMatings: minM, maxMatings: maxM, goals, maxCost: maxCost ? Number(maxCost) : null, maxEvaluations: maxEval, allowRepeatStallion: repeat,
-    };
-  };
-  const validate = () => {
-    const e = !origins.length ? '起点の繁殖牝馬を選んでください'
-      : intermediate && maxM < 2 ? '途中で使う種牡馬を指定するときは、配合回数の最大を2回以上にしてください'
-      : !filter.includeOverseas && app.master.stallions.some(h => h.overseas && [intermediate, final].includes(h.id)) ? '指定した種牡馬に海外種牡馬が含まれています。「海外種牡馬を除外」のチェックを外すか、指定を解除してください'
-      : '';
-    setErr(e);
-    return !e;
-  };
-  const startedAt = useRef(0);
-  const start = () => {
-    if (!validate()) return;
-    resultPage.setPage(0); setResultHorse(''); setResultFinal(''); setResultOrigin('');
-    setErr(''); setReport(null); setSaved({}); setSavedMsg(null); setStarted(null); setOpen(null); setViewingJob(false); setShowFolded(false); setProgress({ evaluated: 0, pruned: 0, found: 0 });
-    const req = buildRequest();
-    startedAt.current = Date.now();
-    worker.current?.terminate();
-    const w = new Worker(new URL('../core/worker.ts', import.meta.url), { type: 'module' });
-    worker.current = w;
-    w.onmessage = (e: MessageEvent<WorkerOut>) => {
-      const m = e.data;
-      if (m.type === 'progress') {
-        setProgress({ evaluated: m.evaluated, pruned: m.pruned, found: m.found });
-        // 見つかった経路は終了を待たずに並べる（集計は途中の値）
-        if (m.results.length) setReport((prev) => ({ status: '中止', results: [...(prev?.results ?? []), ...(m.results as SearchResult[])], evaluated: m.evaluated, pruned: m.pruned, dataIssues: 0, elapsedMs: Date.now() - startedAt.current, request: req }));
-      } else if (m.type === 'done') { setReport(m.report); setProgress(null); }
-      else if (m.type === 'error') { setErr(m.message); setProgress(null); }
-    };
-    w.postMessage({ type: 'start', master: app.master, userHorses: allUserHorses(app.data), rules: app.data.settings.rules, request: req } satisfies WorkerIn);
-  };
-  const cancel = () => (progress ? worker.current?.postMessage({ type: 'cancel' } satisfies WorkerIn) : job && void stopSearchJob(job.id));
-  /** サーバに任せて画面を離れても続ける。結果は右上の「探索」か、この画面の案内から開く */
-  const background = async () => {
-    if (!validate()) return;
-    setErr('');
-    try { setStarted(await submitSearchJob('lineage', buildRequest())); } catch (e) { setErr((e as Error).message); }
-  };
-  // 判定が同じで費用も回数も上回られる経路は既定で畳む
-  const { shown, folded } = useMemo(() => (report ? foldDominated(report.results) : { shown: [], folded: 0 }), [report]);
-  const sorted = useMemo(() => {
-    if (!report) return [];
-    const rs = (showFolded ? report.results : shown).filter((r) => (!resultHorse || r.steps.some((step) => step.sire === resultHorse)) && (!resultFinal || r.steps.at(-1)?.sire === resultFinal) && (!resultOrigin || r.steps[0].dam === resultOrigin));
-    const attrsOf = (r: SearchResult) => app.master.stallions.find((x) => x.id === r.steps[r.steps.length - 1].sire)?.attrs;
-    const item = (r: SearchResult): SortItem => ({ cost: r.cost, matings: r.matings, s: r.steps[r.steps.length - 1].judgement, attrs: attrsOf(r) });
-    const wanted = wantedEffects(report.request.goals);
-    return [...rs].sort((a, b) => sortCompare(sort, item(a), item(b), wanted));
-  }, [report, shown, showFolded, sort, app, resultHorse, resultFinal, resultOrigin]);
-  const resultPage = useResultPage(sorted, mobile ? 100 : 200);
-  const { offset: resultOffset, pageSize: resultPageSize, setPage: setResultPage } = resultPage;
-  useEffect(() => {
-    if (mobile) return;
-    const f = (e: KeyboardEvent) => {
-      const t = e.target as HTMLElement;
-      if (t && (t.tagName === 'INPUT' || t.tagName === 'SELECT' || t.tagName === 'TEXTAREA')) return;
-      if (!sorted.length) return;
-      if (e.key === 'Escape') { setOpen(null); return; }
-      const down = e.key === 'ArrowDown' || e.key === 'j';
-      const up = e.key === 'ArrowUp' || e.key === 'k';
-      if (!down && !up) return;
-      const current = sorted.findIndex((r) => resultKey(r) === open);
-      const next = current < 0 ? resultOffset : Math.max(0, Math.min(sorted.length - 1, current + (down ? 1 : -1)));
-      setOpen(resultKey(sorted[next]));
-      setResultPage(Math.floor(next / resultPageSize));
-      e.preventDefault();
-    };
-    addEventListener('keydown', f);
-    return () => removeEventListener('keydown', f);
-  }, [mobile, sorted, open, setOpen, resultOffset, resultPageSize, setResultPage]);
-  const defaultPlanName = (r: SearchResult) => `${app.resolver.label(r.steps[0].dam)} 計画 ${new Date().toLocaleDateString()}${Object.keys(saved).length ? ` (${Object.keys(saved).length + 1})` : ''}`;
-  const markSaved = (r: SearchResult, p: Plan) => {
-    setSaved({ ...saved, [resultKey(r)]: { id: p.id, name: p.name } });
-    setSavedMsg({ id: p.id, name: p.name });
-  };
-  const save = (r: SearchResult, name: string) => {
-    markSaved(r, savePlanFromResult(name, r.steps[0].dam, r, goals, report?.request, app.ctx.rulesVersion, app.ctx.dataVersion, saveRole));
-    setSavingResult(null);
-  };
-  /** 計画から探し直した時は、新しい計画を作らずに計画のその回以降を置き換える */
-  const startSave = (r: SearchResult) => (replan ? setReplacing(r) : setSavingResult(r));
-  const replace = (r: SearchResult) => {
-    markSaved(r, replacePlanSteps(replan!.plan.id, replan!.from, r, goals, report?.request, app.ctx.rulesVersion, app.ctx.dataVersion, saveRole));
-    setReplacing(null);
-  };
-  /** 表（スマホではカード）の「保存」。計画から探し直している時は、計画の手順を置き換える */
-  const saveButton = (r: SearchResult) => saved[resultKey(r)]
-    ? <a href={`#/plans?id=${saved[resultKey(r)].id}`} className="small" onClick={(e) => e.stopPropagation()}>保存済み</a>
-    : <button title={replan ? `計画の${replan.from + 1}回目以降をこの経路に置き換える` : 'この経路を計画として保存'} onClick={(e) => { e.stopPropagation(); startSave(r); }}>{replan ? '置き換え' : '保存'}</button>;
-  const multiOrigin = (report?.request.startMares.length ?? 0) > 1;
-  const route = (r: SearchResult) => (multiOrigin ? `${r.steps[0].damName}：` : '') + r.steps.map((step) => step.sireName).join(' → ');
-
-  return (
-    <div>
-      <div className="search-form">
-        <SearchSection title="基本設定" icon="horse">
-          {replan && <div className="notice search-replan">計画「{replan.plan.name}」の{replan.from + 1}回目から探し直します。保存すると{replan.from + 1}回目以降の手順を置き換えます。<button type="button" className="text-toggle" onClick={() => navigate('/search', { mode: 'multi' })}>やめる</button></div>}
-          <div className="search-horse-fields search-horse-fields-three">
-            {replan
-              ? <div className="field"><span>起点の繁殖牝馬</span><HorseSelect value={replan.dam} onChange={() => undefined} options={[{ key: replan.dam, name: app.resolver.label(replan.dam), group: '計画' }]} aria-label="起点の繁殖牝馬" disabled /></div>
-              : <div className="field"><span>起点の繁殖牝馬</span><OriginPicker label="繁殖牝馬" options={damPick} selected={mares} onChange={setMares} /></div>}
-            <div className="field"><span>途中で使う種牡馬（任意）</span><HorseSelect value={intermediate} onChange={(key) => { setIntermediate(key); if (key && maxM < 2) setMaxM(2); }} options={sirePick} aria-label="途中で使う種牡馬（任意）" placeholder="最後を除くどこかで使用" plannedToggle /></div>
-            <label className="field">最後に付ける種牡馬（任意）<HorseSelect value={final} onChange={setFinal} options={sirePick} aria-label="最後に付ける種牡馬（任意）" plannedToggle /></label>
-          </div>
-          <div className="search-limits">
-            <label className="field">配合回数（最小）<input type="number" min={1} max={10} value={minM} onChange={(e) => setMinM(Number(e.target.value))} /></label>
-            <label className="field">配合回数（最大）<input type="number" min={1} max={10} value={maxM} onChange={(e) => setMaxM(Number(e.target.value))} /></label>
-            <label className="field">種付料合計の上限（万）<input type="number" value={maxCost} onChange={(e) => setMaxCost(e.target.value)} placeholder="なし" /></label>
-            <EvalLimitField value={maxEval} onChange={setMaxEval} />
-          </div>
-          <label className="search-repeat"><input type="checkbox" checked={repeat} onChange={(e) => setRepeat(e.target.checked)} />同じ種牡馬の複数回利用を許可</label>
-        </SearchSection>
-        <GoalEditor goals={goals} setGoals={setGoals} multi />
-        <SearchSection title="種牡馬の属性" icon="sliders"><StallionFilter value={filter} onChange={setFilter} showIntermediate /></SearchSection>
-        <div className="search-actions">
-          <button type="button" className="search-reset" disabled={running} onClick={() => { setFinal(''); setIntermediate(''); setMinM(1); setMaxM(2); setGoals([{ type: 'perfect' }, { type: 'notDangerous' }]); setMaxCost(''); setMaxEval(50_000_000); setRepeat(true); setFilter(EMPTY_FILTER); setReport(null); setOpen(null); setErr(''); setStarted(null); setViewingJob(false); }}><SearchIcon name="reset" />条件をリセット</button>
-          {runningProgress && <span className="search-progress-label" role="status">{jobRunning ? 'バックグラウンドで探索中 · ' : ''}判定 {runningProgress.evaluated.toLocaleString()} 回 / 発見 {runningProgress.found} 件</span>}
-          {running ? <button className="search-submit" onClick={cancel}>探索を中止</button> : <span className="search-submit-group">
-            <button className="search-submit" disabled={!origins.length} onClick={() => void background()}>バックグラウンドで探索</button>
-            <button className="primary search-submit" disabled={!origins.length} onClick={start}><SearchIcon name="search" />探索{origins.length > 1 && <span className="search-submit-count">起点 {origins.length}頭</span>}</button>
-          </span>}
-        </div>
-        {runningProgress && <div className="progress"><div style={{ width: `${Math.min(100, (runningProgress.evaluated / maxEval) * 100)}%` }} /></div>}
-        {started && <div className="notice">バックグラウンドで探索を始めました。<a href={`#/search?job=${encodeURIComponent(started.id)}`}>途中経過を開く</a>　<span className="muted small">右上の「探索」からも開けます。</span></div>}
-        {err && <div className="error" role="alert">{err}</div>}
-      </div>
-      {report && (
-        <div className="panel">
-          <div className="result-status">
-            <div>
-              <b>{running ? `探索中: 条件を満たす経路 ${report.results.length} 件` : report.status === '完了' ? (report.results.length ? `条件を満たす経路 ${report.results.length.toLocaleString()} 件` : '指定範囲に解なし') : `探索未完了（${report.status}）`}</b>
-              {!running && report.status === '完了' && <span className="muted">　指定範囲は探索済み</span>}
-            </div>
-            <div className="small muted">
-              判定 {report.evaluated.toLocaleString()} 回、枝刈り {report.pruned.toLocaleString()}、{(report.elapsedMs / 1000).toFixed(1)} 秒{running && '（途中）'}
-              {report.dataIssues > 0 && <>。不明な祖先や自家製馬のペア判定不可で「未確定」に留まった候補 {report.dataIssues} 件</>}
-            </div>
-            {folded > 0 && <div className="small muted">最終配合の判定が同じで、費用と配合回数のどちらも多い経路 {folded.toLocaleString()} 件を{showFolded ? '表示中' : '畳んでいます'}。<button type="button" className="text-toggle" onClick={() => { setShowFolded(!showFolded); resultPage.setPage(0); }}>{showFolded ? '畳む' : '表示する'}</button></div>}
-          </div>
-          <div className="toolbar lineage-result-toolbar">
-            <SortSelect value={sort} onChange={(value) => { setSort(value); resultPage.setPage(0); }} costLabel="費用が安い順" matings />
-            <label className="field">最終産駒の役割<select value={saveRole} onChange={(e) => setSaveRole(e.target.value as typeof saveRole)}><option value="none">競走馬（指定なし）</option><option value="broodmare">繁殖牝馬にする</option><option value="stallion">種牡馬にする</option></select></label>
-            <SearchResultFilters results={report.results} horse={resultHorse} final={resultFinal} origin={resultOrigin} count={sorted.length}
-              onHorseChange={(key) => { setResultHorse(key); resultPage.setPage(0); }} onFinalChange={(key) => { setResultFinal(key); resultPage.setPage(0); }} onOriginChange={(key) => { setResultOrigin(key); resultPage.setPage(0); }} />
-          </div>
-          <ResultPagination {...resultPage} onChange={resultPage.setPage} />
-          {savedMsg && <div className="notice" style={{ marginBottom: 8 }}>計画「{savedMsg.name}」を保存しました。<a href={`#/plans?id=${savedMsg.id}`}>計画を開く</a>　<span className="muted small">この画面の結果はそのまま残ります。</span></div>}
-          {mobile ? (
-            <div className="result-cards" style={{ marginTop: 8 }}>
-              {resultPage.rows.map((r) => {
-                const last = r.steps[r.steps.length - 1];
-                return (
-                  <div key={resultKey(r)} className="result-card">
-                    <div className="result-head" onClick={() => setOpen(open === resultKey(r) ? null : resultKey(r))}>
-                      <b>{route(r)} <CostUnknownTag steps={r.steps} /></b>
-                      <span className="num muted">{r.matings}回（{estimateYears(r.matings).minYears}年〜） / {r.cost.toLocaleString()}万</span>
-                    </div>
-                    <div onClick={() => setOpen(open === resultKey(r) ? null : resultKey(r))}><Summary s={last.judgement} /></div>
-                    <div className="result-card-actions">{saveButton(r)}</div>
-                    {open === resultKey(r) && expanded(r)}
-                  </div>
-                );
-              })}
-            </div>
-          ) : (
-          <div className="table-wrap" style={{ marginTop: 8 }}><table>
-            <thead><tr><th className="num">#</th><th className="num">回数</th><th className="num">費用</th><th className="wrap">経路（父）</th><th className="wrap">最終配合の判定</th><th></th></tr></thead>
-            <tbody>
-              {resultPage.rows.map((r, i) => {
-                const last = r.steps[r.steps.length - 1];
-                return [
-                  <tr key={resultKey(r)} className={'clickable' + (open === resultKey(r) ? ' selected' : '')} onClick={() => { setOpen(open === resultKey(r) ? null : resultKey(r)); setPreviewStep(-1); }}>
-                    <td className="num">{resultPage.offset + i + 1}</td><td className="num" title={`最短 ${estimateYears(r.matings).minYears} 年の目安`}>{r.matings}<span className="small muted">（{estimateYears(r.matings).minYears}年〜）</span></td><td className="num">{r.cost.toLocaleString()}</td>
-                    <td className="name wrap">{route(r)} <CostUnknownTag steps={r.steps} /></td>
-                    <td className="wrap"><Summary s={last.judgement} /></td>
-                    <td className="action">{saveButton(r)}</td>
-                  </tr>,
-                  open === resultKey(r) && <tr key={'d' + resultKey(r)} className="result-expanded-row"><td colSpan={6} className="wrap">{expanded(r)}</td></tr>,
-                ];
-              })}
-            </tbody>
-          </table></div>
-          )}
-          <ResultPagination {...resultPage} onChange={resultPage.setPage} />
-          {report.results.length > 0 && sorted.length === 0 && <div className="empty">絞り込みに一致する経路はありません。</div>}
-          {report.results.length === 0 && !running && <div className="empty">条件を満たす経路は見つかりませんでした。配合回数を増やすか、条件を減らしてください。</div>}
-        </div>
-      )}
-      {savingResult && <SavePlanDialog defaultName={defaultPlanName(savingResult)} onSave={(name) => save(savingResult, name)} onClose={() => setSavingResult(null)} />}
-      {replacing && replan && <ActionDialog title="計画の手順を置き換え" onClose={() => setReplacing(null)}>
-        <p>計画「{replan.plan.name}」の{replan.from + 1}回目以降（{replan.plan.steps.length - replan.from}手順）を、この経路（{replacing.steps.length}手順）に置き換えますか？</p>
-        <p className="small muted">{replan.from > 0 ? `${replan.from}回目までの手順はそのまま残ります。` : ''}外す手順の計画馬のうち、所有馬を紐付けた馬は単独の計画馬として残ります。</p>
-        <div className="action-dialog-actions"><button autoFocus onClick={() => setReplacing(null)}>キャンセル</button><button className="primary" onClick={() => replace(replacing)}>置き換える</button></div>
-      </ActionDialog>}
     </div>
   );
 }

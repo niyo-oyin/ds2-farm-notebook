@@ -118,7 +118,7 @@ function KottaSheet({ row, initialSire, onDone, onCancel }: { row: KottaRow | nu
     <div className="master-fields pairs-fields">
       <label className="field">父側の馬<HorseSelect options={options} value={sire} onChange={setSire} disabled={!!row} /></label>
       <label className="field">母側の馬<HorseSelect options={options} value={dam} onChange={setDam} disabled={!!row} /></label>
-      <div className="field"><span>出典<Tip label="出典">父馬・母馬それぞれを1代目とする4代血統にこの2頭がいて、危険な配合でなければ凝った配合になります。種付け画面では原因となる祖先ペアまでは分からないため、実機確認は他に該当するペアがない場合に記録してください。</Tip></span><select aria-label="出典" value={source} onChange={(e) => setSource(e.target.value as PairSource)}>{PAIR_SOURCES.map((s) => <option key={s} value={s}>{s}</option>)}</select></div>
+      <div className="field"><span>出典<Tip label="出典">父馬・母馬それぞれの父・祖父・曾祖父にあたる牡馬の祖先7枠（本馬自身は除く）にこの2頭がいて、危険な配合でなければ凝った配合になります。種付け画面では原因となる祖先ペアまでは分からないため、実機確認は他に該当するペアがない場合に記録してください。</Tip></span><select aria-label="出典" value={source} onChange={(e) => setSource(e.target.value as PairSource)}>{PAIR_SOURCES.map((s) => <option key={s} value={s}>{s}</option>)}</select></div>
       {row?.inBase ? <label className="master-hidden"><input type="checkbox" checked={!active} onChange={(e) => setActive(!e.target.checked)} />この組を無効にする（判定に使わない）</label> : <span />}
       <label className="field pairs-note">備考<input value={note} onChange={(e) => setNote(e.target.value)} placeholder="例: 種付け画面で凝った配合を確認（父名×母名）。他に該当する組なし" /></label>
     </div>

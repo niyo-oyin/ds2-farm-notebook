@@ -1,9 +1,9 @@
-// 探索ジョブ（サーバでバックグラウンド実行する数世代探索・ループ探索）の状態。
+// 探索ジョブ（サーバでバックグラウンド実行する血統設計・ループ探索）の状態。
 // 一覧はヘッダーのトレイが購読して定期取得し、開いている1件は探索画面が結果ごと取得する
 import { useEffect, useState } from 'react';
 import { cancelSearchJob, createSearchJob, deleteSearchJob, getSearchJob, isSearchJobActive, listSearchJobs, type SearchJob } from '../api';
 import type { LoopReport, LoopRequest } from '../core/loop-search';
-import type { SearchReport, SearchRequest } from '../core/search';
+import type { DesignReport, DesignRequest } from '../core/design-search';
 import { syncNow } from './userdata';
 import { checkWorkspace, workspaceGeneration } from './workspace';
 import { pollingStore } from './polling';
@@ -11,9 +11,9 @@ import { pollingStore } from './polling';
 const poll = pollingStore<SearchJob>(listSearchJobs, isSearchJobActive);
 export const refreshSearchJobs = poll.refresh;
 /** サーバは同期済みのレコードから判定の材料を作るので、送る前に未送信分を同期する */
-export async function submitSearchJob(kind: 'lineage', request: SearchRequest): Promise<SearchJob>;
+export async function submitSearchJob(kind: 'design', request: DesignRequest): Promise<SearchJob>;
 export async function submitSearchJob(kind: 'loop', request: LoopRequest): Promise<SearchJob>;
-export async function submitSearchJob(kind: 'lineage' | 'loop', request: SearchRequest | LoopRequest): Promise<SearchJob> {
+export async function submitSearchJob(kind: 'design' | 'loop', request: DesignRequest | LoopRequest): Promise<SearchJob> {
   const generation = workspaceGeneration();
   await syncNow();
   const job = await createSearchJob(kind, request);
@@ -57,9 +57,9 @@ export function useSearchJob(id: string | null): { job: SearchJob | null; error:
 }
 
 /** ジョブを探索画面の結果（report）の形にする。探索中は途中までの結果で、集計は進捗の値 */
-export function lineageReport(job: SearchJob & { kind: 'lineage' }): SearchReport {
+export function designReport(job: SearchJob & { kind: 'design' }): DesignReport {
   const o = job.outcome;
-  return { status: o?.status ?? '中止', results: job.results ?? [], evaluated: o?.evaluated ?? job.progress.evaluated, pruned: o?.pruned ?? job.progress.pruned, dataIssues: o?.dataIssues ?? 0, elapsedMs: o?.elapsedMs ?? job.progress.elapsedMs, request: job.request };
+  return { status: o?.status ?? '中止', results: job.results ?? [], evaluated: o?.evaluated ?? job.progress.evaluated, pruned: o?.pruned ?? job.progress.pruned, dataIssues: o?.dataIssues ?? 0, folded: o?.folded ?? 0, elapsedMs: o?.elapsedMs ?? job.progress.elapsedMs, request: job.request };
 }
 export function loopReport(job: SearchJob & { kind: 'loop' }): LoopReport {
   const o = job.outcome;

@@ -99,7 +99,8 @@ export class HorseResolver {
     this.rules = rules;
     this.identities = horseIdentities(master);
     for (const a of master.ancestors) if (a.system) this.systems.set(a.id, SYS_CHARS[a.system - 1]);
-    for (const h of [...master.stallions, ...master.broodmares]) {
+    // 非表示の馬も、所有馬の親や血統表の祖先として解決できるようにする（候補の一覧は master.stallions・broodmares から作る）
+    for (const h of [...master.stallions, ...master.broodmares, ...(master.hiddenHorses ?? [])]) {
       this.masterById.set(h.id, h);
       this.systems.set(h.id, h.bigSystem ? SYS_CHARS[master.meta.bigSystems.indexOf(h.bigSystem)] ?? '?' : '?');
     }

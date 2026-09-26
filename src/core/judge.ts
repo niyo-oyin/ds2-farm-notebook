@@ -98,7 +98,7 @@ export function judge(sire: HorseRecord, dam: HorseRecord, ctx: JudgeContext): J
   let unknownSex = 0;
   for (const [k, o] of occ) {
     if (!o.s.length || !o.d.length) continue;
-    const sNodes = new Set<number>(), dNodes = new Set<number>();
+    let independent = false;
     for (const a of o.s) for (const b of o.d) {
       const ga = gen(a), gb = gen(b);
       if (ga === 1 || gb === 1) causes.add(`1×N（${labels[k] ?? k} が父母自身と血統内に重複）`);
@@ -109,26 +109,32 @@ export function judge(sire: HorseRecord, dam: HorseRecord, ctx: JudgeContext): J
         x >>= 1; y >>= 1;
         if (nodes[x] && nodes[x] === nodes[y]) { inherited = true; break; }
       }
-      if (!inherited) { sNodes.add(a); dNodes.add(b); }
+      if (!inherited) independent = true;
     }
-    if (!sNodes.size) continue;
+    if (!independent) continue;
     const info = ctx.ancestors.get(k) ?? ctx.userAncestors.get(k);
     if (info?.sex === 'F') mareCrossCount++;
     if (!info || info.effectsKnown === false) unknownSex++;
     crosses.push({
       key: k, name: labels[k] ?? k,
-      sireGens: [...sNodes].map(gen).sort((p, q) => p - q), damGens: [...dNodes].map(gen).sort((p, q) => p - q),
-      sireNodes: [...sNodes].sort((p, q) => p - q), damNodes: [...dNodes].sort((p, q) => p - q),
+      // 独立したクロスがあれば、その祖先の全出現位置を表示する。
+      // 一部だけが別のクロスに従属する場合も、血統内からその位置を落とさない。
+      sireGens: o.s.map(gen).sort((p, q) => p - q), damGens: o.d.map(gen).sort((p, q) => p - q),
+      sireNodes: o.s, damNodes: o.d,
       effects: info?.effects ?? [], effectsKnown: !!info && info.effectsKnown !== false, sex: info?.sex ?? null,
     });
   }
   crosses.sort((a, b) => Math.min(...a.sireGens, ...a.damGens) - Math.min(...b.sireGens, ...b.damGens));
+  // ゲームのクロス一覧と同じ合計血量。因子の有無・種類数には依存しない。
+  // 5代血統では3.125%刻みなので、実機で確認した59.375%と62.5%の間に値はない。
+  const crossBlood = crosses.reduce((sum, cross) => sum + [...cross.sireGens, ...cross.damGens].reduce((blood, g) => blood + 100 / 2 ** g, 0), 0);
+  if (crossBlood >= 62.5) causes.add(`クロスの合計血量${crossBlood}%（62.5%以上）`);
   if (crosses.length >= rules.dangerousCrossCount) causes.add(`クロス${crosses.length}本（${rules.dangerousCrossCount}本以上）`);
   const dangerous: Judgement['dangerous'] = causes.size
     ? { ...res('成立', [...causes]), causes: [...causes] }
     : hasUnknownSlots
       ? { ...res('未確定', ['判明している範囲では危険条件に該当しません'], ['血統（不明な祖先）']), causes: [] }
-      : { ...res('不成立', [`クロス${crosses.length}本、1×N・2×2なし`]), causes: [] };
+      : { ...res('不成立', [`クロス${crosses.length}本・合計血量${crossBlood}%、1×N・2×2なし`]), causes: [] };
   if (unknownSex) warnings.push(`因子が未確認の共通祖先が${unknownSex}頭あります`);
 
   const outbreed: TheoryResult = crosses.length
@@ -200,7 +206,7 @@ export function judge(sire: HorseRecord, dam: HorseRecord, ctx: JudgeContext): J
   const kg = rules.kottaGenerations;
   const sideNames = (side: 2 | 3) => {
     const names = new Set<string>(); const homebred: string[] = []; let unknown = 0;
-    for (let n = 2; n < 64; n++) {
+    for (let n = 4; n < 64; n++) {
       if (sideOf(n) !== side || gen(n) > kg || n % 2 !== 0) continue;
       const k = nodes[n];
       if (!k) { unknown++; continue; }
@@ -216,7 +222,7 @@ export function judge(sire: HorseRecord, dam: HorseRecord, ctx: JudgeContext): J
   const estimatedPairs: [string, string][] = [];
   let estimateIncomplete = false;
   if (rules.kottaEstimateHomebred && homebredInRange.length) {
-    const sideKeys = (side: 2 | 3) => { const ks: number[] = []; for (let n = 2; n < 64; n++) if (sideOf(n) === side && gen(n) <= kg && nodes[n] && n % 2 === 0) ks.push(n); return ks; };
+    const sideKeys = (side: 2 | 3) => { const ks: number[] = []; for (let n = 4; n < 64; n++) if (sideOf(n) === side && gen(n) <= kg && nodes[n] && n % 2 === 0) ks.push(n); return ks; };
     for (const na of sideKeys(2)) for (const nb of sideKeys(3)) {
       const a = nodes[na], b = nodes[nb];
       const aHome = !isMasterKey(a), bHome = !isMasterKey(b);
@@ -245,8 +251,8 @@ export function judge(sire: HorseRecord, dam: HorseRecord, ctx: JudgeContext): J
     kotV = '未確定'; kotM.push('凝った配合の対象祖先'); kotR.push('対象範囲に不明な祖先があります');
   } else if (homebredInRange.length && (!rules.kottaEstimateHomebred || estimateIncomplete)) {
     kotV = '未確定';
-    kotR.push(rules.kottaEstimateHomebred ? '自家製馬の3代血統や因子が不足しているため、ペアを判定できません' : '自家製馬のペアの推定が無効です');
-    kotM.push('自家製馬の3代血統・因子');
+    kotR.push(rules.kottaEstimateHomebred ? '自家製馬か、比べる相手の祖先の3代血統や因子が不足しているため、ペアを判定できません' : '自家製馬のペアの推定が無効です');
+    kotM.push('自家製馬・相手の祖先の3代血統や因子');
   } else { kotV = '不成立'; kotR.push('成立ペアが見つかりません'); }
   const kotta: Judgement['kotta'] = { ...res(kotV, kotR, kotM), estimated: kotEst || undefined, pairs, homebredInRange, estimatedPairs };
   // ---- 完璧／凝った配合（公式資料の最上位複合配合） ----
