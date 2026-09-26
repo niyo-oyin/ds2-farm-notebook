@@ -10,6 +10,23 @@ export interface RaceFields {
   conditions: string;
   memo: string;
 }
+/**
+ * グレード表記をそろえる。GI / G I / G1 / GⅠ / Jpn I / JpnI などを GⅠ・JpnⅠ の形にする。
+ * 該当しない表記（OP、L、3勝、新馬 など）はそのまま返す。
+ */
+export function normalizeRaceGrade(grade: string | undefined): string {
+  const g = (grade ?? '').trim();
+  const m = g.normalize('NFKC').replace(/[\s\-]/g, '').match(/^(G|Jpn)(I{1,3}|[123]|[ⅠⅡⅢ])$/i);
+  if (!m) return g;
+  const n = ({ I: 'Ⅰ', II: 'Ⅱ', III: 'Ⅲ', '1': 'Ⅰ', '2': 'Ⅱ', '3': 'Ⅲ', 'Ⅰ': 'Ⅰ', 'Ⅱ': 'Ⅱ', 'Ⅲ': 'Ⅲ' } as Record<string, string>)[m[2].toUpperCase()];
+  return (m[1].toLowerCase() === 'jpn' ? 'Jpn' : 'G') + n;
+}
+export const GRADE_ORDER = ['GⅠ', 'JpnⅠ', 'GⅡ', 'JpnⅡ', 'GⅢ', 'JpnⅢ', 'L'];
+/** GⅠ級か（GⅠ・JpnⅠ） */
+export const isG1 = (grade: string | undefined) => /^(G|Jpn)Ⅰ$/.test(normalizeRaceGrade(grade));
+/** 重賞か（GⅠ〜GⅢ・JpnⅠ〜JpnⅢ） */
+export const isGraded = (grade: string | undefined) => /^(G|Jpn)[ⅠⅡⅢ]$/.test(normalizeRaceGrade(grade));
+
 export interface Race extends RaceFields { id: string }
 export interface RaceEdit { id: string; added: boolean; data: Partial<RaceFields>; updatedAt: string }
 export const EMPTY_RACE_FIELDS: RaceFields = { name: '', month: null, week: null, venue: '', surface: '', distance: null, grade: '', conditions: '', memo: '' };
@@ -20,7 +37,7 @@ export function applyRaceEdits(base: Race[], edits: RaceEdit[]): Race[] {
   return [
     ...base.map((race) => ({ ...race, ...byId.get(race.id)?.data, id: race.id })),
     ...edits.filter((e) => e.added && !known.has(e.id)).map((e) => ({ ...EMPTY_RACE_FIELDS, ...e.data, id: e.id })),
-  ];
+  ].map((race) => ({ ...race, grade: normalizeRaceGrade(race.grade) }));
 }
 
 export function validateRace(race: RaceFields): void {

@@ -1,5 +1,5 @@
 import { describe, expect, it } from 'vitest';
-import { applyRaceEdits, EMPTY_RACE_FIELDS, raceDiff, sortRaces, validateRace, type Race } from '../src/core/races';
+import { applyRaceEdits, EMPTY_RACE_FIELDS, normalizeRaceGrade, raceDiff, sortRaces, validateRace, type Race } from '../src/core/races';
 
 const race = (id: string, patch: Partial<Race> = {}): Race => ({ ...EMPTY_RACE_FIELDS, id, name: 'レース', ...patch });
 
@@ -37,5 +37,17 @@ describe('レースの一覧と編集', () => {
     for (const patch of [{ name: ' ' }, { distance: 0 }, { distance: NaN }, { month: 13 }, { week: 1.5 }]) {
       expect(() => validateRace(race('rc:1', patch))).toThrow();
     }
+  });
+});
+
+
+describe('グレードの表記ゆれ', () => {
+  it.each([
+    ['G1', 'GⅠ'], ['GI', 'GⅠ'], ['ＧⅠ', 'GⅠ'], ['G I', 'GⅠ'],
+    ['g2', 'GⅡ'], ['G II', 'GⅡ'], ['ＧⅢ', 'GⅢ'], ['G-3', 'GⅢ'],
+    ['Jpn I', 'JpnⅠ'], ['JPN2', 'JpnⅡ'], ['JpnIII', 'JpnⅢ'],
+    ['OP', 'OP'], ['L', 'L'], ['1勝クラス', '1勝クラス'], [undefined, ''],
+  ])('%sを%sとして扱う', (input, expected) => {
+    expect(normalizeRaceGrade(input)).toBe(expected);
   });
 });

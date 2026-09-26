@@ -43,6 +43,18 @@ describe('保存操作の境界', () => {
     (await import('../src/data/catalog')).initializeCatalog(testCatalog);
   });
 
+  it('既存戦績の読み込み・新規登録・更新でグレードを統一し、戦績の順序と件数は維持する', async () => {
+    const { store, getUserData } = await import('../src/store/userdata');
+    const entry = { date: '5.4', place: '東京', race: '優駿', finish: '1', grade: 'G I' };
+    const entries = [entry, { ...entry, grade: 'Jpn II' }, { ...entry, grade: 'G3' }];
+    store.importJson(JSON.stringify({ ...emptyUserData(), horses: [owned('u:old', { profile: { races: entries } })] }));
+    expect(getUserData().horses[0].profile?.races).toEqual(entries.map((r, i) => ({ ...r, grade: ['GⅠ', 'JpnⅡ', 'GⅢ'][i] })));
+    const horse = store.addHorse(owned('u:new', { profile: { races: [entry] } }));
+    expect(horse.profile?.races?.[0].grade).toBe('GⅠ');
+    store.updateHorse(horse.id, { profile: { races: [{ ...entry, grade: 'ＧⅡ' }] } });
+    expect(getUserData().horses.find(h => h.id === horse.id)?.profile?.races?.[0].grade).toBe('GⅡ');
+  });
+
   it('レースをバックアップから復元し、一覧から削除しても馬の戦績と並べ替えた順序を残す', async () => {
     const { store, getUserData } = await import('../src/store/userdata');
     const entry = { date: '4.1', place: '東京', race: '一般レース', finish: '1', surface: '芝' as const, distance: 1600, going: '良' as const, grade: '1勝クラス', runners: 18, popularity: 1, jockey: 'ルメール', carriedWeight: 55, bodyWeight: 426, strategy: '追' as const };

@@ -48,3 +48,14 @@ describe('繁殖入りの年の自動記録（保存処理）', () => {
     store.deleteHorse(f.id); store.deleteHorse(m.id);
   });
 });
+
+describe('戦績のグレード表記', async () => {
+  const { normalizeRaceGrade, isG1, isGraded } = await import('../src/core/races');
+  it('GI / G I / G1 / JpnI などを GⅠ・JpnⅠ にそろえ、他はそのまま', () => {
+    for (const g of ['GI', 'G I', 'G1', 'GⅠ', 'G-I', 'ｇ１']) expect(normalizeRaceGrade(g)).toBe('GⅠ');
+    for (const g of ['JpnI', 'Jpn I', 'JpnⅠ', 'Jpn1']) expect(normalizeRaceGrade(g)).toBe('JpnⅠ');
+    expect(normalizeRaceGrade('G III')).toBe('GⅢ');
+    for (const g of ['OP', 'L', '3勝', '新馬', '']) expect(normalizeRaceGrade(g)).toBe(g);
+    expect(isG1('G I')).toBe(true); expect(isG1('GⅡ')).toBe(false); expect(isGraded('GIII')).toBe(true); expect(isGraded('L')).toBe(false);
+  });
+});

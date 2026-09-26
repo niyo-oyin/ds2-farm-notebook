@@ -2,7 +2,7 @@ import { type ReactNode, useMemo, useState } from 'react';
 import { DragDropProvider } from '@dnd-kit/react';
 import { isSortable, useSortable } from '@dnd-kit/react/sortable';
 import { createPortal } from 'react-dom';
-import { raceSchedule, sortRaces, type Race } from '../core/races';
+import { normalizeRaceGrade, raceSchedule, sortRaces, type Race } from '../core/races';
 import type { RaceEntry } from '../core/types';
 import { CENTRAL_RACE_VENUES } from '../data/race-venues';
 import { ActionDialog } from './ActionDialog';
@@ -90,11 +90,11 @@ function RaceResultDialog({ races, initial, onClose, onSave }: { races: Race[]; 
   const [query, setQuery] = useState('');
   const [month, setMonth] = useState('');
   const [selected, setSelected] = useState<Race | null>(null);
-  const [entry, setEntry] = useState<RaceEntry | null>(initial ?? null);
+  const [entry, setEntry] = useState<RaceEntry | null>(initial ? { ...initial, grade: normalizeRaceGrade(initial.grade) || undefined } : null);
   const [picking, setPicking] = useState(!initial);
   const rows = useMemo(() => sortRaces(nameSearch(query).filter(races.filter((r) => !month || r.month === Number(month)), (r) => [r.name, r.venue, r.grade, r.conditions]), 'schedule', 'asc'), [races, query, month]);
   const otherVenues = [...new Set([...races.map((race) => race.venue), entry?.place ?? ''])].filter((venue) => venue && !CENTRAL_RACE_VENUES.includes(venue)).sort((a, b) => a.localeCompare(b, 'ja'));
-  const grades = [...new Set(['GⅠ', 'GⅡ', 'GⅢ', 'JpnⅠ', 'JpnⅡ', 'JpnⅢ', 'L', ...COMMON_RACES, ...races.map((race) => race.grade), entry?.grade ?? ''])].filter(Boolean);
+  const grades = [...new Set(['GⅠ', 'GⅡ', 'GⅢ', 'JpnⅠ', 'JpnⅡ', 'JpnⅢ', 'L', ...COMMON_RACES, ...races.map((race) => race.grade), entry?.grade ?? ''].map(normalizeRaceGrade))].filter(Boolean);
   const choose = (race: Race | null, name = '') => {
     setSelected(race);
     setPicking(false);
@@ -102,7 +102,7 @@ function RaceResultDialog({ races, initial, onClose, onSave }: { races: Race[]; 
       ...entry,
       race: race?.name ?? name, place: race?.venue ?? '', finish: entry?.finish ?? '',
       date: initial ? entry?.date ?? initial.date : race?.month == null ? entry?.date ?? '' : `${race.month}${race.week === null ? '' : `.${race.week}`}`,
-      grade: race?.grade || (COMMON_RACES.includes(name) ? name : undefined),
+      grade: normalizeRaceGrade(race?.grade) || (COMMON_RACES.includes(name) ? name : undefined),
       surface: race?.surface || undefined, distance: race?.distance ?? undefined, going: entry?.going,
     });
   };

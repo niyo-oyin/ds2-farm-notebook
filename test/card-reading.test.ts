@@ -263,3 +263,11 @@ describe('血統画面の反映先候補', () => {
     expect(pedigreeMatchCandidates({ ...reading, sire: '', dam: '' }, horses, labelOf)).toEqual([]);
   });
 });
+
+it('戦績のグレード表記だけが違う読み取りは照合し、別格付けや他の項目が異なる出走は残す', () => {
+  const entry = { date: '5.4', place: '東京', race: '優駿', finish: '1', grade: 'G I' };
+  expect(mergeRaces([entry], [{ ...entry, grade: 'Ｇ１' }])).toEqual([{ ...entry, grade: 'GⅠ' }]);
+  expect(mergeRaces([entry], [{ ...entry, grade: 'GII' }]).map(r => r.grade)).toEqual(['GⅡ', 'GⅠ']);
+  expect(mergeRaces([entry], [{ ...entry, grade: 'GI', finish: '2' }])).toHaveLength(2);
+  expect(mergeRaces([], [{ ...entry, grade: 'JpnIII' }])[0].grade).toBe('JpnⅢ');
+});

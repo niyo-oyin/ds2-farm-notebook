@@ -1,4 +1,5 @@
 import type { AncestorInfo, HorseCategory, Observation, OwnedHorse, RaceAbilities, RaceAbilityKey, RaceEntry, RaceTraitKey } from './types';
+import { isG1, isGraded, normalizeRaceGrade } from './races';
 
 export const HORSE_CATEGORIES: HorseCategory[] = ['繁殖牝馬', '種牡馬', '現役', '引退', '未分類'];
 export const ABILITY_RANKS = ['A', 'B', 'C'] as const;
@@ -37,6 +38,21 @@ export function breedingSince(horse: OwnedHorse, horses: OwnedHorse[]): { year: 
   const years = foalsOf(horse, horses).map((f) => f.profile?.birthYear).filter((y): y is number => y !== undefined);
   return years.length ? { year: Math.min(...years) - 1, inferred: true } : undefined;
 }
+
+/** 戦績の実績: 勝利数と、勝ったGⅠ級・重賞のレース名 */
+export function raceAchievements(horse: Pick<OwnedHorse, 'profile'>): { wins: number; g1: string[]; graded: string[] } {
+  const won = (horse.profile?.races ?? []).filter((r) => String(r.finish).trim() === '1');
+  return {
+    wins: won.length,
+    g1: won.filter((r) => isG1(r.grade)).map((r) => r.race),
+    graded: won.filter((r) => isGraded(r.grade) && !isG1(r.grade)).map((r) => r.race),
+  };
+}
+/** 戦績のグレード表記をそろえる。順序や同一内容の行は維持する。 */
+export const normalizeRaces = (races: RaceEntry[]): RaceEntry[] => races.map((r) => ({ ...r, grade: r.grade ? normalizeRaceGrade(r.grade) : r.grade }));
+
+export const normalizeHorseRaces = (horse: OwnedHorse): OwnedHorse => horse.profile?.races
+  ? { ...horse, profile: { ...horse.profile, races: normalizeRaces(horse.profile.races) } } : horse;
 
 /** 繁殖入りからの年数（繁殖入りの年を1年目とする） */
 export const breedingYears = (since: number | undefined, gameYear: number | undefined) => since !== undefined && gameYear !== undefined && gameYear >= since ? gameYear - since + 1 : undefined;
@@ -177,11 +193,11 @@ const sameRace = (a: RaceEntry, b: RaceEntry) => !!a.date && !!a.place && a.date
   && (Object.keys(b) as (keyof RaceEntry)[]).every((key) => !visibleRaceValue(a[key]) || !visibleRaceValue(b[key]) || a[key] === b[key]);
 /** 年を持たない月・週だけでは出走を特定できない。見える列が矛盾しない既存行に一対一で照合し、新規行を先頭に足す。 */
 export function mergeRaces(existing: RaceEntry[] = [], incoming: RaceEntry[] = []): RaceEntry[] {
-  const results = incoming.filter((r) => {
+  const results = normalizeRaces(incoming).filter((r) => {
     const cells = [r.place, r.race, r.finish, r.jockey ?? ''].map((v) => v.trim());
     return !!r.race.trim() && !cells.some((v) => /出走予定|(?:誕生|入厩|転厩|放牧|帰厩|引退|購入|売却)(?:[\s（(].*)?$/.test(v));
   });
-  const rows = existing.map((e) => ({ ...e }));
+  const rows = normalizeRaces(existing);
   const added: RaceEntry[] = [];
   const matched = new Set<number>();
   for (const result of results) {

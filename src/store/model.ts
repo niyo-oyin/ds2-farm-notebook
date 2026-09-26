@@ -1,5 +1,5 @@
 import type { HorseKey, OwnedHorse, PlannedHorse, UserHorse } from '../core/types';
-import { isBreedingHorse } from '../core/owned-horse';
+import { isBreedingHorse, normalizeHorseRaces } from '../core/owned-horse';
 import type { RuleOptions } from '../core/rules';
 import type { SearchGoal } from '../core/search';
 import type { AncestorEdit, KottaEdit, MasterEdit, NicksEdit } from '../core/master-edits';
@@ -69,7 +69,7 @@ export function normalizeUserData(raw: unknown): UserData {
   if (!d || d.version !== 2 || !Array.isArray(d.horses) || !Array.isArray(d.plannedHorses) || !Array.isArray(d.plans)) throw new Error('データの形式が違います');
   if (d.horses.some((h) => h.kind !== 'owned') || d.plannedHorses.some((h) => h.kind !== 'planned')) throw new Error('馬の区分が不正です');
   const list = <T,>(v: unknown): T[] => (Array.isArray(v) ? v as T[] : []);
-  return { version: 2, horses: d.horses, plannedHorses: d.plannedHorses, plans: d.plans, masterEdits: list(d.masterEdits), ancestorEdits: list(d.ancestorEdits), kottaEdits: list(d.kottaEdits), nicksEdits: list(d.nicksEdits), raceEdits: list(d.raceEdits), settings: { ...emptyUserData().settings, ...d.settings } };
+  return { version: 2, horses: d.horses.map(normalizeHorseRaces), plannedHorses: d.plannedHorses, plans: d.plans, masterEdits: list(d.masterEdits), ancestorEdits: list(d.ancestorEdits), kottaEdits: list(d.kottaEdits), nicksEdits: list(d.nicksEdits), raceEdits: list(d.raceEdits), settings: { ...emptyUserData().settings, ...d.settings } };
 }
 
 export function horsePlanLinks(data: UserData, horseId: string) {

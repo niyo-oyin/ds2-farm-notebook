@@ -1,11 +1,13 @@
+import { normalizeRaceGrade } from '../core/races';
 import './RaceBadges.css';
 
 export function RaceGradeBadge({ grade }: { grade: string }) {
-  const normalized = grade.normalize('NFKC').toUpperCase().replace(/\s/g, '');
+  const label = normalizeRaceGrade(grade);
+  const normalized = label.normalize('NFKC').toUpperCase().replace(/\s/g, '');
   const graded = /^(?:G|JPN|J[・-]?G)(1|2|3|I|II|III)$/.exec(normalized);
   const level = graded ? ({ I: '1', II: '2', III: '3' }[graded[1]] ?? graded[1])
     : ['L', 'OP', 'オープン'].includes(normalized) ? 'open' : 'class';
-  return <span className="race-grade" data-level={level}>{grade}</span>;
+  return <span className="race-grade" data-level={level}>{label}</span>;
 }
 
 export function RaceFinishBadge({ finish }: { finish: string }) {

@@ -1,7 +1,7 @@
 // ユーザーデータ（所有馬・計画馬・配合計画・設定）。ブラウザ内保存とファイル書き出し/読み込み。
 import { useSyncExternalStore } from 'react';
 import type { HorseKey, OwnedHorse, PlannedHorse } from '../core/types';
-import { validateOwnedDetails } from '../core/owned-horse';
+import { normalizeHorseRaces, validateOwnedDetails } from '../core/owned-horse';
 import { applyMasterEdits, pairKey, type AncestorEdit, type KottaEdit, type MasterEdit, type NicksEdit } from '../core/master-edits';
 import type { SearchGoal } from '../core/search';
 import type { DesignResult } from '../core/design-search';
@@ -122,7 +122,7 @@ function withBreedingSince(horse: OwnedHorse, previous?: OwnedHorse): OwnedHorse
 export const store = {
   addHorse(h: NewHorse<OwnedHorse>, plannedIds: string[] = []): OwnedHorse {
     if (h.kind !== 'owned' || h.id?.startsWith('p:')) throw new Error('計画馬を所有馬として登録することはできません');
-    const horse: OwnedHorse = withBreedingSince({ ...h, id: h.id ?? uid('u'), createdAt: now(), updatedAt: now() });
+    const horse: OwnedHorse = normalizeHorseRaces(withBreedingSince({ ...h, id: h.id ?? uid('u'), createdAt: now(), updatedAt: now() }));
     if (allUserHorses(state).some((x) => x.id === horse.id)) throw new Error('同じIDの馬が登録済みです');
     if (horse.masterKey && state.horses.some((x) => x.masterKey === horse.masterKey)) throw new Error('この繁殖牝馬はすでに所有馬に登録されています');
     validateOwnedParents(state, horse);
@@ -134,7 +134,7 @@ export const store = {
     checkIdentity(patch);
     const old = state.horses.find((h) => h.id === id);
     if (!old) throw new Error('所有馬が見つかりません');
-    const horse: OwnedHorse = withBreedingSince({ ...old, ...patch, updatedAt: now() }, old);
+    const horse: OwnedHorse = normalizeHorseRaces(withBreedingSince({ ...old, ...patch, updatedAt: now() }, old));
     validateOwnedParents(state, horse);
     validateOwnedDetails(horse);
     let next = { ...state, horses: state.horses.map((h) => h.id === id ? horse : h) };
