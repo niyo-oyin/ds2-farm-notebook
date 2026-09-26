@@ -110,10 +110,19 @@ function removeHorse(id: string, planned: boolean): string | null {
   return null;
 }
 
+const BREEDING_CATEGORIES = ['繁殖牝馬', '種牡馬'];
+/** 繁殖牝馬・種牡馬になった年を記録する。すでに登録があれば触らない */
+function withBreedingSince(horse: OwnedHorse, previous?: OwnedHorse): OwnedHorse {
+  const year = state.settings.gameYear;
+  const entered = BREEDING_CATEGORIES.includes(horse.category) && (!previous || !BREEDING_CATEGORIES.includes(previous.category));
+  if (!entered || year === undefined || horse.profile?.breedingSinceYear !== undefined) return horse;
+  return { ...horse, profile: { ...horse.profile, breedingSinceYear: year } };
+}
+
 export const store = {
   addHorse(h: NewHorse<OwnedHorse>, plannedIds: string[] = []): OwnedHorse {
     if (h.kind !== 'owned' || h.id?.startsWith('p:')) throw new Error('計画馬を所有馬として登録することはできません');
-    const horse: OwnedHorse = { ...h, id: h.id ?? uid('u'), createdAt: now(), updatedAt: now() };
+    const horse: OwnedHorse = withBreedingSince({ ...h, id: h.id ?? uid('u'), createdAt: now(), updatedAt: now() });
     if (allUserHorses(state).some((x) => x.id === horse.id)) throw new Error('同じIDの馬が登録済みです');
     if (horse.masterKey && state.horses.some((x) => x.masterKey === horse.masterKey)) throw new Error('この繁殖牝馬はすでに所有馬に登録されています');
     validateOwnedParents(state, horse);
@@ -125,7 +134,7 @@ export const store = {
     checkIdentity(patch);
     const old = state.horses.find((h) => h.id === id);
     if (!old) throw new Error('所有馬が見つかりません');
-    const horse: OwnedHorse = { ...old, ...patch, updatedAt: now() };
+    const horse: OwnedHorse = withBreedingSince({ ...old, ...patch, updatedAt: now() }, old);
     validateOwnedParents(state, horse);
     validateOwnedDetails(horse);
     let next = { ...state, horses: state.horses.map((h) => h.id === id ? horse : h) };

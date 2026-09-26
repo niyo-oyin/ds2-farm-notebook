@@ -1,4 +1,8 @@
-import { describe, it, expect } from 'vitest';
+import { describe, it, expect, vi } from 'vitest';
+import { memoryStorage } from './horse-fixtures';
+import { testCatalog } from './setup-catalog';
+
+vi.mock('../src/store/sync', () => ({ pushDiff: vi.fn(), pushAll: vi.fn(), pull: vi.fn().mockResolvedValue(null) }));
 import { breedingSince, breedingYears } from '../src/core/owned-horse';
 import type { OwnedHorse } from '../src/core/types';
 
@@ -22,5 +26,25 @@ describe('繁殖入りした年', () => {
     expect(breedingYears(40, 40)).toBe(1);
     expect(breedingYears(44, 43)).toBeUndefined();
     expect(breedingYears(undefined, 43)).toBeUndefined();
+  });
+});
+
+describe('繁殖入りの年の自動記録（保存処理）', () => {
+  it('区分が繁殖牝馬・種牡馬になった時にゲーム年を入れ、登録済みなら触らない', async () => {
+    vi.resetModules(); vi.stubGlobal('localStorage', memoryStorage());
+    (await import('../src/data/catalog')).initializeCatalog(testCatalog);
+    const { store, getUserData } = await import('../src/store/userdata');
+    store.setSettings({ gameYear: 43 });
+    const f = store.addHorse({ kind: 'owned', name: '自動記録テスト', sex: 'F', category: '現役', sireKey: '', damKey: '', memo: '' });
+    expect(f.profile?.breedingSinceYear).toBeUndefined();
+    store.updateHorse(f.id, { category: '繁殖牝馬' });
+    expect(getUserData().horses.find((h) => h.id === f.id)?.profile?.breedingSinceYear).toBe(43);
+    store.setSettings({ gameYear: 45 });
+    store.updateHorse(f.id, { category: '引退' });
+    store.updateHorse(f.id, { category: '繁殖牝馬' });
+    expect(getUserData().horses.find((h) => h.id === f.id)?.profile?.breedingSinceYear).toBe(43);
+    const m = store.addHorse({ kind: 'owned', name: '購入した繁殖牝馬', sex: 'F', category: '繁殖牝馬', sireKey: '', damKey: '', memo: '' });
+    expect(m.profile?.breedingSinceYear).toBe(45);
+    store.deleteHorse(f.id); store.deleteHorse(m.id);
   });
 });

@@ -154,7 +154,7 @@ export const HorseSheet = forwardRef<HorseSheetHandle, {
     const profile = {
       color: text(form.color), birthYear: number(form.birthYear), earnings: number(form.earnings), earningsCurrent: number(form.earningsCurrent), wins: text(form.wins),
       rank: text(form.rank), stable: text(form.stable), weight: text(form.weight), record: text(form.record), races: races.length ? races : undefined,
-      breedingSinceYear: ['繁殖牝馬', '種牡馬'].includes(form.category) ? number(form.breedingSinceYear) : undefined,
+      breedingSinceYear: number(form.breedingSinceYear),
     };
     setSaving(true);
     try {
