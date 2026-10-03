@@ -15,6 +15,13 @@ describe('計画で次に進める手順', () => {
     data.horses[1].category = '繁殖牝馬';
     expect(planProgress(p, data)).toMatchObject({ nextIndex: 1, completed: 1, complete: false });
   });
+  it('牡馬は種牡馬入り待ちと表示し、種牡馬入り後に次の手順へ進む', () => {
+    const data = { ...emptyUserData(), horses: [owned('u:colt', { sex: 'M' })], plannedHorses: [planned('p:1', { role: 'stallion', desiredSex: 'M', realizedIds: ['u:colt'] }), planned('p:2')] };
+    const p = plan('plan:1', ['p:1', 'p:2']);
+    expect(planProgress(p, data)).toMatchObject({ nextIndex: 0, completed: 0, steps: [{ status: '種牡馬入り待ち' }, { status: '未生産' }] });
+    data.horses[0].category = '種牡馬';
+    expect(planProgress(p, data)).toMatchObject({ nextIndex: 1, completed: 1, steps: [{ status: '完了' }, { status: '未生産' }] });
+  });
   it('競走馬が最終目標なら繁殖入りを要求せず、手動の進捗も反映する', () => {
     const data = { ...emptyUserData(), plannedHorses: [planned('p:1', { role: undefined, desiredSex: undefined, achieved: { born: true, sexOk: false, bred: false } })] };
     expect(planProgress(plan('plan:1', ['p:1']), data)).toMatchObject({ complete: true, completed: 1, nextIndex: -1 });

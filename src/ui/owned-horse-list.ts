@@ -1,5 +1,5 @@
 import type { OwnedHorse } from '../core/types';
-import { HORSE_CATEGORIES, horseAge } from '../core/owned-horse';
+import { HORSE_CATEGORIES, ownedHorseAge } from '../core/owned-horse';
 
 export const OWNED_SORTS = [
   { key: 'updated', label: '更新順' }, { key: 'created', label: '登録順' },
@@ -14,7 +14,7 @@ export interface OwnedBasicFilter { categories: string[]; sexes: string[]; ages:
 /** 非表示にする値。新しく登録された区分・年齢は既定で表示する。 */
 export const EMPTY_OWNED_BASIC_FILTER: OwnedBasicFilter = { categories: [], sexes: [], ages: [] };
 export function matchesOwnedBasic(h: OwnedHorse, excluded: OwnedBasicFilter, gameYear?: number) {
-  const age = horseAge(h.profile?.birthYear, gameYear);
+  const age = ownedHorseAge(h, gameYear);
   return !excluded.categories.includes(h.category) && !excluded.sexes.includes(h.sex ?? 'unknown') && !excluded.ages.includes(age === undefined ? 'unknown' : String(age));
 }
 const MARKS: Record<string, number> = { '×': 0, '△': 1, '○': 2, '◯': 2, '◎': 3, '◉': 4 };
@@ -41,7 +41,7 @@ export function compareOwnedHorses(sort: OwnedSort, gameYear?: number) {
       case 'sex': return h.sex === 'M' ? 0 : h.sex === 'F' ? 1 : undefined;
       case 'created': return h.createdAt;
       case 'updated': return h.updatedAt;
-      case 'age': return horseAge(h.profile?.birthYear, gameYear);
+      case 'age': return ownedHorseAge(h, gameYear);
       case 'earnings': return h.profile?.earnings;
       default: return MARKS[h.abilities?.race?.[sort.key] ?? ''];
     }

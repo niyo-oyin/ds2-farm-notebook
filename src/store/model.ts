@@ -25,6 +25,8 @@ export interface Settings {
   farm?: FarmSettings;
   rules: Partial<RuleOptions>;
   hideLocked?: boolean;
+  /** このセーブデータで購入済みの海外種牡馬株。 */
+  purchasedStallionShares?: string[];
   hidePurchase?: boolean;
   /** 父母の選択リストに計画馬を出さない。表示だけの設定で、探索の相手の候補には影響しない */
   hidePlanned?: boolean;

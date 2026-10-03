@@ -14,7 +14,7 @@ import { SearchJobQueue, searchJobRoutes } from './search-jobs.js';
 import { loadMasterCatalog, masterCatalogRoutes } from './master-catalog.js';
 import { SaveDataStore, saveDataRoutes } from './save-data.js';
 import { horseStoryRoutes } from './horse-stories.js';
-import { horseNameRoutes } from './horse-names.js';
+import { HorseNameJobQueue, horseNameRoutes } from './horse-name-jobs.js';
 
 const here = dirname(fileURLToPath(import.meta.url));
 const root = resolve(here, '..');
@@ -44,7 +44,8 @@ const jobs = new JobQueue(db, async (job) => {
 });
 
 // 探索ジョブは同期済みレコードから判定の材料を作る。ロードで世代が変わったら写真のジョブと一緒に捨てる
-const savedData = new SaveDataStore(db, images, () => { searchJobs.clear(); return jobs.clear(); });
+const nameJobs = new HorseNameJobQueue(db);
+const savedData = new SaveDataStore(db, images, () => { searchJobs.clear(); nameJobs.clear(); return jobs.clear(); });
 const searchJobs = new SearchJobQueue(db, () => savedData.records(savedData.generation).records, catalog, 2);
 
 const app = new Hono();
@@ -66,7 +67,7 @@ app.get('/api/health', (c) => c.json({ ok: true, model: LLM.model, imageReading:
 
 app.route('/api', saveDataRoutes(savedData));
 app.route('/api/horse-stories', horseStoryRoutes());
-app.route('/api/horse-names', horseNameRoutes());
+app.route('/api/horse-names', horseNameRoutes(nameJobs, () => savedData.generation));
 app.route('/api', searchJobRoutes(searchJobs, () => savedData.generation));
 
 // ---- 写真取り込みのジョブ ----

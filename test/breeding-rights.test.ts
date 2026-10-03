@@ -18,7 +18,7 @@ const ctx = makeContext(master);
 const env = { resolve: (key: string) => resolver.get(key), rules: DEFAULT_RULES, ctx };
 
 describe('種付け権と種付料の分離', () => {
-  it('海外区分で探索候補を切り替え、馬名・所有馬・血統参照には影響しない', async () => {
+  it('未購入馬の追加を全世代の探索に適用し、馬名・所有馬・血統参照には影響しない', async () => {
     const domestic = { ...horse, name: 'Domestic Horse', overseas: false, breedingRightPrice: null };
     const foreign = { ...baseMaster.stallions[1], name: 'カタカナの海外馬', overseas: true, breedingRightPrice: null, unlock: null };
     const m = { ...baseMaster, stallions: [domestic, foreign] };
@@ -27,21 +27,39 @@ describe('種付け権と種付料の分離', () => {
     const resolver = new HorseResolver(m, data.horses, DEFAULT_RULES);
     const ctx = makeContext(m);
     const app = { master: m, data, resolver, ctx, rules: DEFAULT_RULES };
-    for (const includeOverseas of [false, true]) {
-      const options = sireOptions(app, { onlyAvailable: true, includeOverseas });
-      expect(options.map(h => h.key)).toEqual(includeOverseas ? ['u:own', domestic.id, foreign.id] : ['u:own', domestic.id]);
+    for (const includeUnpurchasedOverseas of [false, true]) {
+      const options = sireOptions(app, { onlyAvailable: true, includeUnpurchasedOverseas });
+      expect(options.map(h => h.key)).toEqual(includeUnpurchasedOverseas ? ['u:own', domestic.id, foreign.id] : ['u:own', domestic.id]);
       const pool = options.filter(h => h.group === '種牡馬').map(h => h.key);
       const req: DesignRequest = { colt: { starts: [], sires: pool, minGenerations: 0, maxGenerations: 0, required: null }, filly: { starts: [m.broodmares[0].id], minGenerations: 1, maxGenerations: 1, required: null }, stallionPool: pool, goals: [], strongLines: false, maxCost: null, maxEvaluations: 100 };
       const report = await searchDesigns({ ctx, rules: DEFAULT_RULES, resolve: key => resolver.get(key) }, req);
       expect(report.results.length).toBeGreaterThan(0);
-      expect(report.results.some(r => r.filly.steps[0].sire === foreign.id)).toBe(includeOverseas);
-      expect(report.results.some(r => r.merge.sire === foreign.id)).toBe(includeOverseas);
+      expect(report.results.some(r => r.filly.steps[0].sire === foreign.id)).toBe(includeUnpurchasedOverseas);
+      expect(report.results.some(r => r.merge.sire === foreign.id)).toBe(includeUnpurchasedOverseas);
     }
     expect(sireOptions(app).some(h => h.key === foreign.id)).toBe(true);
     expect(resolver.get(foreign.id)).not.toBeNull();
     const edit = diffAgainstBase(foreign, { ...foreign, overseas: false });
     const changed = applyMasterEdits(m, [{ id: foreign.id, kind: 'stallion', added: false, updatedAt: '', data: edit }]);
-    expect(sireOptions({ ...app, master: changed }, { includeOverseas: false }).some(h => h.key === foreign.id)).toBe(true);
+    expect(sireOptions({ ...app, master: changed }, { onlyAvailable: true, includeUnpurchasedOverseas: false }).some(h => h.key === foreign.id)).toBe(true);
+  });
+  it('購入済み株は通常の探索に含め、購入額不明の未購入馬は含めず、解禁除外と両立する', () => {
+    const purchased = { ...horse, overseas: true, unlock: '皐月賞に勝利' };
+    const unpurchased = { ...baseMaster.stallions[1], overseas: true, breedingRightPrice: null, unlock: null };
+    const domestic = { ...baseMaster.stallions[2], overseas: false, unlock: 'GⅠに勝利' };
+    const m = { ...master, stallions: [purchased, unpurchased, domestic] };
+    const data = emptyUserData();
+    data.settings = { rules: {}, hideLocked: true, purchasedStallionShares: [purchased.id] };
+    const app = { master: m, resolver: new HorseResolver(m, [], DEFAULT_RULES), ctx: makeContext(m), rules: DEFAULT_RULES, data };
+    expect(sireOptions(app, { onlyAvailable: true }).map(h => h.key)).toEqual([purchased.id]);
+    const options = sireOptions(app, { onlyAvailable: true, includeUnpurchasedOverseas: true });
+    expect(options.map(h => h.key)).toEqual([purchased.id, unpurchased.id]);
+    expect(options[0].sub).toContain('株購入済み');
+    expect(options[0].sub).not.toContain('要解禁');
+    expect(options[1].sub).toContain('株未購入');
+    data.settings.purchasedStallionShares = [];
+    expect(sireOptions(app, { onlyAvailable: true })).toEqual([]);
+    expect(sireOptions(app)).toHaveLength(3);
   });
   it('権利代を各世代の種付料に加算せず、解禁条件として伝える', async () => {
     const req: DesignRequest = { colt: { starts: [], sires: [horse.id], minGenerations: 0, maxGenerations: 0, required: null }, filly: { starts: [master.broodmares[0].id], minGenerations: 1, maxGenerations: 1, required: null }, stallionPool: [horse.id], goals: [], strongLines: false, maxCost: 200, maxEvaluations: 1000 };

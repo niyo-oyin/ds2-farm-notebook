@@ -26,6 +26,7 @@
 .plan-list-mating.secondary { font-size: 12px; }
 .plan-list-mating.secondary b { font-weight: 400; }
 .plan-list-cross { color: var(--ink-muted); }
+.plan-list-target { white-space: nowrap; }
 .plan-status { font-size: 11px; color: var(--accent); }
 .plan-status.complete { color: var(--ok); }
 .plan-status.waiting { color: var(--unk); }

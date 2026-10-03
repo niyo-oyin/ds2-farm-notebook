@@ -3,14 +3,14 @@ import type { MasterHorse } from '../core/types';
 import { useApp } from './app-context';
 
 export interface StallionFilterState {
-  includeOverseas: boolean;
+  includeUnpurchasedOverseas: boolean;
   distance: string;        // 走らせたい距離（m）。空なら不問
   dirt: '' | '○' | '◎';    // ダート適性の下限
   grown: string[];         // 許容する成長型
   ranks: { key: 'jisseki' | 'antei' | 'konjo' | 'kenko' | 'kisyo'; min: '' | 'A' | 'B' | 'C' }[];
   applyToIntermediate: boolean;
 }
-export const EMPTY_FILTER: StallionFilterState = { includeOverseas: true, distance: '', dirt: '', grown: [], ranks: [
+export const EMPTY_FILTER: StallionFilterState = { includeUnpurchasedOverseas: false, distance: '', dirt: '', grown: [], ranks: [
   { key: 'jisseki', min: '' }, { key: 'antei', min: '' }, { key: 'konjo', min: '' }, { key: 'kenko', min: '' }, { key: 'kisyo', min: '' },
 ], applyToIntermediate: false };
 const RANK_LABEL = { jisseki: '実績', antei: '安定', konjo: '底力', kenko: '健康', kisyo: '気性' } as const;
@@ -51,7 +51,7 @@ export function StallionFilter({ value, onChange, showIntermediate }: { value: S
         <span>成長型</span>
         {growns.map((g) => <label key={g}><input type="checkbox" checked={value.grown.includes(g)} onChange={(e) => onChange({ ...value, grown: e.target.checked ? [...value.grown, g] : value.grown.filter((x) => x !== g) })} />{g}</label>)}
         <div className="checks stallion-options">
-          <label><input type="checkbox" checked={!value.includeOverseas} onChange={(e) => onChange({ ...value, includeOverseas: !e.target.checked })} />海外種牡馬を除外</label>
+          <label><input type="checkbox" checked={value.includeUnpurchasedOverseas} onChange={(e) => onChange({ ...value, includeUnpurchasedOverseas: e.target.checked })} />未購入の海外種牡馬も含める</label>
           {showIntermediate && <label><input type="checkbox" checked={value.applyToIntermediate} onChange={(e) => onChange({ ...value, applyToIntermediate: e.target.checked })} />能力条件を途中の種牡馬にも適用</label>}
         </div>
       </div>

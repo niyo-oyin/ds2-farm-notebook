@@ -12,6 +12,7 @@ import { acceptRecords, onSyncConflict, pushDiff, pull, pushAll, toRecords } fro
 import { USER_DATA_KEY, workspaceGeneration } from './workspace';
 import { resetImportJobs } from './jobs';
 import { resetSearchJobs } from './search-jobs';
+import { resetHorseNameJobs } from './horse-name-jobs';
 import { api } from '../api';
 import type { RecordsResponse, SaveSlot } from '../shared/save-data';
 import { allUserHorses, emptyUserData, normalizeUserData, setHorsePlanLinks, validateOwnedParents, type UserData, type Plan, type PlanStep, type Settings } from './model';
@@ -44,6 +45,7 @@ function applyRemote(next: UserData) {
     appliedGeneration = workspaceGeneration();
     resetImportJobs();
     resetSearchJobs();
+    resetHorseNameJobs();
   }
   set(next, false);
 }
@@ -231,6 +233,11 @@ export const store = {
     set({ ...state, raceEdits: [...state.raceEdits.filter((e) => e.id !== edit.id), { ...edit, updatedAt: now() }] });
   },
   deleteRaceEdit(id: string) { set({ ...state, raceEdits: state.raceEdits.filter((e) => e.id !== id) }); },
+  setStallionShare(horseId: string, purchased: boolean) {
+    const ids = new Set(state.settings.purchasedStallionShares ?? []);
+    if (purchased) ids.add(horseId); else ids.delete(horseId);
+    store.setSettings({ purchasedStallionShares: [...ids] });
+  },
   setSettings(patch: Partial<Settings>) { set({ ...state, settings: { ...state.settings, ...patch, updatedAt: now() } }); },
   exportJson(): string { return JSON.stringify(state, null, 2); },
   importJson(text: string) {

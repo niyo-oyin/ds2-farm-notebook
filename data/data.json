@@ -1,8 +1,8 @@
 {
   "master": {
     "meta": {
-      "dataVersion": "2026-09-26-10",
-      "createdAt": "2026-09-26T08:27:05.950Z",
+      "dataVersion": "2026-09-28-01",
+      "createdAt": "2026-09-28T14:00:42.078Z",
       "bigSystems": [
         "Ec",
         "Ph",
@@ -9834,7 +9834,7 @@
           "konjo": "B",
           "antei": "A"
         },
-        "priceUnknown": true,
+        "priceUnknown": false,
         "breedingRightPrice": 180000,
         "overseas": true
       },
@@ -9937,7 +9937,7 @@
           "a:268"
         ],
         "unlock": null,
-        "priceUnknown": true,
+        "priceUnknown": false,
         "attrs": {
           "dist": [
             0,
@@ -9995,7 +9995,7 @@
           "a:2501"
         ],
         "unlock": null,
-        "priceUnknown": true,
+        "priceUnknown": false,
         "attrs": {
           "dist": [
             0,
@@ -10053,21 +10053,22 @@
           "a:3743"
         ],
         "unlock": null,
-        "priceUnknown": true,
+        "priceUnknown": false,
         "attrs": {
           "dist": [
-            0,
-            0
+            1400,
+            2200
           ],
-          "grown": null,
-          "dirt": null,
-          "kenko": null,
-          "kisyo": null,
-          "jisseki": null,
-          "konjo": null,
-          "antei": null
+          "grown": "普通",
+          "dirt": "◎",
+          "kenko": "B",
+          "kisyo": "A",
+          "jisseki": "A",
+          "konjo": "B",
+          "antei": "B"
         },
-        "overseas": true
+        "overseas": true,
+        "breedingRightPrice": 50000
       },
       {
         "id": "st:w-5",
@@ -10111,21 +10112,22 @@
           "a:3746"
         ],
         "unlock": null,
-        "priceUnknown": true,
+        "priceUnknown": false,
         "attrs": {
           "dist": [
-            0,
-            0
+            1600,
+            2400
           ],
-          "grown": null,
-          "dirt": null,
-          "kenko": null,
-          "kisyo": null,
-          "jisseki": null,
-          "konjo": null,
-          "antei": null
+          "grown": "普通",
+          "dirt": "◎",
+          "kenko": "B",
+          "kisyo": "A",
+          "jisseki": "A",
+          "konjo": "A",
+          "antei": "A"
         },
-        "overseas": true
+        "overseas": true,
+        "breedingRightPrice": 30000
       },
       {
         "id": "st:w-6",
@@ -10169,7 +10171,7 @@
           "a:1445"
         ],
         "unlock": null,
-        "priceUnknown": true,
+        "priceUnknown": false,
         "attrs": {
           "dist": [
             0,
@@ -10227,21 +10229,22 @@
           "a:3750"
         ],
         "unlock": null,
-        "priceUnknown": true,
+        "priceUnknown": false,
         "attrs": {
           "dist": [
-            0,
-            0
+            1000,
+            1600
           ],
-          "grown": null,
-          "dirt": null,
-          "kenko": null,
-          "kisyo": null,
-          "jisseki": null,
-          "konjo": null,
-          "antei": null
+          "grown": "持続",
+          "dirt": "◎",
+          "kenko": "B",
+          "kisyo": "A",
+          "jisseki": "A",
+          "konjo": "B",
+          "antei": "A"
         },
-        "overseas": true
+        "overseas": true,
+        "breedingRightPrice": 51000
       },
       {
         "id": "st:w-8",
@@ -10399,21 +10402,22 @@
           "a:3767"
         ],
         "unlock": null,
-        "priceUnknown": true,
+        "priceUnknown": false,
         "attrs": {
           "dist": [
-            0,
-            0
+            1400,
+            1800
           ],
-          "grown": null,
-          "dirt": null,
-          "kenko": null,
-          "kisyo": null,
-          "jisseki": null,
-          "konjo": null,
-          "antei": null
+          "grown": "持続",
+          "dirt": "△",
+          "kenko": "B",
+          "kisyo": "B",
+          "jisseki": "A",
+          "konjo": "A",
+          "antei": "B"
         },
-        "overseas": true
+        "overseas": true,
+        "breedingRightPrice": 70000
       },
       {
         "id": "st:w-11",
@@ -10457,7 +10461,7 @@
           "a:3768"
         ],
         "unlock": null,
-        "priceUnknown": true,
+        "priceUnknown": false,
         "attrs": {
           "dist": [
             0,
@@ -10515,7 +10519,7 @@
           "a:3649"
         ],
         "unlock": null,
-        "priceUnknown": true,
+        "priceUnknown": false,
         "attrs": {
           "dist": [
             0,
@@ -10573,21 +10577,22 @@
           "a:3777"
         ],
         "unlock": null,
-        "priceUnknown": true,
+        "priceUnknown": false,
         "attrs": {
           "dist": [
-            0,
-            0
+            1400,
+            2200
           ],
-          "grown": null,
-          "dirt": null,
-          "kenko": null,
-          "kisyo": null,
-          "jisseki": null,
-          "konjo": null,
-          "antei": null
+          "grown": "持続",
+          "dirt": "◎",
+          "kenko": "A",
+          "kisyo": "A",
+          "jisseki": "A",
+          "konjo": "B",
+          "antei": "A"
         },
-        "overseas": true
+        "overseas": true,
+        "breedingRightPrice": 100000
       },
       {
         "id": "st:w-14",
@@ -10688,7 +10693,7 @@
           "a:3784"
         ],
         "unlock": null,
-        "priceUnknown": true,
+        "priceUnknown": false,
         "attrs": {
           "dist": [
             0,
@@ -10746,21 +10751,22 @@
           "a:3787"
         ],
         "unlock": null,
-        "priceUnknown": true,
+        "priceUnknown": false,
         "attrs": {
           "dist": [
-            0,
-            0
+            1200,
+            1800
           ],
-          "grown": null,
-          "dirt": null,
-          "kenko": null,
-          "kisyo": null,
-          "jisseki": null,
-          "konjo": null,
-          "antei": null
+          "grown": "持続",
+          "dirt": "○",
+          "kenko": "B",
+          "kisyo": "C",
+          "jisseki": "B",
+          "konjo": "B",
+          "antei": "B"
         },
-        "overseas": true
+        "overseas": true,
+        "breedingRightPrice": 62000
       },
       {
         "id": "st:w-17",
@@ -10804,21 +10810,22 @@
           "a:3792"
         ],
         "unlock": null,
-        "priceUnknown": true,
+        "priceUnknown": false,
         "attrs": {
           "dist": [
-            0,
-            0
+            1400,
+            2000
           ],
-          "grown": null,
-          "dirt": null,
-          "kenko": null,
-          "kisyo": null,
-          "jisseki": null,
-          "konjo": null,
-          "antei": null
+          "grown": "持続",
+          "dirt": "◎",
+          "kenko": "C",
+          "kisyo": "B",
+          "jisseki": "A",
+          "konjo": "B",
+          "antei": "A"
         },
-        "overseas": true
+        "overseas": true,
+        "breedingRightPrice": 56000
       },
       {
         "id": "st:w-18",
@@ -10862,21 +10869,22 @@
           "a:3795"
         ],
         "unlock": null,
-        "priceUnknown": true,
+        "priceUnknown": false,
         "attrs": {
           "dist": [
-            0,
-            0
+            1200,
+            1800
           ],
-          "grown": null,
-          "dirt": null,
-          "kenko": null,
-          "kisyo": null,
-          "jisseki": null,
-          "konjo": null,
-          "antei": null
+          "grown": "普通",
+          "dirt": "○",
+          "kenko": "A",
+          "kisyo": "B",
+          "jisseki": "A",
+          "konjo": "B",
+          "antei": "A"
         },
-        "overseas": true
+        "overseas": true,
+        "breedingRightPrice": 50000
       },
       {
         "id": "st:w-19",
@@ -10977,7 +10985,7 @@
           "a:3797"
         ],
         "unlock": null,
-        "priceUnknown": true,
+        "priceUnknown": false,
         "attrs": {
           "dist": [
             0,
@@ -11035,7 +11043,7 @@
           "a:1367"
         ],
         "unlock": null,
-        "priceUnknown": true,
+        "priceUnknown": false,
         "attrs": {
           "dist": [
             0,
@@ -11093,7 +11101,7 @@
           "a:3804"
         ],
         "unlock": null,
-        "priceUnknown": true,
+        "priceUnknown": false,
         "attrs": {
           "dist": [
             0,
@@ -11151,7 +11159,7 @@
           "a:3814"
         ],
         "unlock": null,
-        "priceUnknown": true,
+        "priceUnknown": false,
         "attrs": {
           "dist": [
             0,
@@ -11209,7 +11217,7 @@
           "a:3818"
         ],
         "unlock": null,
-        "priceUnknown": true,
+        "priceUnknown": false,
         "attrs": {
           "dist": [
             0,
@@ -11381,21 +11389,22 @@
           "a:3828"
         ],
         "unlock": null,
-        "priceUnknown": true,
+        "priceUnknown": false,
         "attrs": {
           "dist": [
-            0,
-            0
+            1800,
+            2600
           ],
-          "grown": null,
-          "dirt": null,
-          "kenko": null,
-          "kisyo": null,
-          "jisseki": null,
-          "konjo": null,
-          "antei": null
+          "grown": "持続",
+          "dirt": "△",
+          "kenko": "B",
+          "kisyo": "A",
+          "jisseki": "A",
+          "konjo": "B",
+          "antei": "A"
         },
-        "overseas": true
+        "overseas": true,
+        "breedingRightPrice": 51000
       },
       {
         "id": "st:w-28",
@@ -11496,21 +11505,22 @@
           "a:3835"
         ],
         "unlock": null,
-        "priceUnknown": true,
+        "priceUnknown": false,
         "attrs": {
           "dist": [
-            0,
-            0
+            1600,
+            2400
           ],
-          "grown": null,
-          "dirt": null,
-          "kenko": null,
-          "kisyo": null,
-          "jisseki": null,
-          "konjo": null,
-          "antei": null
+          "grown": "普通",
+          "dirt": "△",
+          "kenko": "B",
+          "kisyo": "B",
+          "jisseki": "A",
+          "konjo": "B",
+          "antei": "A"
         },
-        "overseas": true
+        "overseas": true,
+        "breedingRightPrice": 15000
       },
       {
         "id": "st:w-30",
@@ -11554,7 +11564,7 @@
           "a:3841"
         ],
         "unlock": null,
-        "priceUnknown": true,
+        "priceUnknown": false,
         "attrs": {
           "dist": [
             0,
@@ -11612,7 +11622,7 @@
           "a:3845"
         ],
         "unlock": null,
-        "priceUnknown": true,
+        "priceUnknown": false,
         "attrs": {
           "dist": [
             0,
@@ -11727,7 +11737,7 @@
           "a:3849"
         ],
         "unlock": null,
-        "priceUnknown": true,
+        "priceUnknown": false,
         "attrs": {
           "dist": [
             0,
@@ -11785,21 +11795,22 @@
           "a:2161"
         ],
         "unlock": null,
-        "priceUnknown": true,
+        "priceUnknown": false,
         "attrs": {
           "dist": [
-            0,
-            0
+            1400,
+            2000
           ],
-          "grown": null,
-          "dirt": null,
-          "kenko": null,
-          "kisyo": null,
-          "jisseki": null,
-          "konjo": null,
-          "antei": null
+          "grown": "普通",
+          "dirt": "△",
+          "kenko": "A",
+          "kisyo": "B",
+          "jisseki": "A",
+          "konjo": "A",
+          "antei": "A"
         },
-        "overseas": true
+        "overseas": true,
+        "breedingRightPrice": 200000
       },
       {
         "id": "st:w-35",
@@ -11843,7 +11854,7 @@
           "a:3855"
         ],
         "unlock": null,
-        "priceUnknown": true,
+        "priceUnknown": false,
         "attrs": {
           "dist": [
             0,
@@ -11958,21 +11969,22 @@
           "a:3857"
         ],
         "unlock": null,
-        "priceUnknown": true,
+        "priceUnknown": false,
         "attrs": {
           "dist": [
-            0,
-            0
+            1400,
+            2200
           ],
-          "grown": null,
-          "dirt": null,
-          "kenko": null,
-          "kisyo": null,
-          "jisseki": null,
-          "konjo": null,
-          "antei": null
+          "grown": "普通",
+          "dirt": "◎",
+          "kenko": "B",
+          "kisyo": "A",
+          "jisseki": "B",
+          "konjo": "A",
+          "antei": "B"
         },
-        "overseas": true
+        "overseas": true,
+        "breedingRightPrice": 100000
       },
       {
         "id": "st:w-38",
@@ -12073,21 +12085,22 @@
           "a:3876"
         ],
         "unlock": null,
-        "priceUnknown": true,
+        "priceUnknown": false,
         "attrs": {
           "dist": [
-            0,
-            0
+            1200,
+            1600
           ],
-          "grown": null,
-          "dirt": null,
-          "kenko": null,
-          "kisyo": null,
-          "jisseki": null,
-          "konjo": null,
-          "antei": null
+          "grown": "持続",
+          "dirt": "△",
+          "kenko": "A",
+          "kisyo": "A",
+          "jisseki": "B",
+          "konjo": "A",
+          "antei": "B"
         },
-        "overseas": true
+        "overseas": true,
+        "breedingRightPrice": 50000
       },
       {
         "id": "st:w-40",
@@ -12131,21 +12144,22 @@
           "a:3878"
         ],
         "unlock": null,
-        "priceUnknown": true,
+        "priceUnknown": false,
         "attrs": {
           "dist": [
-            0,
-            0
+            1000,
+            1400
           ],
-          "grown": null,
-          "dirt": null,
-          "kenko": null,
-          "kisyo": null,
-          "jisseki": null,
-          "konjo": null,
-          "antei": null
+          "grown": "普通",
+          "dirt": "△",
+          "kenko": "B",
+          "kisyo": "A",
+          "jisseki": "A",
+          "konjo": "B",
+          "antei": "B"
         },
-        "overseas": true
+        "overseas": true,
+        "breedingRightPrice": 50000
       },
       {
         "id": "st:w-41",
@@ -12189,7 +12203,7 @@
           "a:3886"
         ],
         "unlock": null,
-        "priceUnknown": true,
+        "priceUnknown": false,
         "attrs": {
           "dist": [
             0,
@@ -12304,7 +12318,7 @@
           "a:3890"
         ],
         "unlock": null,
-        "priceUnknown": true,
+        "priceUnknown": false,
         "attrs": {
           "dist": [
             0,
@@ -12362,21 +12376,22 @@
           "a:3892"
         ],
         "unlock": null,
-        "priceUnknown": true,
+        "priceUnknown": false,
         "attrs": {
           "dist": [
-            0,
-            0
+            1400,
+            2200
           ],
-          "grown": null,
-          "dirt": null,
-          "kenko": null,
-          "kisyo": null,
-          "jisseki": null,
-          "konjo": null,
-          "antei": null
+          "grown": "持続",
+          "dirt": "△",
+          "kenko": "B",
+          "kisyo": "C",
+          "jisseki": "B",
+          "konjo": "B",
+          "antei": "C"
         },
-        "overseas": true
+        "overseas": true,
+        "breedingRightPrice": 19000
       },
       {
         "id": "st:w-45",
@@ -12420,21 +12435,22 @@
           "a:1685"
         ],
         "unlock": null,
-        "priceUnknown": true,
+        "priceUnknown": false,
         "attrs": {
           "dist": [
-            0,
-            0
+            1200,
+            1800
           ],
-          "grown": null,
-          "dirt": null,
-          "kenko": null,
-          "kisyo": null,
-          "jisseki": null,
-          "konjo": null,
-          "antei": null
+          "grown": "持続",
+          "dirt": "◎",
+          "kenko": "A",
+          "kisyo": "C",
+          "jisseki": "B",
+          "konjo": "B",
+          "antei": "B"
         },
-        "overseas": true
+        "overseas": true,
+        "breedingRightPrice": 15000
       },
       {
         "id": "st:w-46",
@@ -12592,21 +12608,22 @@
           "a:3905"
         ],
         "unlock": null,
-        "priceUnknown": true,
+        "priceUnknown": false,
         "attrs": {
           "dist": [
-            0,
-            0
+            1400,
+            1800
           ],
-          "grown": null,
-          "dirt": null,
-          "kenko": null,
-          "kisyo": null,
-          "jisseki": null,
-          "konjo": null,
-          "antei": null
+          "grown": "普通",
+          "dirt": "△",
+          "kenko": "C",
+          "kisyo": "B",
+          "jisseki": "A",
+          "konjo": "B",
+          "antei": "B"
         },
-        "overseas": true
+        "overseas": true,
+        "breedingRightPrice": 35000
       },
       {
         "id": "st:w-49",
@@ -12650,21 +12667,22 @@
           "a:3680"
         ],
         "unlock": null,
-        "priceUnknown": true,
+        "priceUnknown": false,
         "attrs": {
           "dist": [
-            0,
-            0
+            1600,
+            2200
           ],
-          "grown": null,
-          "dirt": null,
-          "kenko": null,
-          "kisyo": null,
-          "jisseki": null,
-          "konjo": null,
-          "antei": null
+          "grown": "持続",
+          "dirt": "◎",
+          "kenko": "C",
+          "kisyo": "B",
+          "jisseki": "B",
+          "konjo": "B",
+          "antei": "B"
         },
-        "overseas": true
+        "overseas": true,
+        "breedingRightPrice": 10000
       },
       {
         "id": "st:w-50",
@@ -12708,7 +12726,7 @@
           "a:2174"
         ],
         "unlock": null,
-        "priceUnknown": true,
+        "priceUnknown": false,
         "attrs": {
           "dist": [
             0,
@@ -12823,7 +12841,7 @@
           "a:3924"
         ],
         "unlock": null,
-        "priceUnknown": true,
+        "priceUnknown": false,
         "attrs": {
           "dist": [
             0,
@@ -12881,21 +12899,22 @@
           "a:1275"
         ],
         "unlock": null,
-        "priceUnknown": true,
+        "priceUnknown": false,
         "attrs": {
           "dist": [
-            0,
-            0
+            1600,
+            2400
           ],
-          "grown": null,
-          "dirt": null,
-          "kenko": null,
-          "kisyo": null,
-          "jisseki": null,
-          "konjo": null,
-          "antei": null
+          "grown": "普通",
+          "dirt": "△",
+          "kenko": "B",
+          "kisyo": "B",
+          "jisseki": "B",
+          "konjo": "B",
+          "antei": "C"
         },
-        "overseas": true
+        "overseas": true,
+        "breedingRightPrice": 25000
       },
       {
         "id": "st:w-54",
@@ -12939,7 +12958,7 @@
           "a:3932"
         ],
         "unlock": null,
-        "priceUnknown": true,
+        "priceUnknown": false,
         "attrs": {
           "dist": [
             0,
@@ -12997,7 +13016,7 @@
           "a:3935"
         ],
         "unlock": null,
-        "priceUnknown": true,
+        "priceUnknown": false,
         "attrs": {
           "dist": [
             0,
@@ -13012,6 +13031,183 @@
           "antei": null
         },
         "overseas": true
+      },
+      {
+        "id": "st:w-56",
+        "kind": "stallion",
+        "name": "Nathaniel",
+        "sex": "M",
+        "price": 0,
+        "priceUnknown": false,
+        "color": null,
+        "bigSystem": "Ne",
+        "smallSystem": "サドラーズウェルズ",
+        "ancestors": [
+          "st:w-2",
+          "a:6002",
+          "a:122",
+          "a:2696",
+          "a:2350",
+          "",
+          "a:89",
+          "a:196",
+          "a:1689",
+          "a:261",
+          "a:115",
+          "a:1149",
+          "",
+          "",
+          "a:85",
+          "a:205",
+          "a:18",
+          "a:208",
+          "a:79",
+          "a:1246",
+          "a:1504",
+          "a:296",
+          "a:53",
+          "a:510",
+          "a:291",
+          "a:1620",
+          "",
+          "",
+          "",
+          ""
+        ],
+        "unlock": null,
+        "overseas": true,
+        "attrs": {
+          "dist": [
+            1800,
+            2600
+          ],
+          "grown": "普通",
+          "dirt": "△",
+          "kenko": "B",
+          "kisyo": "B",
+          "jisseki": "B",
+          "konjo": "B",
+          "antei": "C"
+        },
+        "breedingRightPrice": 20000
+      },
+      {
+        "id": "st:w-57",
+        "kind": "stallion",
+        "name": "Munnings",
+        "sex": "M",
+        "price": 0,
+        "priceUnknown": false,
+        "color": null,
+        "bigSystem": "Na",
+        "smallSystem": "ミスタープロスペクター",
+        "ancestors": [
+          "st:w-7",
+          "a:6001",
+          "a:1116",
+          "a:2343",
+          "a:1236",
+          "",
+          "a:79",
+          "a:2272",
+          "a:2468",
+          "a:2344",
+          "a:1132",
+          "a:2305",
+          "",
+          "",
+          "a:107",
+          "a:1108",
+          "a:126",
+          "a:2556",
+          "a:139",
+          "a:2578",
+          "a:633",
+          "a:1293",
+          "a:1661",
+          "a:2548",
+          "a:248",
+          "a:234",
+          "",
+          "",
+          "",
+          ""
+        ],
+        "unlock": null,
+        "overseas": true,
+        "attrs": {
+          "dist": [
+            1200,
+            1800
+          ],
+          "grown": "持続",
+          "dirt": "◎",
+          "kenko": "B",
+          "kisyo": "B",
+          "jisseki": "B",
+          "konjo": "B",
+          "antei": "B"
+        },
+        "breedingRightPrice": 47000
+      },
+      {
+        "id": "st:w-58",
+        "kind": "stallion",
+        "name": "Cracksman",
+        "sex": "M",
+        "price": 0,
+        "color": null,
+        "bigSystem": "Ne",
+        "smallSystem": "サドラーズウェルズ",
+        "ancestors": [
+          "st:w-34",
+          "a:6003",
+          "st:w-2",
+          "a:1380",
+          "a:1969",
+          "a:6004",
+          "a:122",
+          "a:2696",
+          "a:763",
+          "a:2077",
+          "a:1979",
+          "a:963",
+          "a:49",
+          "a:6005",
+          "a:89",
+          "a:196",
+          "a:1689",
+          "a:261",
+          "a:34",
+          "a:2100",
+          "a:2078",
+          "a:2162",
+          "a:90",
+          "a:1601",
+          "a:725",
+          "a:2478",
+          "a:34",
+          "a:1011",
+          "a:412",
+          "a:1513"
+        ],
+        "unlock": null,
+        "priceUnknown": false,
+        "overseas": true,
+        "attrs": {
+          "dist": [
+            1600,
+            2400
+          ],
+          "grown": "晩成",
+          "dirt": "△",
+          "kenko": "B",
+          "kisyo": "A",
+          "jisseki": "B",
+          "konjo": "B",
+          "antei": "C"
+        },
+        "breedingRightPrice": 13000
       }
     ],
     "broodmares": [
@@ -26010,7 +26206,8 @@
         "effects": [
           "長距離"
         ],
-        "id": "a:70"
+        "id": "a:70",
+        "effectsKnown": true
       },
       {
         "name": "Luthier",
@@ -27345,8 +27542,8 @@
         "system": 4,
         "sex": "F",
         "effects": [
-          "底力",
-          "長距離"
+          "長距離",
+          "底力"
         ],
         "id": "a:196",
         "effectsKnown": true
@@ -28831,7 +29028,8 @@
           "長距離",
           "底力"
         ],
-        "id": "a:386"
+        "id": "a:386",
+        "effectsKnown": true
       },
       {
         "name": "Bamburi",
@@ -29027,7 +29225,8 @@
         "system": 5,
         "sex": "M",
         "effects": [],
-        "id": "a:412"
+        "id": "a:412",
+        "effectsKnown": true
       },
       {
         "name": "Be Silver",
@@ -30590,7 +30789,8 @@
         "effects": [],
         "id": "a:614",
         "sireId": "a:101",
-        "damId": "a:5108"
+        "damId": "a:5108",
+        "effectsKnown": true
       },
       {
         "name": "Charming Doll",
@@ -32945,7 +33145,8 @@
         "system": 13,
         "sex": "F",
         "effects": [],
-        "id": "a:928"
+        "id": "a:928",
+        "effectsKnown": true
       },
       {
         "name": "Fabulous Dancer",
@@ -33207,7 +33408,8 @@
         "system": 3,
         "sex": "F",
         "effects": [],
-        "id": "a:963"
+        "id": "a:963",
+        "effectsKnown": true
       },
       {
         "name": "Featherhill",
@@ -33684,7 +33886,8 @@
         "system": 5,
         "sex": "M",
         "effects": [],
-        "id": "st:w-34"
+        "id": "st:w-34",
+        "effectsKnown": true
       },
       {
         "name": "Fraulein Tobin",
@@ -35999,7 +36202,8 @@
         "system": 13,
         "sex": "M",
         "effects": [],
-        "id": "a:1333"
+        "id": "a:1333",
+        "effectsKnown": true
       },
       {
         "name": "Jellatina",
@@ -37343,7 +37547,8 @@
         "system": 15,
         "sex": "F",
         "effects": [],
-        "id": "a:1513"
+        "id": "a:1513",
+        "effectsKnown": true
       },
       {
         "name": "Lora's Guest",
@@ -37995,14 +38200,16 @@
         "system": 13,
         "sex": "F",
         "effects": [],
-        "id": "a:1601"
+        "id": "a:1601",
+        "effectsKnown": true
       },
       {
         "name": "Marie Rheinberg",
         "system": 10,
         "sex": "F",
         "effects": [],
-        "id": "a:1602"
+        "id": "a:1602",
+        "effectsKnown": true
       },
       {
         "name": "Marital Bliss",
@@ -38727,7 +38934,8 @@
         "system": 8,
         "sex": "F",
         "effects": [],
-        "id": "a:1698"
+        "id": "a:1698",
+        "effectsKnown": true
       },
       {
         "name": "Moiety Bird",
@@ -39306,10 +39514,14 @@
         "name": "Native Partner",
         "system": 6,
         "sex": "F",
-        "effects": [],
+        "effects": [
+          "速力",
+          "底力"
+        ],
         "id": "a:1775",
         "sireId": "a:107",
-        "damId": "a:820"
+        "damId": "a:820",
+        "effectsKnown": true
       },
       {
         "name": "Native Street",
@@ -39843,7 +40055,8 @@
         "system": 3,
         "sex": "M",
         "effects": [],
-        "id": "a:1846"
+        "id": "a:1846",
+        "effectsKnown": true
       },
       {
         "name": "Nowmepache",
@@ -40777,7 +40990,8 @@
         "system": 5,
         "sex": "M",
         "effects": [],
-        "id": "a:1969"
+        "id": "a:1969",
+        "effectsKnown": true
       },
       {
         "name": "Platini",
@@ -40851,7 +41065,8 @@
         "system": 5,
         "sex": "M",
         "effects": [],
-        "id": "a:1979"
+        "id": "a:1979",
+        "effectsKnown": true
       },
       {
         "name": "Poliglote",
@@ -44613,7 +44828,8 @@
         "system": 10,
         "sex": "F",
         "effects": [],
-        "id": "a:2478"
+        "id": "a:2478",
+        "effectsKnown": true
       },
       {
         "name": "Stumped",
@@ -44866,10 +45082,11 @@
       },
       {
         "name": "Surako",
-        "system": 11,
+        "system": 10,
         "sex": "M",
         "effects": [],
-        "id": "a:2512"
+        "id": "a:2512",
+        "effectsKnown": true
       },
       {
         "name": "Surama",
@@ -44884,7 +45101,8 @@
         "system": 5,
         "sex": "F",
         "effects": [],
-        "id": "a:2514"
+        "id": "a:2514",
+        "effectsKnown": true
       },
       {
         "name": "Sure Blade",
@@ -49554,7 +49772,8 @@
         "system": 5,
         "sex": "F",
         "effects": [],
-        "id": "a:3148"
+        "id": "a:3148",
+        "effectsKnown": true
       },
       {
         "name": "ダンディルート",
@@ -53687,7 +53906,8 @@
         "system": 8,
         "sex": "M",
         "effects": [],
-        "id": "a:3719"
+        "id": "a:3719",
+        "effectsKnown": true
       },
       {
         "name": "Made of Gold",
@@ -55088,19 +55308,21 @@
       },
       {
         "name": "Monticella",
-        "system": null,
+        "system": 14,
         "sex": "F",
         "effects": [],
         "id": "a:3904",
         "sireId": "a:4386",
-        "damId": "a:5364"
+        "damId": "a:5364",
+        "effectsKnown": true
       },
       {
         "name": "Imberline",
-        "system": null,
+        "system": 1,
         "sex": "F",
         "effects": [],
-        "id": "a:3905"
+        "id": "a:3905",
+        "effectsKnown": true
       },
       {
         "name": "Tizso",
@@ -76610,6 +76832,52 @@
         "sex": "F",
         "effects": [],
         "effectsKnown": false
+      },
+      {
+        "id": "a:6001",
+        "name": "La Comete",
+        "sex": "F",
+        "system": null,
+        "effects": [],
+        "effectsKnown": false,
+        "sireId": "a:1236"
+      },
+      {
+        "id": "a:6002",
+        "name": "Magnificent Style",
+        "sex": "F",
+        "system": null,
+        "effects": [],
+        "effectsKnown": false,
+        "sireId": "a:2350"
+      },
+      {
+        "id": "a:6003",
+        "name": "Rhadegunda",
+        "sex": "F",
+        "system": 5,
+        "effects": [],
+        "effectsKnown": true,
+        "sireId": "a:1969",
+        "damId": "a:6004"
+      },
+      {
+        "id": "a:6004",
+        "name": "St Radegund",
+        "sex": "F",
+        "system": 5,
+        "effects": [],
+        "effectsKnown": true,
+        "sireId": "a:49",
+        "damId": "a:6005"
+      },
+      {
+        "id": "a:6005",
+        "name": "On The House",
+        "sex": "F",
+        "system": 5,
+        "effects": [],
+        "effectsKnown": true
       }
     ],
     "kotta": [
@@ -76628,10 +76896,6 @@
       [
         "a:277",
         "a:1087"
-      ],
-      [
-        "a:277",
-        "a:756"
       ],
       [
         "a:291",
@@ -77260,10 +77524,6 @@
       [
         "a:1211",
         "a:122"
-      ],
-      [
-        "a:1252",
-        "st:69"
       ],
       [
         "a:62",
@@ -81960,6 +82220,1214 @@
       [
         "a:430",
         "a:1387"
+      ],
+      [
+        "a:53",
+        "a:53"
+      ],
+      [
+        "a:72",
+        "a:72"
+      ],
+      [
+        "a:24",
+        "a:24"
+      ],
+      [
+        "a:149",
+        "a:149"
+      ],
+      [
+        "a:133",
+        "a:133"
+      ],
+      [
+        "a:31",
+        "a:31"
+      ],
+      [
+        "a:120",
+        "a:120"
+      ],
+      [
+        "a:126",
+        "a:126"
+      ],
+      [
+        "a:2683",
+        "a:2683"
+      ],
+      [
+        "a:725",
+        "a:725"
+      ],
+      [
+        "a:63",
+        "a:63"
+      ],
+      [
+        "a:102",
+        "a:102"
+      ],
+      [
+        "a:79",
+        "a:79"
+      ],
+      [
+        "a:125",
+        "a:125"
+      ],
+      [
+        "a:2644",
+        "a:2644"
+      ],
+      [
+        "a:52",
+        "a:52"
+      ],
+      [
+        "a:463",
+        "a:463"
+      ],
+      [
+        "a:77",
+        "a:77"
+      ],
+      [
+        "a:1212",
+        "a:1212"
+      ],
+      [
+        "a:1138",
+        "a:1138"
+      ],
+      [
+        "a:114",
+        "a:114"
+      ],
+      [
+        "a:701",
+        "a:701"
+      ],
+      [
+        "a:65",
+        "a:65"
+      ],
+      [
+        "a:60",
+        "a:60"
+      ],
+      [
+        "a:544",
+        "a:544"
+      ],
+      [
+        "a:2592",
+        "a:2592"
+      ],
+      [
+        "a:2729",
+        "a:2729"
+      ],
+      [
+        "a:1264",
+        "a:1264"
+      ],
+      [
+        "a:2639",
+        "a:2639"
+      ],
+      [
+        "a:127",
+        "a:127"
+      ],
+      [
+        "a:45",
+        "a:45"
+      ],
+      [
+        "a:1972",
+        "a:1972"
+      ],
+      [
+        "a:138",
+        "a:138"
+      ],
+      [
+        "a:104",
+        "a:104"
+      ],
+      [
+        "a:181",
+        "a:181"
+      ],
+      [
+        "a:87",
+        "a:87"
+      ],
+      [
+        "a:47",
+        "a:47"
+      ],
+      [
+        "a:291",
+        "a:291"
+      ],
+      [
+        "a:158",
+        "a:158"
+      ],
+      [
+        "a:1184",
+        "a:1184"
+      ],
+      [
+        "a:1489",
+        "a:1489"
+      ],
+      [
+        "a:1627",
+        "a:1627"
+      ],
+      [
+        "a:1233",
+        "a:1233"
+      ],
+      [
+        "a:2697",
+        "a:2697"
+      ],
+      [
+        "a:2428",
+        "a:2428"
+      ],
+      [
+        "a:49",
+        "a:49"
+      ],
+      [
+        "a:2775",
+        "a:2775"
+      ],
+      [
+        "a:62",
+        "a:62"
+      ],
+      [
+        "a:1921",
+        "a:1921"
+      ],
+      [
+        "a:248",
+        "a:248"
+      ],
+      [
+        "a:192",
+        "a:192"
+      ],
+      [
+        "a:3399",
+        "a:3399"
+      ],
+      [
+        "a:440",
+        "a:440"
+      ],
+      [
+        "a:326",
+        "a:326"
+      ],
+      [
+        "a:2304",
+        "a:2304"
+      ],
+      [
+        "a:2594",
+        "a:2594"
+      ],
+      [
+        "a:2376",
+        "a:2376"
+      ],
+      [
+        "a:1862",
+        "a:1862"
+      ],
+      [
+        "a:1247",
+        "a:1247"
+      ],
+      [
+        "a:150",
+        "a:150"
+      ],
+      [
+        "a:16",
+        "a:16"
+      ],
+      [
+        "a:2352",
+        "a:2352"
+      ],
+      [
+        "a:493",
+        "a:493"
+      ],
+      [
+        "a:1978",
+        "a:1978"
+      ],
+      [
+        "a:19",
+        "a:19"
+      ],
+      [
+        "a:21",
+        "a:21"
+      ],
+      [
+        "a:2507",
+        "a:2507"
+      ],
+      [
+        "a:86",
+        "a:86"
+      ],
+      [
+        "a:109",
+        "a:109"
+      ],
+      [
+        "a:163",
+        "a:163"
+      ],
+      [
+        "a:2199",
+        "a:2199"
+      ],
+      [
+        "a:228",
+        "a:228"
+      ],
+      [
+        "a:3193",
+        "a:3193"
+      ],
+      [
+        "a:1519",
+        "a:1519"
+      ],
+      [
+        "a:6",
+        "a:6"
+      ],
+      [
+        "a:829",
+        "a:829"
+      ],
+      [
+        "a:2654",
+        "a:2654"
+      ],
+      [
+        "a:1949",
+        "a:1949"
+      ],
+      [
+        "a:1858",
+        "a:1858"
+      ],
+      [
+        "a:918",
+        "a:918"
+      ],
+      [
+        "a:2466",
+        "a:2466"
+      ],
+      [
+        "a:1617",
+        "a:1617"
+      ],
+      [
+        "a:2661",
+        "a:2661"
+      ],
+      [
+        "a:549",
+        "a:549"
+      ],
+      [
+        "a:1170",
+        "a:1170"
+      ],
+      [
+        "a:3234",
+        "a:3234"
+      ],
+      [
+        "a:2033",
+        "a:2033"
+      ],
+      [
+        "a:145",
+        "a:145"
+      ],
+      [
+        "a:743",
+        "a:743"
+      ],
+      [
+        "a:520",
+        "a:520"
+      ],
+      [
+        "a:1460",
+        "a:1460"
+      ],
+      [
+        "a:3426",
+        "a:3426"
+      ],
+      [
+        "a:1982",
+        "a:1982"
+      ],
+      [
+        "a:1549",
+        "a:1549"
+      ],
+      [
+        "a:2417",
+        "a:2417"
+      ],
+      [
+        "a:1336",
+        "a:1336"
+      ],
+      [
+        "a:1025",
+        "a:1025"
+      ],
+      [
+        "a:633",
+        "a:633"
+      ],
+      [
+        "a:1973",
+        "a:1973"
+      ],
+      [
+        "a:595",
+        "a:595"
+      ],
+      [
+        "a:2498",
+        "a:2498"
+      ],
+      [
+        "a:66",
+        "a:66"
+      ],
+      [
+        "a:585",
+        "a:585"
+      ],
+      [
+        "a:2962",
+        "a:2962"
+      ],
+      [
+        "a:160",
+        "a:160"
+      ],
+      [
+        "a:3036",
+        "a:3036"
+      ],
+      [
+        "a:2342",
+        "a:2342"
+      ],
+      [
+        "a:1306",
+        "a:1306"
+      ],
+      [
+        "a:3448",
+        "a:3448"
+      ],
+      [
+        "a:755",
+        "a:755"
+      ],
+      [
+        "a:3205",
+        "a:3205"
+      ],
+      [
+        "a:171",
+        "a:171"
+      ],
+      [
+        "a:1504",
+        "a:1504"
+      ],
+      [
+        "a:1148",
+        "a:1148"
+      ],
+      [
+        "a:859",
+        "a:859"
+      ],
+      [
+        "a:823",
+        "a:823"
+      ],
+      [
+        "a:108",
+        "a:108"
+      ],
+      [
+        "a:3269",
+        "a:3269"
+      ],
+      [
+        "a:1526",
+        "a:1526"
+      ],
+      [
+        "a:1419",
+        "a:1419"
+      ],
+      [
+        "a:1975",
+        "a:1975"
+      ],
+      [
+        "a:3095",
+        "a:3095"
+      ],
+      [
+        "a:1833",
+        "a:1833"
+      ],
+      [
+        "a:2713",
+        "a:2713"
+      ],
+      [
+        "a:2605",
+        "a:2605"
+      ],
+      [
+        "a:362",
+        "a:362"
+      ],
+      [
+        "a:2135",
+        "a:2135"
+      ],
+      [
+        "a:427",
+        "a:427"
+      ],
+      [
+        "a:478",
+        "a:478"
+      ],
+      [
+        "a:2224",
+        "a:2224"
+      ],
+      [
+        "a:223",
+        "a:223"
+      ],
+      [
+        "a:490",
+        "a:490"
+      ],
+      [
+        "a:741",
+        "a:741"
+      ],
+      [
+        "a:1062",
+        "a:1062"
+      ],
+      [
+        "a:2148",
+        "a:2148"
+      ],
+      [
+        "a:236",
+        "a:236"
+      ],
+      [
+        "a:888",
+        "a:888"
+      ],
+      [
+        "a:1839",
+        "a:1839"
+      ],
+      [
+        "a:1838",
+        "a:1838"
+      ],
+      [
+        "a:2036",
+        "a:2036"
+      ],
+      [
+        "a:164",
+        "a:164"
+      ],
+      [
+        "a:1455",
+        "a:1455"
+      ],
+      [
+        "a:179",
+        "a:179"
+      ],
+      [
+        "a:3102",
+        "a:3102"
+      ],
+      [
+        "a:57",
+        "a:57"
+      ],
+      [
+        "a:3014",
+        "a:3014"
+      ],
+      [
+        "a:861",
+        "a:861"
+      ],
+      [
+        "a:2557",
+        "a:2557"
+      ],
+      [
+        "a:358",
+        "a:358"
+      ],
+      [
+        "a:3131",
+        "a:3131"
+      ],
+      [
+        "a:337",
+        "a:337"
+      ],
+      [
+        "a:791",
+        "a:791"
+      ],
+      [
+        "a:1155",
+        "a:1155"
+      ],
+      [
+        "a:505",
+        "a:505"
+      ],
+      [
+        "a:2882",
+        "a:2882"
+      ],
+      [
+        "a:1387",
+        "a:1387"
+      ],
+      [
+        "a:2967",
+        "a:2967"
+      ],
+      [
+        "a:2936",
+        "a:2936"
+      ],
+      [
+        "a:2603",
+        "a:2603"
+      ],
+      [
+        "a:839",
+        "a:839"
+      ],
+      [
+        "a:1044",
+        "a:1044"
+      ],
+      [
+        "a:445",
+        "a:445"
+      ],
+      [
+        "a:1182",
+        "a:1182"
+      ],
+      [
+        "a:1609",
+        "a:1609"
+      ],
+      [
+        "a:2131",
+        "a:2131"
+      ],
+      [
+        "a:2634",
+        "a:2634"
+      ],
+      [
+        "a:2132",
+        "a:2132"
+      ],
+      [
+        "a:739",
+        "a:739"
+      ],
+      [
+        "a:382",
+        "a:382"
+      ],
+      [
+        "a:2391",
+        "a:2391"
+      ],
+      [
+        "a:2938",
+        "a:2938"
+      ],
+      [
+        "a:3198",
+        "a:3198"
+      ],
+      [
+        "a:185",
+        "a:185"
+      ],
+      [
+        "a:1076",
+        "a:1076"
+      ],
+      [
+        "a:2604",
+        "a:2604"
+      ],
+      [
+        "a:1793",
+        "a:1793"
+      ],
+      [
+        "a:1506",
+        "a:1506"
+      ],
+      [
+        "a:2622",
+        "a:2622"
+      ],
+      [
+        "a:1239",
+        "a:1239"
+      ],
+      [
+        "a:1211",
+        "a:1211"
+      ],
+      [
+        "a:3316",
+        "a:3316"
+      ],
+      [
+        "a:59",
+        "a:59"
+      ],
+      [
+        "a:3741",
+        "a:3741"
+      ],
+      [
+        "a:2649",
+        "a:2649"
+      ],
+      [
+        "a:2080",
+        "a:2080"
+      ],
+      [
+        "a:3706",
+        "a:3706"
+      ],
+      [
+        "a:2767",
+        "a:2767"
+      ],
+      [
+        "a:29",
+        "a:29"
+      ],
+      [
+        "a:2363",
+        "a:2363"
+      ],
+      [
+        "a:3810",
+        "a:3810"
+      ],
+      [
+        "a:1369",
+        "a:1369"
+      ],
+      [
+        "a:3833",
+        "a:3833"
+      ],
+      [
+        "a:147",
+        "a:147"
+      ],
+      [
+        "a:2346",
+        "a:2346"
+      ],
+      [
+        "a:3838",
+        "a:3838"
+      ],
+      [
+        "a:1465",
+        "a:1465"
+      ],
+      [
+        "a:3648",
+        "a:3648"
+      ],
+      [
+        "a:1713",
+        "a:1713"
+      ],
+      [
+        "a:825",
+        "a:825"
+      ],
+      [
+        "a:485",
+        "a:485"
+      ],
+      [
+        "a:2206",
+        "a:2206"
+      ],
+      [
+        "a:3871",
+        "a:3871"
+      ],
+      [
+        "a:835",
+        "a:835"
+      ],
+      [
+        "a:3113",
+        "a:3113"
+      ],
+      [
+        "a:243",
+        "a:243"
+      ],
+      [
+        "a:2227",
+        "a:2227"
+      ],
+      [
+        "a:132",
+        "a:132"
+      ],
+      [
+        "a:3895",
+        "a:3895"
+      ],
+      [
+        "a:1629",
+        "a:1629"
+      ],
+      [
+        "a:1333",
+        "a:1333"
+      ],
+      [
+        "a:1605",
+        "a:1605"
+      ],
+      [
+        "a:245",
+        "a:245"
+      ],
+      [
+        "a:156",
+        "a:156"
+      ],
+      [
+        "a:161",
+        "a:161"
+      ],
+      [
+        "a:1517",
+        "a:1517"
+      ],
+      [
+        "a:2096",
+        "a:2096"
+      ],
+      [
+        "a:3253",
+        "a:3253"
+      ],
+      [
+        "a:3428",
+        "a:3428"
+      ],
+      [
+        "a:782",
+        "a:782"
+      ],
+      [
+        "a:2930",
+        "a:2930"
+      ],
+      [
+        "a:2626",
+        "a:2626"
+      ],
+      [
+        "a:1909",
+        "a:1909"
+      ],
+      [
+        "a:1598",
+        "a:1598"
+      ],
+      [
+        "a:141",
+        "a:141"
+      ],
+      [
+        "a:1443",
+        "a:1443"
+      ],
+      [
+        "a:943",
+        "a:943"
+      ],
+      [
+        "a:1087",
+        "a:1087"
+      ],
+      [
+        "a:1029",
+        "a:1029"
+      ],
+      [
+        "a:294",
+        "a:294"
+      ],
+      [
+        "a:443",
+        "a:443"
+      ],
+      [
+        "a:2370",
+        "a:2370"
+      ],
+      [
+        "a:1383",
+        "a:1383"
+      ],
+      [
+        "a:1632",
+        "a:1632"
+      ],
+      [
+        "a:436",
+        "a:436"
+      ],
+      [
+        "a:1595",
+        "a:1595"
+      ],
+      [
+        "a:3247",
+        "a:3247"
+      ],
+      [
+        "a:3050",
+        "a:3050"
+      ],
+      [
+        "a:693",
+        "a:693"
+      ],
+      [
+        "a:331",
+        "a:331"
+      ],
+      [
+        "a:379",
+        "a:379"
+      ],
+      [
+        "a:1364",
+        "a:1364"
+      ],
+      [
+        "a:489",
+        "a:489"
+      ],
+      [
+        "a:2628",
+        "a:2628"
+      ],
+      [
+        "a:335",
+        "a:335"
+      ],
+      [
+        "a:553",
+        "a:553"
+      ],
+      [
+        "a:1224",
+        "a:1224"
+      ],
+      [
+        "a:3238",
+        "a:3238"
+      ],
+      [
+        "a:2377",
+        "a:2377"
+      ],
+      [
+        "a:2509",
+        "a:2509"
+      ],
+      [
+        "a:2771",
+        "a:2771"
+      ],
+      [
+        "a:1773",
+        "a:1773"
+      ],
+      [
+        "a:530",
+        "a:530"
+      ],
+      [
+        "a:346",
+        "a:346"
+      ],
+      [
+        "a:879",
+        "a:879"
+      ],
+      [
+        "a:1016",
+        "a:1016"
+      ],
+      [
+        "a:929",
+        "a:929"
+      ],
+      [
+        "a:1588",
+        "a:1588"
+      ],
+      [
+        "a:597",
+        "a:597"
+      ],
+      [
+        "a:2702",
+        "a:2702"
+      ],
+      [
+        "a:1352",
+        "a:1352"
+      ],
+      [
+        "a:3080",
+        "a:3080"
+      ],
+      [
+        "a:2007",
+        "a:2007"
+      ],
+      [
+        "a:2444",
+        "a:2444"
+      ],
+      [
+        "a:1033",
+        "a:1033"
+      ],
+      [
+        "a:1725",
+        "a:1725"
+      ],
+      [
+        "a:3547",
+        "a:3547"
+      ],
+      [
+        "a:3560",
+        "a:3560"
+      ],
+      [
+        "a:3562",
+        "a:3562"
+      ],
+      [
+        "a:3115",
+        "a:3115"
+      ],
+      [
+        "a:3647",
+        "a:3647"
+      ],
+      [
+        "a:2248",
+        "a:2248"
+      ],
+      [
+        "a:1002",
+        "a:1002"
+      ],
+      [
+        "a:3127",
+        "a:3127"
+      ],
+      [
+        "a:519",
+        "a:519"
+      ],
+      [
+        "a:437",
+        "a:437"
+      ],
+      [
+        "a:1516",
+        "a:1516"
+      ],
+      [
+        "a:1309",
+        "a:1309"
+      ],
+      [
+        "a:2114",
+        "a:2114"
+      ],
+      [
+        "a:2245",
+        "a:2245"
+      ],
+      [
+        "a:2486",
+        "a:2486"
+      ],
+      [
+        "a:2738",
+        "a:2738"
+      ],
+      [
+        "a:2421",
+        "a:2421"
+      ],
+      [
+        "a:902",
+        "a:902"
+      ],
+      [
+        "a:2158",
+        "a:2158"
+      ],
+      [
+        "a:2818",
+        "a:2818"
+      ],
+      [
+        "a:3048",
+        "a:3048"
+      ],
+      [
+        "a:1115",
+        "a:1115"
+      ],
+      [
+        "a:2576",
+        "a:2576"
+      ],
+      [
+        "a:2055",
+        "a:2055"
+      ],
+      [
+        "a:2623",
+        "a:2623"
+      ],
+      [
+        "a:2045",
+        "a:2045"
+      ],
+      [
+        "a:44",
+        "a:44"
+      ],
+      [
+        "a:1740",
+        "a:1740"
+      ],
+      [
+        "a:1161",
+        "a:1161"
+      ],
+      [
+        "a:1606",
+        "a:1606"
+      ],
+      [
+        "a:2541",
+        "a:2541"
+      ],
+      [
+        "a:2695",
+        "a:2695"
+      ],
+      [
+        "a:1014",
+        "a:1014"
+      ],
+      [
+        "a:1941",
+        "a:1941"
+      ],
+      [
+        "a:487",
+        "a:487"
+      ],
+      [
+        "a:1920",
+        "a:1920"
+      ],
+      [
+        "a:2452",
+        "a:2452"
       ]
     ],
     "nicks": [

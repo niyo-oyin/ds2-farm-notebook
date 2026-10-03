@@ -1,3 +1,4 @@
+import { StallionShareBadge } from './StallionShare';
 import { useMemo, useState } from 'react';
 import { useApp, sireOptions, includePlannedInSearch } from './app-context';
 import { Icon } from './icons';
@@ -29,7 +30,7 @@ interface Row { mare: string; options: Option[] }
 export function SeasonPlanner({ filter, setFilter }: { filter: StallionFilterState; setFilter: (filter: StallionFilterState) => void }) {
   const app = useApp();
   const [detailHorse, setDetailHorse] = useState<string | null>(null);
-  const sOpts = useMemo(() => sireOptions(app, { onlyAvailable: true, requirePedigree: true, includePlanned: includePlannedInSearch(app), includeOverseas: filter.includeOverseas }), [app, filter.includeOverseas]);
+  const sOpts = useMemo(() => sireOptions(app, { onlyAvailable: true, requirePedigree: true, includePlanned: includePlannedInSearch(app), includeUnpurchasedOverseas: filter.includeUnpurchasedOverseas }), [app, filter.includeUnpurchasedOverseas]);
   const mares = useMemo(() => ownedOrigins(app, 'mare'), [app]);
   const [goals, setGoals] = useMemoState<SearchGoal[]>('season', 'goals', [{ type: 'notDangerous' }]);
   const [budget, setBudget] = useMemoState<string>('season', 'budget', '');
@@ -87,7 +88,7 @@ export function SeasonPlanner({ filter, setFilter }: { filter: StallionFilterSta
   const unknownCost = chosen.filter((x) => x.option?.costUnknown).length;
   const matingLink = (sire: string, dam: string) => '#/mating?' + new URLSearchParams({ sire, dam });
   const planTag = (o: Option | null) => o?.plan && <a className="tag" href={`#/plans?id=${o.plan.plan.id}`} onClick={(e) => e.stopPropagation()}>計画「{o.plan.plan.name}」{o.plan.index + 1}回目</a>;
-  const nameButton = (key: string) => <button type="button" className="result-name-button" onClick={e => { e.stopPropagation(); setDetailHorse(key); }}>{app.resolver.label(key)}</button>;
+  const nameButton = (key: string) => <><button type="button" className="result-name-button" onClick={e => { e.stopPropagation(); setDetailHorse(key); }}>{app.resolver.label(key)}</button> <StallionShareBadge horseKey={key} /></>;
   const expanded = (o: Option) => <div className="result-expanded" onClick={e => e.stopPropagation()}>
     <div className="inline-row"><a href={matingLink(o.sire, o.dam)}>配合確認で開く</a><a href={`#/search?mode=design&mare=${encodeURIComponent(o.dam)}&sire=${encodeURIComponent(o.sire)}`}>血統設計で探す</a></div>
     <SummaryStrip j={o.judgement} /><Pedigree j={o.judgement} /><details><summary className="small">判定の根拠</summary><JudgeView j={o.judgement} showSummary={false} /></details>

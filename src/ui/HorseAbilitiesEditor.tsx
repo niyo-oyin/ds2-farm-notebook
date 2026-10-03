@@ -1,20 +1,13 @@
 import type { HorseAbilities, HorseCategory, RaceAbilities } from '../core/types';
 import { ABILITY_RANKS, DIRT_APTITUDES, GROWTH_TYPES, RACE_ABILITY_FIELDS, RACE_TRAIT_FIELDS } from '../core/owned-horse';
 
-type Group = 'broodmare' | 'stallion';
 type Field = { key: string; label: string; type?: 'number' | 'text'; options?: readonly string[] };
 const rank = (key: string, label: string): Field => ({ key, label, options: ABILITY_RANKS });
-const fields: Record<Group, Field[]> = {
-  broodmare: [
-    { key: 'speed', label: 'スピード', type: 'number' }, { key: 'stamina', label: 'スタミナ', type: 'number' },
-    { key: 'power', label: 'パワー', type: 'number' }, rank('health', '体質'), rank('temperament', '気性'), { key: 'dirt', label: 'ダート', options: DIRT_APTITUDES },
-  ],
-  stallion: [
-    { key: 'distanceMin', label: '距離下限（m）', type: 'number' }, { key: 'distanceMax', label: '距離上限（m）', type: 'number' },
-    { key: 'growth', label: '成長', options: GROWTH_TYPES }, { key: 'dirt', label: 'ダート', options: DIRT_APTITUDES },
-    rank('health', '体質'), rank('temperament', '気性'), rank('achievement', '実績'), rank('guts', '底力'), rank('stability', '安定'),
-  ],
-};
+const fields: Field[] = [
+  { key: 'distanceMin', label: '距離下限（m）', type: 'number' }, { key: 'distanceMax', label: '距離上限（m）', type: 'number' },
+  { key: 'growth', label: '成長', options: GROWTH_TYPES }, { key: 'dirt', label: 'ダート', options: DIRT_APTITUDES },
+  rank('health', '体質'), rank('temperament', '気性'), rank('achievement', '実績'), rank('guts', '底力'), rank('stability', '安定'),
+];
 
 /** 現役馬のカード。ゲーム画面と同じ並びで印を選ぶ。「-」は未判明として保存しない。 */
 function RaceCard({ value, onChange }: { value: RaceAbilities; onChange: (value: RaceAbilities) => void }) {
@@ -40,17 +33,16 @@ export function GoodMotherComment({ checked, onChange }: { checked: boolean; onC
   return <label className="sheet-mother-comment"><input type="checkbox" checked={checked} onChange={e => onChange(e.target.checked)} />「いい母」コメントあり</label>;
 }
 
-export function HorseAbilitiesEditor({ value, category, onChange, goodMotherComment, onGoodMotherCommentChange }: {
+export function HorseAbilitiesEditor({ value, category, onChange }: {
   value: HorseAbilities; category: HorseCategory; onChange: (value: HorseAbilities) => void;
-  goodMotherComment: boolean; onGoodMotherCommentChange: (checked: boolean) => void;
 }) {
-  const group: Group | 'race' | undefined = category === '繁殖牝馬' ? 'broodmare' : category === '種牡馬' ? 'stallion' : category === '現役' ? 'race' : undefined;
-  const renderFields = (g: Group) => <div className="sheet-ability-fields">{fields[g].map(({ key, label, type, options }) => {
-    const record = (value[g] ?? {}) as Record<string, string | number | undefined>;
+  const group = category === '種牡馬' ? 'stallion' : category === '現役' ? 'race' : undefined;
+  const renderFields = () => <div className="sheet-ability-fields">{fields.map(({ key, label, type, options }) => {
+    const record = (value.stallion ?? {}) as Record<string, string | number | undefined>;
     const update = (input: string) => {
       const next = { ...record };
       if (input === '') delete next[key]; else next[key] = type === 'number' ? Number(input) : input;
-      onChange({ ...value, [g]: next });
+      onChange({ ...value, stallion: next });
     };
     return <label className="field" key={key}>{label}{options
       ? <select value={record[key] ?? ''} onChange={(e) => update(e.target.value)}><option value="">未確認</option>{options.map((option) => <option key={option}>{option}</option>)}</select>
@@ -58,10 +50,13 @@ export function HorseAbilitiesEditor({ value, category, onChange, goodMotherComm
   })}</div>;
   const raceCard = <RaceCard value={value.race ?? {}} onChange={(race) => onChange({ ...value, race })} />;
   const hasRace = Object.values(value.race ?? {}).some((v) => v !== undefined && v !== '');
+  if (!group) return hasRace ? <section className="sheet-section sheet-abilities">
+    <div className="sheet-section-heading"><h3>現役時の能力・適性</h3></div>
+    {raceCard}
+  </section> : null;
   return <section className="sheet-section sheet-abilities">
     <div className="sheet-section-heading"><h3>能力・適性</h3><span className="small muted">{category}</span></div>
-    {group === 'race' ? raceCard : group ? renderFields(group) : null}
-    {group === 'broodmare' && <GoodMotherComment checked={goodMotherComment} onChange={onGoodMotherCommentChange} />}
+    {group === 'race' ? raceCard : renderFields()}
     {group === 'race' && <p className="sheet-ability-hint">「-」は未判明</p>}
     {group !== 'race' && hasRace && <details className="sheet-past-abilities"><summary>現役時の記録</summary>{raceCard}</details>}
   </section>;

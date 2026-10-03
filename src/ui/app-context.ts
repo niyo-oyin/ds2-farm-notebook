@@ -1,4 +1,4 @@
-import { horseUnlockConditions } from '../core/master-horse';
+import { horseUnlockConditions, hasStallionShare } from '../core/master-horse';
 import { createContext, useContext } from 'react';
 import type { MasterData } from '../core/types';
 import type { RuleOptions } from '../core/rules';
@@ -15,7 +15,7 @@ export const useApp = (): AppCtx => {
   return c;
 };
 
-export interface HorseOption { key: string; name: string; group: string; sub?: string; }
+export interface HorseOption { key: string; name: string; group: string; sub?: string; goodMotherComment?: boolean; }
 
 export interface OptionFilter {
   /** 探索で使える馬だけ（利用可能な種牡馬の設定、探索除外、引退、計画馬の探索対象外を反映） */
@@ -24,7 +24,7 @@ export interface OptionFilter {
   includePlanned?: boolean;
   /** 血統（父母）が登録済みの所有馬だけ。配合確認・探索は判定に血統が要るため */
   requirePedigree?: boolean;
-  includeOverseas?: boolean;
+  includeUnpurchasedOverseas?: boolean;
 }
 /** 探索の相手の候補に計画馬を入れるか（設定 excludePlannedFromSearch。未設定は除外） */
 export const includePlannedInSearch = (app: AppCtx) => app.data.settings.excludePlannedFromSearch === false;
@@ -36,11 +36,12 @@ export function ownedParentKeys(app: AppCtx, h: UserData['horses'][number]): { s
   return { sire: rec?.nodes[2] ?? '', dam: rec?.nodes[3] ?? '' };
 }
 /** 父候補: 種牡馬 + 牡の所有馬 + 種牡馬予定の計画馬 */
-export function sireOptions(app: AppCtx, { onlyAvailable = false, includePlanned = true, requirePedigree = false, includeOverseas = true }: OptionFilter = {}): HorseOption[] {
+export function sireOptions(app: AppCtx, { onlyAvailable = false, includePlanned = true, requirePedigree = false, includeUnpurchasedOverseas = false }: OptionFilter = {}): HorseOption[] {
   const master = app.master.stallions
-    .filter((s) => includeOverseas || !s.overseas)
-    .filter((s) => !(onlyAvailable && app.data.settings.hideLocked && horseUnlockConditions(s).length > 0))
-    .map((s) => ({ key: s.id, name: s.name, group: '種牡馬', sub: `${s.priceUnknown ? '種付料未確認' : `${s.price}万`} / ${s.smallSystem ?? '-'}系${horseUnlockConditions(s).map(c => ` / 要解禁: ${c}`).join('')}` }));
+    .filter((s) => !onlyAvailable || (s.overseas
+      ? includeUnpurchasedOverseas || hasStallionShare(s, app.data.settings.purchasedStallionShares)
+      : !(app.data.settings.hideLocked && horseUnlockConditions(s).length > 0)))
+    .map((s) => ({ key: s.id, name: s.name, group: '種牡馬', sub: `${s.priceUnknown ? '種付料未確認' : `${s.price}万`} / ${s.smallSystem ?? '-'}系${s.overseas ? hasStallionShare(s, app.data.settings.purchasedStallionShares) ? ' / 株購入済み' : ' / 株未購入' : horseUnlockConditions(s).map(c => ` / 要解禁: ${c}`).join('')}` }));
   const own = [...app.data.horses, ...(includePlanned ? app.data.plannedHorses : [])]
     .filter((h) => (h.kind === 'owned' ? h.sex === 'M' : h.role === 'stallion' || h.desiredSex === 'M'))
     .filter((h) => (h.kind === 'owned' ? ownedOk(h, { onlyAvailable, requirePedigree }) : !onlyAvailable || h.status !== '探索対象外'))
@@ -58,6 +59,6 @@ export function damOptions(app: Pick<AppCtx, 'master' | 'data'>, { onlyAvailable
   const own = [...app.data.horses, ...(includePlanned ? app.data.plannedHorses : [])]
     .filter((h) => (h.kind === 'owned' ? h.sex === 'F' : h.role === 'broodmare' || h.desiredSex === 'F'))
     .filter((h) => (h.kind === 'owned' ? ownedOk(h, { onlyAvailable, requirePedigree }) : !onlyAvailable || h.status !== '探索対象外'))
-    .map((h) => ({ key: h.kind === 'owned' ? breedingKey(h) : h.id, name: h.name, group: h.kind === 'owned' ? '所有馬' : '計画馬', sub: h.kind === 'owned' ? h.category : h.status }));
+    .map((h) => ({ key: h.kind === 'owned' ? breedingKey(h) : h.id, name: h.name, group: h.kind === 'owned' ? '所有馬' : '計画馬', sub: h.kind === 'owned' ? h.category : h.status, goodMotherComment: h.kind === 'owned' && h.goodMotherComment }));
   return [...own, ...master];
 }

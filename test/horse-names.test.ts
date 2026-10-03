@@ -1,5 +1,5 @@
 import { expect, it } from 'vitest';
-import { assembleHorseNames, horseNameMessages, horseNameRoutes } from '../server/horse-names';
+import { assembleHorseNames, horseNameMessages } from '../server/horse-names';
 import { namingParent, namingPedigree } from '../src/core/horse-names';
 import { HorseResolver } from '../src/core/pedigree';
 import { DEFAULT_RULES } from '../src/core/rules';
@@ -16,7 +16,6 @@ const request: HorseNameRequest = {
 };
 const ideas = (names: string[]) => names.map(name => ({ name, meaning: '未来への願い。' }));
 const raw = { withAffix: ideas(['キセキ', 'ツバサ', 'ヒカリ']), withoutAffix: ideas(['アカツキ', 'ハヤテ']) };
-const post = (body: unknown) => new Request('http://localhost/', { method: 'POST', headers: { 'content-type': 'application/json' }, body: JSON.stringify(body) });
 
 it('父母の参照先で実在馬と自家生産馬を区別し、同名の実在馬の記録を混ぜない', () => {
   const mare = baseMaster.broodmares[0];
@@ -37,9 +36,7 @@ it('自家生産の父母の現役時の記録を命名資料へ渡し、他の�
   const parents = new HorseResolver(baseMaster, [mother, unrelated], DEFAULT_RULES);
   const pedigree = namingPedigree(baseMaster.stallions[0].id, mother.id, parents, baseMaster);
   const input = HorseNameRequestSchema.parse({ ...request, dam: namingParent(mother.id, parents, baseMaster, 'F'), pedigree });
-  let sent: unknown;
-  const app = horseNameRoutes(async r => { sent = JSON.parse(horseNameMessages(r)[1].content); return assembleHorseNames(raw, r); }, () => true);
-  expect((await app.fetch(post(input))).status).toBe(200);
+  const sent = JSON.parse(horseNameMessages(input)[1].content);
   expect(sent).toMatchObject({ parents: { sire: { origin: 'real' }, dam: {
     origin: 'homebred', career: { record: '20戦3勝', wins: '七夕賞', earnings: 8500, races: [{ race: '七夕賞', finish: '1', distance: 2000 }] },
     abilities: { stamina: '◎', temperament: '○' }, factors: ['底力'], memo: '福島の夏が得意。',
@@ -86,28 +83,4 @@ it('冠名の有無ごとに文字種・長さを検証し、候補全体で重�
   const longAffix = assembleHorseNames({ withAffix: ideas(['ア', 'イ', 'ウ']), withoutAffix: ideas(['アイウエオカキクケ', 'ハヤテ']) }, { ...request, affix: { text: 'アイウエオカキク', position: 'prefix' } });
   expect(longAffix.candidates[0].name).toHaveLength(9);
   expect(longAffix.candidates[3].name).toBe('アイウエオカキクケ');
-});
-
-it('不正な入力では生成せず、正常なリクエストは候補を返す', async () => {
-  let called = 0;
-  const app = horseNameRoutes(async input => { called++; return assembleHorseNames(raw, input); }, () => true);
-  for (const text of ['ABC', '牧場', '１２３', 'アイウエオカキクケ']) {
-    expect((await app.fetch(post({ ...request, affix: { text, position: 'prefix' } }))).status).toBe(400);
-  }
-  expect(called).toBe(0);
-  const response = await app.fetch(post(request));
-  expect(response.status).toBe(200);
-  expect((await response.json()).candidates).toHaveLength(5);
-  expect(called).toBe(1);
-});
-
-it('キー未設定・生成失敗を通知し、失敗後にも再試行できる', async () => {
-  expect((await horseNameRoutes(async input => assembleHorseNames(raw, input), () => false).fetch(post(request))).status).toBe(503);
-  let fail = true;
-  const app = horseNameRoutes(async input => { if (fail) throw new Error('private upstream detail'); return assembleHorseNames(raw, input); }, () => true);
-  const response = await app.fetch(post(request));
-  expect(response.status).toBe(502);
-  expect(await response.text()).not.toContain('private upstream detail');
-  fail = false;
-  expect((await app.fetch(post(request))).status).toBe(200);
 });

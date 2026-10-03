@@ -91,7 +91,10 @@
 .sheet-basic-layout > .sheet-details { grid-area: details; }
 .sheet-basic-layout > .sheet-abilities { grid-area: abilities; }
 .sheet-basic-layout > .sheet-factors { grid-area: factors; }
-.sheet-master-layout { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 16px; }
+.sheet-basic-layout.without-abilities { grid-template-columns: repeat(2, minmax(0, 1fr)); grid-template-areas: "details factors"; align-items: start; }
+.sheet-master-layout { max-width: 560px; }
+.sheet-master-layout .sheet-info-table > div { grid-template-columns: 90px minmax(0, 1fr); }
+.sheet-info-table .sheet-mother-comment { margin: 0; }
 .sheet-section { min-width: 0; padding: 16px; border: 1px solid var(--rule); border-radius: var(--r-sm); }
 .sheet-section-heading { display: flex; align-items: center; justify-content: space-between; gap: 10px; margin-bottom: 12px; }
 .sheet-section-heading h3, .sheet-section-heading h4 { margin: 0; font-family: var(--font-display); font-size: 16px; }
@@ -153,6 +156,8 @@
 .sheet-ability-hint a { margin-left: 6px; white-space: nowrap; }
 .sheet-past-abilities { margin-top: 12px; font-size: 12px; }
 .sheet-past-abilities > summary { color: var(--ink-muted); margin-bottom: 8px; }
+.sheet-past-abilities:only-child { margin-top: 0; }
+.sheet-past-abilities:not([open]) > summary { margin-bottom: 0; }
 .sheet-search-exclude { display: flex; align-items: center; gap: 6px; font-size: 12px; }
 .sheet-ancestor-factors { margin-top: 18px; padding-top: 14px; border-top: 1px dashed var(--rule); }
 .sheet-ancestor-factors h4 { font-size: 13px; }
@@ -173,7 +178,7 @@
 .sheet-observations li { margin: 2px 0; }
 
 @container (min-width: 1000px) {
-  .sheet-basic-layout { grid-template-columns: minmax(0, .95fr) minmax(0, 1.45fr) minmax(0, 1fr); grid-template-areas: "details abilities factors"; }
+  .sheet-basic-layout:not(.without-abilities) { grid-template-columns: minmax(0, .95fr) minmax(0, 1.45fr) minmax(0, 1fr); grid-template-areas: "details abilities factors"; }
   .sheet-ability-fields { grid-template-columns: repeat(3, minmax(0, 1fr)); }
 }
 /* 詳細の幅が足りないときは要約列を下段に回す（名前の列を 300px 以上確保する） */
@@ -183,10 +188,10 @@
   .horse-sheet .sheet-memo textarea { min-height: 72px; resize: vertical; }
 }
 @container (max-width: 700px) {
-  .sheet-master-layout { grid-template-columns: minmax(0, 1fr); }
   .sheet-overview { grid-template-columns: 120px minmax(0, 1fr); gap: 16px; align-items: start; }
   .sheet-portrait .portrait { width: 120px; height: 120px; }
-  .sheet-basic-layout { grid-template-columns: minmax(0, 1fr); grid-template-areas: "details" "abilities" "factors"; }
+  .sheet-basic-layout, .sheet-basic-layout.without-abilities { grid-template-columns: minmax(0, 1fr); grid-template-areas: "details" "abilities" "factors"; }
+  .sheet-basic-layout.without-abilities { grid-template-areas: "details" "factors"; }
   .sheet-ability-fields { max-width: none; }
   .sheet-effect-counts { grid-template-columns: repeat(6, minmax(0, 1fr)); }
   .sheet-section-heading { flex-wrap: wrap; }

@@ -1,6 +1,6 @@
 import { useMemo, useRef, useState, useSyncExternalStore } from 'react';
 import type { OwnedHorse } from '../core/types';
-import { HORSE_CATEGORIES, horseAge, sexAgeLabel, breedingSince, breedingYears } from '../core/owned-horse';
+import { HORSE_CATEGORIES, ownedHorseAge, sexAgeLabel, breedingSince, breedingYears } from '../core/owned-horse';
 import { PageHeading } from './icons';
 import { useApp, ownedParentKeys } from './app-context';
 import { ActionDialog } from './ActionDialog';
@@ -14,6 +14,7 @@ import './HorsesPage.css';
 import { HorsePlaceholder } from './HorsePlaceholder';
 import { HorseSelect } from './HorseSelect';
 import { HorseListFilter } from './HorseListFilter';
+import { GoodMotherMark } from './GoodMotherMark';
 import { OWNED_SORTS, EMPTY_OWNED_FILTER, compareOwnedHorses, matchesOwnedHorse, type OwnedSort, EMPTY_OWNED_BASIC_FILTER, matchesOwnedBasic, type OwnedBasicFilter } from './owned-horse-list';
 
 const mq = typeof matchMedia !== 'undefined' ? matchMedia('(max-width: 900px)') : null;
@@ -54,7 +55,7 @@ export function HorsesPage({ params }: { params: URLSearchParams }) {
   const label = (key: string) => key ? app.resolver.label(key) : '未登録';
   const parentsByHorse = useMemo(() => new Map(app.data.horses.map(h => [h.id, ownedParentKeys(app, h)])), [app]);
   const parentOptions = (role: 'sire' | 'dam') => [...new Set([...parentsByHorse.values()].map(p => p[role]).filter(Boolean))].map(key => ({ key, name: label(key), group: role === 'sire' ? '父' : '母', sub: '' })).sort((a, b) => a.name.localeCompare(b.name, 'ja'));
-  const ages = [...new Set(app.data.horses.map(h => horseAge(h.profile?.birthYear, app.data.settings.gameYear)).filter((n): n is number => n !== undefined))].sort((a, b) => a - b);
+  const ages = [...new Set(app.data.horses.map(h => ownedHorseAge(h, app.data.settings.gameYear)).filter((n): n is number => n !== undefined))].sort((a, b) => a - b);
   const detailCount = Object.values(filter).filter(Boolean).length;
   const filtered = !!q || Object.values(excluded).some(values => values.length > 0) || detailCount > 0;
   const clearFilters = () => { setQ(''); changeBasicFilter(EMPTY_OWNED_BASIC_FILTER); setFilter(EMPTY_OWNED_FILTER); };
@@ -106,7 +107,7 @@ export function HorsesPage({ params }: { params: URLSearchParams }) {
           return <button key={h.id} className={'horse-list-item' + (selected?.id === h.id ? ' selected' : '')} aria-pressed={selected?.id === h.id} onClick={() => { if ((!editing && selected?.id === h.id) || !leave()) return; setSelectedId(h.id); setEditing(null); setError(''); if (narrow) scrollTop(); }}>
             <span className="portrait horse-list-thumb">{h.imageId ? <img src={imageUrl(h.imageId)} alt="" loading="lazy" /> : <HorsePlaceholder category={h.category} sex={h.sex} />}</span>
             <span className="horse-list-body">
-              <span className="horse-list-title"><b className="horse-list-name">{h.name}</b><span className={`pill cat-${h.category}`}>{h.category}</span><span className={`pill sex-${h.sex ?? 'none'}`}>{sexAgeLabel(h.sex, horseAge(h.profile?.birthYear, app.data.settings.gameYear))}</span>{h.profile?.color && <span className="pill">{h.profile.color}</span>}{(() => { if (!['繁殖牝馬', '種牡馬'].includes(h.category)) return null; const s = breedingSince(h, app.data.horses); const y = breedingYears(s?.year, app.data.settings.gameYear); return y !== undefined ? <span className="pill" title={`${s!.year}年に繁殖入り${s!.inferred ? '（最初の産駒の生年から推定）' : ''}`}>繁殖{y}年目{s!.inferred ? '?' : ''}</span> : null; })()}{sort.key === 'earnings' && <span className="horse-sort-value">{h.profile?.earnings == null ? '賞金未確認' : `${h.profile.earnings.toLocaleString()}万`}</span>}{(['speed', 'stamina', 'power'] as string[]).includes(sort.key) && <span className="horse-sort-value">{OWNED_SORTS.find(s => s.key === sort.key)?.label} {h.abilities?.race?.[sort.key as 'speed' | 'stamina' | 'power'] ?? '—'}</span>}</span>
+              <span className="horse-list-title"><b className="horse-list-name">{h.name}<GoodMotherMark checked={h.goodMotherComment} /></b><span className={`pill cat-${h.category}`}>{h.category}</span><span className={`pill sex-${h.sex ?? 'none'}`}>{sexAgeLabel(h.sex, ownedHorseAge(h, app.data.settings.gameYear))}</span>{h.profile?.color && <span className="pill">{h.profile.color}</span>}{(() => { if (!['繁殖牝馬', '種牡馬'].includes(h.category)) return null; const s = breedingSince(h, app.data.horses); const y = breedingYears(s?.year, app.data.settings.gameYear); return y !== undefined ? <span className="pill" title={`${s!.year}年に繁殖入り${s!.inferred ? '（最初の産駒の生年から推定）' : ''}`}>繁殖{y}年目{s!.inferred ? '?' : ''}</span> : null; })()}{sort.key === 'earnings' && <span className="horse-sort-value">{h.profile?.earnings == null ? '賞金未確認' : `${h.profile.earnings.toLocaleString()}万`}</span>}{(['speed', 'stamina', 'power'] as string[]).includes(sort.key) && <span className="horse-sort-value">{OWNED_SORTS.find(s => s.key === sort.key)?.label} {h.abilities?.race?.[sort.key as 'speed' | 'stamina' | 'power'] ?? '—'}</span>}</span>
               {missing
                 ? <span className="horse-list-parents missing">血統未登録</span>
                 : <span className="horse-list-parents" title={parents}>{sire ? label(sire) : <em className="missing">未登録</em>} × {dam ? label(dam) : <em className="missing">未登録</em>}</span>}
@@ -139,7 +140,7 @@ function AddMasterMareDialog({ onClose, onAdded }: { onClose: () => void; onAdde
     try {
       onAdded(picked.flatMap((id) => {
         const mare = app.master.broodmares.find((b) => b.id === id);
-        return mare ? [store.addHorse({ kind: 'owned', name: mare.name, sex: 'F', category: '繁殖牝馬', masterKey: mare.id, sireKey: '', damKey: '', memo: '' })] : [];
+        return mare ? [store.addHorse({ kind: 'owned', name: mare.name, sex: 'F', category: '繁殖牝馬', masterKey: mare.id, sireKey: '', damKey: '', memo: '', profile: { acquiredYear: app.data.settings.gameYear } })] : [];
       }));
     } catch (e) { setError((e as Error).message); }
   };

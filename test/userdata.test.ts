@@ -43,6 +43,22 @@ describe('保存操作の境界', () => {
     (await import('../src/data/catalog')).initializeCatalog(testCatalog);
   });
 
+  it('種牡馬株の購入・解除を保存し、バックアップとセーブ切替で購入状況を復元する', async () => {
+    const { store, getUserData } = await import('../src/store/userdata');
+    store.setStallionShare('s:one', true);
+    store.setStallionShare('s:two', true);
+    store.setStallionShare('s:one', true);
+    const backup = store.exportJson();
+    expect(getUserData().settings.purchasedStallionShares).toEqual(['s:one', 's:two']);
+    expect(getUserData().masterEdits).toEqual([]);
+    store.setStallionShare('s:one', false);
+    expect(getUserData().settings.purchasedStallionShares).toEqual(['s:two']);
+    store.importJson(JSON.stringify(emptyUserData()));
+    expect(getUserData().settings.purchasedStallionShares ?? []).toEqual([]);
+    store.importJson(backup);
+    expect(getUserData().settings.purchasedStallionShares).toEqual(['s:one', 's:two']);
+  });
+
   it('既存戦績の読み込み・新規登録・更新でグレードを統一し、戦績の順序と件数は維持する', async () => {
     const { store, getUserData } = await import('../src/store/userdata');
     const entry = { date: '5.4', place: '東京', race: '優駿', finish: '1', grade: 'G I' };

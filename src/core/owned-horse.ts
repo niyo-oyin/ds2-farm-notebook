@@ -91,6 +91,9 @@ export function validateOwnedDetails(horse: Pick<OwnedHorse, 'profile' | 'abilit
   if (a?.stallion?.distanceMin !== undefined && a.stallion.distanceMax !== undefined && a.stallion.distanceMin > a.stallion.distanceMax) throw new Error('距離下限は上限以下にしてください');
   const year = horse.profile?.birthYear;
   if (year !== undefined && (!Number.isInteger(year) || year < 1)) throw new Error('生年は1以上の整数で入力してください');
+  const { acquiredYear, acquiredAge } = horse.profile ?? {};
+  if (acquiredYear !== undefined && (!Number.isInteger(acquiredYear) || acquiredYear < 1)) throw new Error('入手年は1以上の整数で入力してください');
+  if (acquiredAge !== undefined && (!Number.isInteger(acquiredAge) || acquiredAge < 0)) throw new Error('入手時の年齢は0以上の整数で入力してください');
   const earnings = horse.profile?.earnings;
   if (earnings !== undefined && (!Number.isFinite(earnings) || earnings < 0)) throw new Error('総賞金は0以上の数値で入力してください');
   const current = horse.profile?.earningsCurrent;
@@ -212,6 +215,13 @@ export function mergeRaces(existing: RaceEntry[] = [], incoming: RaceEntry[] = [
 export type CardPatch = Pick<OwnedHorse, 'name' | 'sex' | 'category' | 'profile' | 'abilities' | 'observations'>;
 /** ゲーム内の年と生年から年齢を出す。どちらかが不明なら undefined */
 export const horseAge = (birthYear: number | undefined, gameYear: number | undefined) => birthYear !== undefined && gameYear !== undefined ? gameYear - birthYear : undefined;
+/** 実在の所有馬は入手時点を基準に加齢する。実際の生年とゲーム内の年は別のため混ぜない。 */
+export function ownedHorseAge(horse: Pick<OwnedHorse, 'masterKey' | 'profile'>, gameYear: number | undefined): number | undefined {
+  if (!horse.masterKey) return horseAge(horse.profile?.birthYear, gameYear);
+  const { acquiredYear, acquiredAge } = horse.profile ?? {};
+  return gameYear !== undefined && acquiredYear !== undefined && acquiredAge !== undefined && gameYear >= acquiredYear
+    ? acquiredAge + gameYear - acquiredYear : undefined;
+}
 /** ゲームと同じ「牝2」の形式。年齢が不明なら性別だけ */
 export const sexAgeLabel = (sex: OwnedHorse['sex'], age: number | undefined) => `${sex === 'F' ? '牝' : sex === 'M' ? '牡' : '性別未確認'}${sex && age !== undefined && age >= 0 ? age : ''}`;
 /** カードの年齢。0歳は有効、読めなかった −1 は不明 */

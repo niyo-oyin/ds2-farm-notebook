@@ -2,6 +2,7 @@ import { useEffect, useImperativeHandle, useMemo, useRef, useState, forwardRef }
 import { useApp, type HorseOption } from './app-context';
 import { store } from '../store/userdata';
 import { nameSearch } from './name-search';
+import { GoodMotherMark } from './GoodMotherMark';
 
 export interface HorseSelectHandle { focus: () => void }
 
@@ -57,7 +58,7 @@ export const HorseSelect = forwardRef<HorseSelectHandle, {
             <div key={o.key}>
               {(i === 0 || filtered[i - 1].group !== o.group) && <div className="group">{o.group}</div>}
               <div className={'item' + (i === active ? ' active' : '')} onMouseEnter={() => setActive(i)} onClick={() => choose(o)}>
-                <span>{o.name}</span><span className="muted small">{o.sub}</span>
+                <span>{o.name}<GoodMotherMark checked={o.goodMotherComment} /></span><span className="muted small">{o.sub}</span>
               </div>
             </div>
           ))}

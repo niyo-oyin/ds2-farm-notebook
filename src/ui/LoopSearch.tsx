@@ -1,3 +1,4 @@
+import { StallionShareBadge } from './StallionShare';
 import { useEffect, useMemo, useRef, useState } from 'react';
 import { useApp, sireOptions, damOptions, includePlannedInSearch } from './app-context';
 import { Icon } from './icons';
@@ -33,7 +34,7 @@ export function LoopSearch({ filter, setFilter, job }: { filter: StallionFilterS
   const jr = job?.request ?? null;
   const [viewingJob, setViewingJob] = useState(!!job);
   const [progress, setProgress] = useState<{ evaluated: number; pruned: number; found: number } | null>(null);
-  const sOpts = useMemo(() => sireOptions(app, { onlyAvailable: true, requirePedigree: true, includePlanned: includePlannedInSearch(app), includeOverseas: filter.includeOverseas }), [app, filter.includeOverseas]);
+  const sOpts = useMemo(() => sireOptions(app, { onlyAvailable: true, requirePedigree: true, includePlanned: includePlannedInSearch(app), includeUnpurchasedOverseas: filter.includeUnpurchasedOverseas }), [app, filter.includeUnpurchasedOverseas]);
   const dOpts = useMemo(() => damOptions(app, { onlyAvailable: true, requirePedigree: true, includePlanned: !app.data.settings.hidePlanned }), [app]);
   const [minL, setMinL] = useMemoState<number>('loop', 'minL', 5, jr?.minLength ?? null);
   const [maxL, setMaxL] = useMemoState<number>('loop', 'maxL', 6, jr?.maxLength ?? null);
@@ -172,7 +173,7 @@ export function LoopSearch({ filter, setFilter, job }: { filter: StallionFilterS
       setOpen(resultKey(r));
     }}>保存</button>;
   };
-  const route = (r: LoopResult) => r.steps.map((s) => s.sireName).join(' → ') + ' → …';
+  const route = (r: LoopResult) => <>{r.steps.map((s, i) => <span key={i}>{i > 0 && ' → '}{s.sireName} <StallionShareBadge horseKey={s.sire} /></span>)} → …</>;
 
   return (
     <div>

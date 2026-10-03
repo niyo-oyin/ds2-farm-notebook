@@ -1,3 +1,4 @@
+import { StallionShareBadge } from './StallionShare';
 import { useEffect, useId, useMemo, useState, useSyncExternalStore, type ReactNode } from 'react';
 import { useApp, sireOptions, damOptions, includePlannedInSearch, type HorseOption } from './app-context';
 import { Icon, PageHeading, type IconName } from './icons';
@@ -249,13 +250,13 @@ function SearchPageBody({ params, job }: { params: URLSearchParams; job: SearchJ
   const oneSelection = origin === 'mare' ? { selected: mares, setSelected: setMares, run: mareRun, setRun: setMareRun } : { selected: stallions, setSelected: setStallions, run: stallionRun, setRun: setStallionRun };
   const [oneFilter, setOneFilter] = useMemoState<StallionFilterState>('one', 'filter', EMPTY_FILTER);
   const jobStallions = !job ? [] : job.kind === 'loop' ? job.request.stallionPool : [...job.request.stallionPool, ...job.request.colt.sires, job.request.colt.required, job.request.filly.required];
-  const restoredFilter = job ? { ...EMPTY_FILTER, includeOverseas: app.master.stallions.some((h) => h.overseas && jobStallions.includes(h.id)) } : null;
+  const restoredFilter = job ? { ...EMPTY_FILTER, includeUnpurchasedOverseas: app.master.stallions.some((h) => h.overseas && !app.data.settings.purchasedStallionShares?.includes(h.id) && jobStallions.includes(h.id)) } : null;
   const [designFilter, setDesignFilter] = useMemoState<StallionFilterState>('design', 'filter', EMPTY_FILTER, job?.kind === 'design' ? restoredFilter : null);
   const [loopFilter, setLoopFilter] = useMemoState<StallionFilterState>('loop', 'filter', EMPTY_FILTER, job?.kind === 'loop' ? restoredFilter : null);
   const [seasonFilter, setSeasonFilter] = useMemoState<StallionFilterState>('season', 'filter', EMPTY_FILTER);
   const currentFilter = { one: oneFilter, design: designFilter, loop: loopFilter, season: seasonFilter }[mode];
   const marePool = mode === 'one' && origin === 'stallion';
-  const availableCount = (marePool ? damOptions : sireOptions)(app, { onlyAvailable: true, requirePedigree: true, includePlanned: includePlannedInSearch(app), includeOverseas: currentFilter.includeOverseas }).length;
+  const availableCount = (marePool ? damOptions : sireOptions)(app, { onlyAvailable: true, requirePedigree: true, includePlanned: includePlannedInSearch(app), includeUnpurchasedOverseas: currentFilter.includeUnpurchasedOverseas }).length;
   const poolLabel = marePool ? '繁殖牝馬' : '種牡馬';
   return (
     <div className="search-page">
@@ -280,7 +281,7 @@ function OneGen({ filter, setFilter, origin, onOriginChange, selected, setSelect
   // 相手の候補（探索に使う集合）は設定 excludePlannedFromSearch、起点の選択リストは表示設定 hidePlanned に従う（連動しない）
   const includePool = includePlannedInSearch(app);
   const dOpts = useMemo(() => damOptions(app, { onlyAvailable: true, requirePedigree: true, includePlanned: includePool }), [app, includePool]);
-  const sOpts = useMemo(() => sireOptions(app, { onlyAvailable: true, requirePedigree: true, includePlanned: includePool, includeOverseas: filter.includeOverseas }), [app, includePool, filter.includeOverseas]);
+  const sOpts = useMemo(() => sireOptions(app, { onlyAvailable: true, requirePedigree: true, includePlanned: includePool, includeUnpurchasedOverseas: filter.includeUnpurchasedOverseas }), [app, includePool, filter.includeUnpurchasedOverseas]);
   const hidePlanned = !!app.data.settings.hidePlanned;
   const originOptions = useMemo(() => (fromStallion ? sireOptions : damOptions)(app, { onlyAvailable: true, requirePedigree: true, includePlanned: !hidePlanned }), [app, fromStallion, hidePlanned]);
   const [goals, setGoals] = useMemoState<SearchGoal[]>('one', 'goals', [{ type: 'notDangerous' }]);
@@ -312,7 +313,7 @@ function OneGen({ filter, setFilter, origin, onOriginChange, selected, setSelect
   // 行を押すとその場で血統表と判定を展開し、相手の馬名を押すと馬の詳細をオーバーレイで開く
   const [open, setOpen] = useMemoState<string | null>('one', 'open', null);
   const [detail, setDetail] = useState<string | null>(null);
-  const nameButton = (key: string) => <button type="button" className="result-name-button" onClick={(e) => { e.stopPropagation(); setDetail(key); }}>{app.resolver.label(key)}</button>;
+  const nameButton = (key: string) => <><button type="button" className="result-name-button" onClick={(e) => { e.stopPropagation(); setDetail(key); }}>{app.resolver.label(key)}</button> <StallionShareBadge horseKey={key} /></>;
   const expanded = (r: { sire: string; dam: string; judgement: Judgement }) => <div className="result-expanded" onClick={(e) => e.stopPropagation()}>
     <div className="inline-row"><a href={matingLink(r)}>配合確認で開く</a><a href={`#/search?mode=design&mare=${encodeURIComponent(r.dam)}&sire=${encodeURIComponent(r.sire)}`}>血統設計で探す</a></div>
     <SummaryStrip j={r.judgement} />

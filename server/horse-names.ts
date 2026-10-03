@@ -1,8 +1,6 @@
-import { Hono } from 'hono';
-import { bodyLimit } from 'hono/body-limit';
 import { z } from 'zod';
-import { HorseNameIdeasSchema, HorseNameRequestSchema, type HorseNameIdeas, type HorseNameRequest } from '../src/shared/horse-names.js';
-import { chatCompletion, extractJson, LLM, llmReady } from './llm-client.js';
+import { HorseNameIdeasSchema, type HorseNameIdeas, type HorseNameRequest } from '../src/shared/horse-names.js';
+import { chatCompletion, extractJson, LLM } from './llm-client.js';
 
 export function horseNameMessages(request: HorseNameRequest) {
   const parentGuidance = (role: '父' | '母', parent: HorseNameRequest['sire']) => {
@@ -77,23 +75,4 @@ export function assembleHorseNames(raw: unknown, request: HorseNameRequest): Hor
   const names = result.candidates.map(c => c.name);
   if (new Set(names).size !== names.length || names.some(n => request.previous.includes(n))) throw new Error('候補が重複しています');
   return result;
-}
-
-export function horseNameRoutes(generate = generateHorseNames, ready = llmReady) {
-  const app = new Hono();
-  let active = 0;
-  app.use('*', bodyLimit({ maxSize: 256 * 1024, onError: c => c.json({ error: '命名の資料が大きすぎます。' }, 413) }));
-  app.post('/', async c => {
-    const request = HorseNameRequestSchema.safeParse(await c.req.json().catch(() => null));
-    if (!request.success) return c.json({ error: '父母の記録や牧場設定の形式・文字数を確認してください（冠名はカタカナ8文字以内）。' }, 400);
-    if (!ready()) return c.json({ error: 'サーバのLLM_API_KEYを設定すると命名候補を生成できます。' }, 503);
-    if (active >= 2) return c.json({ error: '命名候補を生成中です。少し待ってからお試しください。' }, 429);
-    active++;
-    try { return c.json(await generate(request.data, c.req.raw.signal)); }
-    catch (e) {
-      console.error('Horse name generation failed:', e instanceof Error ? e.name : 'Error');
-      return c.json({ error: '命名候補を生成できませんでした。もう一度お試しください。' }, 502);
-    } finally { active--; }
-  });
-  return app;
 }

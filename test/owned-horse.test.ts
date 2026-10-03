@@ -1,5 +1,5 @@
 import { beforeEach, describe, expect, it, vi } from 'vitest';
-import { pedigreeEffectCounts, validateOwnedDetails } from '../src/core/owned-horse';
+import { ownedHorseAge, pedigreeEffectCounts, validateOwnedDetails } from '../src/core/owned-horse';
 import type { AncestorInfo } from '../src/core/types';
 import { normalizeUserData } from '../src/store/model';
 import { memoryStorage, owned, planned } from './horse-fixtures';
@@ -44,6 +44,31 @@ describe('所有馬の能力・プロフィール', () => {
     expect(restored.abilities?.race).toEqual({ speed: '○', stamina: '◎', legs: '△' });
     store.addHorse(owned('u:sire', { sex: 'M', category: '種牡馬', abilities: { stallion: { dirt: '△', growth: '晩成', guts: 'A', achievement: 'B', stability: 'C', distanceMin: 1800, distanceMax: 3000 } } }));
     expect(getUserData().horses[1].abilities?.stallion?.growth).toBe('晩成');
+  });
+
+  it('実在馬の入手年と年齢を保存し、現在年に応じた年齢を一覧の絞り込み・並べ替えに使う', async () => {
+    const { store, getUserData } = await import('../src/store/userdata');
+    const { compareOwnedHorses, matchesOwnedBasic, EMPTY_OWNED_BASIC_FILTER } = await import('../src/ui/owned-horse-list');
+    const mare = store.addHorse(owned('u:real', { sex: 'F', category: '繁殖牝馬', masterKey: testCatalog.data.master.broodmares[0].id, profile: { acquiredYear: 40, acquiredAge: 7 } }));
+    const homebred = owned('u:homebred', { profile: { birthYear: 38 } });
+    expect(ownedHorseAge(mare, 43)).toBe(10);
+    expect(ownedHorseAge(mare, 44)).toBe(11);
+    expect(ownedHorseAge(homebred, 43)).toBe(5);
+    expect(matchesOwnedBasic(mare, { ...EMPTY_OWNED_BASIC_FILTER, ages: ['10'] }, 43)).toBe(false);
+    expect(matchesOwnedBasic(mare, { ...EMPTY_OWNED_BASIC_FILTER, ages: ['10'] }, 44)).toBe(true);
+    expect([mare, homebred].sort(compareOwnedHorses({ key: 'age', desc: false }, 43)).map(h => h.id)).toEqual([homebred.id, mare.id]);
+    store.importJson(store.exportJson());
+    expect(ownedHorseAge(getUserData().horses[0], 44)).toBe(11);
+    // 初年度に成馬を入手する場合も、生年を負数にする必要がない。
+    store.updateHorse(mare.id, { profile: { acquiredYear: 1, acquiredAge: 8 } });
+    expect(ownedHorseAge(getUserData().horses[0], 2)).toBe(9);
+    expect(ownedHorseAge(mare, 39)).toBeUndefined();
+    expect(ownedHorseAge(mare, undefined)).toBeUndefined();
+    expect(ownedHorseAge({ ...mare, profile: { acquiredYear: 40 } }, 43)).toBeUndefined();
+    for (const value of [-1, 1.5, NaN, Infinity]) {
+      expect(() => store.updateHorse(mare.id, { profile: { acquiredAge: value } })).toThrow('入手時の年齢');
+      expect(() => store.updateHorse(mare.id, { profile: { acquiredYear: value } })).toThrow('入手年');
+    }
   });
 
   it('区分と性別・評価の選択肢・距離範囲の不整合を保存しない', () => {

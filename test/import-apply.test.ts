@@ -130,3 +130,51 @@ it('母が見つからない・同名で特定できない取り込みは自動�
   expect(render()).toContain('母「母馬」の候補が複数あり、特定できません。');
   expect((await applyCardJob(job, reading, undefined, false)).damKey).toBe('');
 });
+
+it('写真のグレード表記ゆれを検証・表示・新規登録・追加登録・再読み込みまで通して扱える', async () => {
+  const llm = await import('../server/llm-client');
+  const { readScreenAs } = await import('../server/llm');
+  const { CARD_ABILITY_KEYS, CARD_TRAIT_KEYS } = await import('../src/core/owned-horse');
+  const { applyCardJob } = await import('../src/ui/import-apply');
+  const { getUserData, store } = await import('../src/store/userdata');
+  const { RaceResultsTable } = await import('../src/ui/RaceResultsEditor');
+  const { createElement } = await import('react');
+  const { renderToStaticMarkup } = await import('react-dom/server');
+  const variants = ['G1', 'G II', 'ＧⅢ', 'Jpn I', 'OP', '新馬', ''];
+  const races = variants.map((grade, i) => ({
+    date: `${i + 1}.1`, place: '東京', race: `テストレース${i}`, finish: '1', grade,
+    surface: '芝', distance: 1600, going: '良', runners: 16, popularity: 2,
+    jockey: 'ルメー', jockey_candidates: ['ルメール'], carriedWeight: 55, bodyWeight: 450, strategy: '差',
+  }));
+  const response = { ...reading.card, name: '読み取り検証馬', notes: '', races,
+    abilities: Object.fromEntries(Object.keys(CARD_ABILITY_KEYS).map(k => [k, '-'])),
+    traits: Object.fromEntries(Object.keys(CARD_TRAIT_KEYS).map(k => [k, '-'])),
+  };
+  const completion = vi.spyOn(llm, 'chatCompletion').mockResolvedValue({ text: JSON.stringify(response) });
+  try {
+    const { result } = await readScreenAs('入厩馬', 'image', 'image/jpeg');
+    if (result.screen_type !== '入厩馬') throw new Error('入厩馬以外');
+    const grades = ['GⅠ', 'GⅡ', 'GⅢ', 'JpnⅠ', 'OP', '新馬', undefined];
+    expect(result.card.races.map(r => r.grade)).toEqual(grades);
+    const html = renderToStaticMarkup(createElement(RaceResultsTable, { entries: result.card.races }));
+    for (const grade of grades.filter(Boolean)) expect(html).toContain(grade);
+    const first = await applyCardJob({ ...job, id: 'job:grade-new' }, result, undefined, false);
+    expect(first.profile?.races).toHaveLength(7);
+    expect(first.profile?.races?.[0]).toMatchObject({ grade: 'GⅠ', jockey: 'ルメール', carriedWeight: 55, bodyWeight: 450, runners: 16 });
+
+    // 保存済みジョブなど、統一前の表記が残った読み取り結果も受け付ける。
+    const repeated: CardScreen = { ...result, card: { ...result.card, races: result.card.races.map((r, i) => ({ ...r, grade: variants[i] })) } };
+    const next = { ...result.card.races[0], date: '8.1', race: '追加レース', grade: 'Jpn3' };
+    const updated = await applyCardJob({ ...job, id: 'job:grade-next' }, { ...repeated, card: { ...repeated.card, races: [next, ...repeated.card.races] } }, first, false);
+    expect(updated.id).toBe(first.id);
+    expect(updated.profile?.races?.map(r => r.grade)).toEqual(['JpnⅢ', ...grades]);
+    expect(updated.profile?.races?.slice(1)).toEqual(first.profile?.races);
+    expect(getUserData().horses).toHaveLength(1);
+
+    const differentFinish = { ...result.card.races[0], grade: 'GI', finish: '2' };
+    const final = await applyCardJob({ ...job, id: 'job:grade-other-year' }, { ...result, card: { ...result.card, races: [differentFinish] } }, updated, false);
+    expect(final.profile?.races).toHaveLength(9);
+    store.importJson(store.exportJson());
+    expect(getUserData().horses[0].profile?.races).toEqual(final.profile?.races);
+  } finally { completion.mockRestore(); }
+});

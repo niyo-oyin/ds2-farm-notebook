@@ -119,6 +119,8 @@ export interface OwnedHorse extends UserHorseBase {
   goodMotherComment?: boolean;
   profile?: {
     color?: string; birthYear?: number; wins?: string;
+    /** 実在馬を所有したゲーム内の年と、その時点の年齢。 */
+    acquiredYear?: number; acquiredAge?: number;
     /** 総賞金（万円） */ earnings?: number; /** 収得賞金（万円） */ earningsCurrent?: number;
     /** クラス表示（OP、1勝 など） */ rank?: string; stable?: string; weight?: string; /** 戦績（28戦6勝） */ record?: string;
     races?: RaceEntry[];

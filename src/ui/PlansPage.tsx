@@ -21,7 +21,7 @@ import './PlansPage.css';
 
 const mq = typeof matchMedia !== 'undefined' ? matchMedia('(max-width: 900px)') : null;
 const useNarrow = () => useSyncExternalStore((cb) => { mq?.addEventListener('change', cb); return () => mq?.removeEventListener('change', cb); }, () => !!mq?.matches);
-const roleLabel = (h: PlannedHorse) => h.role === 'broodmare' ? '繁殖牝馬予定' : h.role === 'stallion' ? '種牡馬予定' : '競走馬予定';
+const roleLabel = (h: PlannedHorse) => h.role === 'broodmare' ? '繁殖牝馬' : h.role === 'stallion' ? '種牡馬' : '競走馬';
 // アプリ内のタブ移動では並び順を保つ。再読み込み時は進捗の高い順から始める。
 const plansMemo = { sort: { key: 'progress', direction: 'desc' } as PlanListOrder };
 
@@ -67,11 +67,11 @@ export function PlansPage({ params }: { params: URLSearchParams }) {
           {plans.map((p) => {
             const summary = summaries.get(p.id)!;
             const { progress: state, current } = summary;
-            const mating = current && <span className={'plan-list-mating' + (summary.horses.length ? ' secondary' : '')}><span><span className="plan-list-field">父</span><b>{summary.sire}</b></span><span className="plan-list-cross" aria-hidden="true">×</span><span><span className="plan-list-field">母</span><b>{summary.dam}</b></span></span>;
+            const mating = current && <span className={'plan-list-mating' + (summary.horses.length ? ' secondary' : '')}><span><span className="plan-list-field">父</span><b>{summary.sire}</b></span><span className="plan-list-cross" aria-hidden="true">×</span><span><span className="plan-list-field">母</span><b>{summary.dam}</b></span>{current.foal && current.progress && (!current.progress.born || !current.progress.sexOk) && <span className="plan-list-target"><span className="plan-list-cross" aria-hidden="true">→</span><span className={`pill sex-${current.foal.desiredSex ?? 'none'}`} title="産駒の希望性別">{current.foal.desiredSex === 'F' ? '牝馬' : current.foal.desiredSex === 'M' ? '牡馬' : '不問'}</span></span>}</span>;
             return <button key={p.id} className={'plan-list-row' + (p.id === selectedId ? ' selected' : '')} aria-pressed={p.id === selectedId} onClick={() => select(p.id)}>
               <span className="plan-list-title plan-list-plan-title"><b title={p.name}>{p.name}</b><span className={'plan-status' + (state.complete ? ' complete' : current?.progress?.born ? ' waiting' : '')}>{state.complete ? 'すべて完了' : current ? `${state.nextIndex + 1}回目 · ${current.status}` : '配合手順なし'}</span></span>
               <span className="plan-list-body">
-                {summary.horses.length > 0 ? <span className="plan-list-current-horses"><span className="plan-list-field">{state.complete ? '最終産駒' : current?.status === '繁殖入り待ち' ? '繁殖待ち' : '生産済み'}</span><span>{summary.horses.map((h, i) => <span key={h.id}>{i > 0 && '・'}<b>{h.name}</b>{summary.horses.length > 1 && <small>（{h.sex === 'F' ? '牝' : h.sex === 'M' ? '牡' : '性別未確認'}）</small>}</span>)}</span></span> : mating || <span />}
+                {summary.horses.length > 0 ? <span className="plan-list-current-horses"><span className="plan-list-field">{state.complete ? '最終産駒' : current?.status === '種牡馬入り待ち' ? '種牡馬入り待ち' : current?.status === '繁殖入り待ち' ? '繁殖待ち' : '生産済み'}</span><span>{summary.horses.map((h, i) => <span key={h.id}>{i > 0 && '・'}<b>{h.name}</b>{summary.horses.length > 1 && <small>（{h.sex === 'F' ? '牝' : h.sex === 'M' ? '牡' : '性別未確認'}）</small>}</span>)}</span></span> : mating || <span />}
                 <span className="plan-list-count">{state.completed} / {p.steps.length} 完了</span>
               </span>
               {summary.horses.length > 0 && mating}
@@ -80,7 +80,7 @@ export function PlansPage({ params }: { params: URLSearchParams }) {
             </button>;
           })}
           {foals.length > 0 && <div className="plan-list-group">単独の計画馬</div>}
-          {foals.map((h) => <button key={h.id} className={'plan-list-row' + (h.id === selectedId ? ' selected' : '')} aria-pressed={h.id === selectedId} onClick={() => select(h.id)}><span className="plan-list-title"><b>{h.name}</b><span className="pill">計画馬</span></span><span className="plan-list-origin">{roleLabel(h)}・所有馬 {h.realizedIds.length}頭</span></button>)}
+          {foals.map((h) => <button key={h.id} className={'plan-list-row' + (h.id === selectedId ? ' selected' : '')} aria-pressed={h.id === selectedId} onClick={() => select(h.id)}><span className="plan-list-title"><b>{h.name}</b><span className="pill">計画馬</span></span><span className="plan-list-origin">{roleLabel(h)}予定・所有馬 {h.realizedIds.length}頭</span></button>)}
           {!plans.length && !foals.length && <div className="plan-list-empty">{app.data.plans.length || standalone.length ? <><p>該当する計画はありません。</p><button onClick={() => { setQuery(''); setFilter('all'); }}>絞り込みを解除</button></> : <p>保存した配合計画がここに並びます。</p>}</div>}
         </div>
       </aside>
@@ -142,7 +142,7 @@ function PlanDetail({ plan, initialFoal, onRemoved }: { plan: Plan; initialFoal:
         {[step.sire, step.dam].some((id) => app.choice(id).candidates.length > 1 && !app.choice(id).selected) && <p className="small muted">所有馬を選ぶと、その馬の血統で判定します。未選択の間は計画上の血統を使います。</p>}
         {result.error && <p className="error">{result.error}</p>}
         {result.j && <div className="plan-step-result"><SummaryStrip j={result.j} /></div>}
-        {step.foal ? <><div className="plan-foal-heading"><span>{app.choice(step.foalId).candidates.length ? '産駒' : '予定する産駒'}</span>{horseName(step.foalId, 'この手順の所有馬')}<span className="pill">{roleLabel(step.foal)}</span>{step.foal.desiredSex && <span className={`pill sex-${step.foal.desiredSex}`}>{step.foal.desiredSex === 'F' ? '牝' : '牡'}</span>}</div><PlannedHorseLinks foal={step.foal} parents={{ sire: app.key(step.sire), dam: app.key(step.dam) }} /></> : <p className="notice">この手順の計画馬が見つかりません。</p>}
+        {step.foal ? <><div className="plan-foal-heading"><span>{app.choice(step.foalId).candidates.length ? '産駒' : '予定する産駒'}</span>{horseName(step.foalId, 'この手順の所有馬')}<span className="pill">{roleLabel(step.foal)}予定</span>{step.foal.desiredSex && <span className={`pill sex-${step.foal.desiredSex}`}>{step.foal.desiredSex === 'F' ? '牝' : '牡'}</span>}</div><PlannedHorseLinks foal={step.foal} parents={{ sire: app.key(step.sire), dam: app.key(step.dam) }} /></> : <p className="notice">この手順の計画馬が見つかりません。</p>}
         <div className="plan-step-paging"><button disabled={index === 0} onClick={() => setSelected(index - 1)}>‹ 前の手順</button><button disabled={index >= steps.length - 1} onClick={() => setSelected(index + 1)}>次の手順 ›</button></div>
       </div>}
     </section>

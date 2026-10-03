@@ -6,7 +6,7 @@ export function planProgress(plan: Plan, data: UserData) {
     const foal = data.plannedHorses.find((h) => h.id === step.foalId);
     const progress = foal ? plannedProgress(foal, data.horses) : null;
     const complete = !!progress?.born && progress.sexOk && (!foal?.role || progress.bred);
-    const status = !foal ? '計画馬なし' : !progress?.born ? '未生産' : !progress.sexOk ? '希望の性別待ち' : !complete ? '繁殖入り待ち' : '完了';
+    const status = !foal ? '計画馬なし' : !progress?.born ? '未生産' : !progress.sexOk ? '希望の性別待ち' : !complete ? (foal.role === 'stallion' ? '種牡馬入り待ち' : '繁殖入り待ち') : '完了';
     return { ...step, foal, progress, complete, status };
   });
   const completed = steps.filter((s) => s.complete).length;

@@ -32,3 +32,13 @@ export const HorseNameRequestSchema = z.object({
 export const HorseNameIdeasSchema = z.object({ candidates: z.array(z.object({ name: HorseNameSchema, meaning: z.string().min(1).max(160) })).length(5) });
 export type HorseNameRequest = z.infer<typeof HorseNameRequestSchema>;
 export type HorseNameIdeas = z.infer<typeof HorseNameIdeasSchema>;
+
+/** 命名ジョブは馬ごとに保持し、画面を閉じても実行を続ける。 */
+export interface HorseNameJob {
+  id: string; targetKey: string; status: 'queued' | 'running' | 'done' | 'failed';
+  affix: HorseNameRequest['affix']; createdAt: string; updatedAt: string;
+  result?: HorseNameIdeas; error?: string;
+}
+export const HorseNameJobRequestSchema = z.object({
+  generation: z.number().int().nonnegative(), targetKey: z.string().min(1).max(1024), request: HorseNameRequestSchema,
+});

@@ -2,7 +2,7 @@ import { type CSSProperties, forwardRef, useEffect, useImperativeHandle, useId, 
 import { createPortal } from 'react-dom';
 import { checkWorkspace, workspaceGeneration } from '../store/workspace';
 import type { HorseAbilities, HorseCategory, HorseRecord, OwnedHorse, RaceEntry, Sex } from '../core/types';
-import { HORSE_CATEGORIES, breedingKey, breedingSince, breedingYears, horseAge, isUnnamedHorse, pedigreeEffectCounts, pedigreeIssue, sexAgeLabel } from '../core/owned-horse';
+import { HORSE_CATEGORIES, breedingKey, breedingSince, breedingYears, ownedHorseAge, isUnnamedHorse, pedigreeEffectCounts, pedigreeIssue, sexAgeLabel } from '../core/owned-horse';
 import { canReadHorseStory } from '../core/horse-story';
 import { HorseNameSuggestions } from './HorseNameSuggestions';
 import { judge } from '../core/judge';
@@ -28,7 +28,7 @@ import { HorseOffspring } from './HorseOffspring';
 const COAT_COLORS = ['鹿毛', '黒鹿毛', '青鹿毛', '青毛', '栗毛', '栃栗毛', '芦毛', '白毛'];
 let lastHorseTab = 'basic';
 type SheetForm = {
-  name: string; sex: Sex | ''; category: HorseCategory; excludeFromSearch: boolean; goodMotherComment: boolean; color: string; birthYear: string; breedingSinceYear: string;
+  name: string; sex: Sex | ''; category: HorseCategory; excludeFromSearch: boolean; goodMotherComment: boolean; color: string; birthYear: string; acquiredYear: string; acquiredAge: string; breedingSinceYear: string;
   earnings: string; earningsCurrent: string; wins: string; rank: string; stable: string; weight: string; record: string; races: RaceEntry[];
   sireKey: string; damKey: string; smallSystem: string; abilities: HorseAbilities;
   effects: string[]; memo: string;
@@ -61,6 +61,7 @@ export const HorseSheet = forwardRef<HorseSheetHandle, {
   const initial: SheetForm = {
     name: horse?.name ?? '', sex: horse?.sex ?? '', category: horse?.category ?? '現役', excludeFromSearch: horse?.excludeFromSearch ?? false,
     color: horse?.profile?.color ?? '', birthYear: String(horse?.profile?.birthYear ?? ''), breedingSinceYear: String(horse?.profile?.breedingSinceYear ?? ''),
+    acquiredYear: String(horse?.profile?.acquiredYear ?? ''), acquiredAge: String(horse?.profile?.acquiredAge ?? ''),
     earnings: String(horse?.profile?.earnings ?? ''), earningsCurrent: String(horse?.profile?.earningsCurrent ?? ''), wins: horse?.profile?.wins ?? '',
     rank: horse?.profile?.rank ?? '', stable: horse?.profile?.stable ?? '', weight: horse?.profile?.weight ?? '', record: horse?.profile?.record ?? '', races: horse?.profile?.races ?? [],
     imageId: horse?.imageId ?? '', portrait: null,
@@ -73,6 +74,11 @@ export const HorseSheet = forwardRef<HorseSheetHandle, {
   // 編集していない間は同期された最新の値を表示。編集途中の入力は再同期で消さない。
   const [draft, setDraft] = useState<SheetForm | null>(null);
   const form = draft ?? initial;
+  const age = ownedHorseAge({ masterKey: horse?.masterKey, profile: {
+    birthYear: form.birthYear ? Number(form.birthYear) : undefined,
+    acquiredYear: form.acquiredYear ? Number(form.acquiredYear) : undefined,
+    acquiredAge: form.acquiredAge ? Number(form.acquiredAge) : undefined,
+  } }, app.data.settings.gameYear);
   const dirty = !!draft && JSON.stringify(draft) !== JSON.stringify(initial);
   const [error, setError] = useState('');
   const [saved, setSaved] = useState(false);
@@ -152,6 +158,7 @@ export const HorseSheet = forwardRef<HorseSheetHandle, {
     const text = (s: string) => s.trim() || undefined;
     const races = form.races.map((r) => ({ ...r, date: r.date.trim(), place: r.place.trim(), race: r.race.trim(), finish: r.finish.trim() })).filter((r) => r.date || r.place || r.race || r.finish);
     const profile = {
+      acquiredYear: number(form.acquiredYear), acquiredAge: number(form.acquiredAge),
       color: text(form.color), birthYear: number(form.birthYear), earnings: number(form.earnings), earningsCurrent: number(form.earningsCurrent), wins: text(form.wins),
       rank: text(form.rank), stable: text(form.stable), weight: text(form.weight), record: text(form.record), races: races.length ? races : undefined,
       breedingSinceYear: number(form.breedingSinceYear),
@@ -236,9 +243,9 @@ export const HorseSheet = forwardRef<HorseSheetHandle, {
           {nameEditing
             ? <div className="sheet-name editing"><input ref={nameInput} aria-label="馬名" required value={form.name} placeholder="馬名を入力" onChange={(e) => change({ name: e.target.value })} onBlur={() => { if (horse && form.name.trim()) setNameEditing(false); }} onKeyDown={(e) => { if (e.key === 'Enter') { e.preventDefault(); if (form.name.trim()) setNameEditing(false); } }} /></div>
             : <div className="sheet-name"><h2>{form.name || '（馬名未設定）'}</h2>{!masterRec && <button type="button" className="sheet-name-edit" aria-label="馬名を編集" title="馬名を編集" onClick={() => setNameEditing(true)}>✎</button>}</div>}
-          {isUnnamedHorse(form.name) && <HorseNameSuggestions key={JSON.stringify([form.name, form.sex, form.sireKey, form.damKey, form.color, app.data.settings.farm])} name={form.name} sex={form.sex} color={form.color} sireKey={form.sireKey} damKey={form.damKey} onSelect={name => { change({ name }); setNameEditing(false); }} />}
+          {isUnnamedHorse(form.name) && <HorseNameSuggestions horseId={horse?.id} key={JSON.stringify([form.name, form.sex, form.sireKey, form.damKey, form.color, app.data.settings.farm])} name={form.name} sex={form.sex} color={form.color} sireKey={form.sireKey} damKey={form.damKey} onSelect={name => { change({ name }); setNameEditing(false); }} />}
           <div className="sheet-identity-meta">
-            <span className={`pill sex-${form.sex || 'none'}`}>{sexAgeLabel(form.sex || null, horseAge(form.birthYear ? Number(form.birthYear) : undefined, app.data.settings.gameYear))}</span>
+            <span className={`pill sex-${form.sex || 'none'}`}>{sexAgeLabel(form.sex || null, age)}</span>
             <span className="pill">{(masterRec ? masterHorse?.color : form.color) || '毛色未登録'}</span>
             {!masterRec && <span className="pill">{form.birthYear ? `${form.birthYear}年生` : '生年未登録'}</span>}
             {form.category === '現役' && form.record && <span className="pill">{form.record}</span>}
@@ -275,14 +282,14 @@ export const HorseSheet = forwardRef<HorseSheetHandle, {
         <div className="sheet-section-heading"><h3>基本情報</h3></div>
         <dl className="sheet-info-table">
           <div><dt><label htmlFor={`${tabId}-category`}>区分</label></dt><dd><select id={`${tabId}-category`} value={form.category} onChange={e => change({ category: e.target.value as HorseCategory })}><option>繁殖牝馬</option><option>引退</option></select></dd></div>
+          <div><dt><label htmlFor={`${tabId}-acquired-year`}>入手年</label></dt><dd><input id={`${tabId}-acquired-year`} type="number" min="1" step="1" value={form.acquiredYear} placeholder="未登録" onChange={e => change({ acquiredYear: e.target.value })} /></dd></div>
+          <div><dt><label htmlFor={`${tabId}-acquired-age`}>入手時の年齢</label></dt><dd><input id={`${tabId}-acquired-age`} type="number" min="0" step="1" value={form.acquiredAge} placeholder="未登録" onChange={e => change({ acquiredAge: e.target.value })} /></dd></div>
+          <div><dt>現在の年齢</dt><dd>{age !== undefined ? `${age}歳` : '未確認'}<span className="sheet-info-source">{app.data.settings.gameYear === undefined ? '設定でゲーム内の現在年を指定' : `${app.data.settings.gameYear}年時点`}</span></dd></div>
           <div><dt>配合探索</dt><dd><label className="sheet-search-exclude"><input type="checkbox" checked={form.category !== '引退' && !form.excludeFromSearch} disabled={form.category === '引退'} onChange={e => change({ excludeFromSearch: !e.target.checked })} />候補に含める</label></dd></div>
+            {(form.category === '繁殖牝馬' || form.goodMotherComment) && <div><dt>コメント</dt><dd><GoodMotherComment checked={form.goodMotherComment} onChange={goodMotherComment => change({ goodMotherComment })} /></dd></div>}
         </dl>
       </section>
-      <section className="sheet-section sheet-abilities">
-        <div className="sheet-section-heading"><h3>能力・適性</h3></div>
-        <GoodMotherComment checked={form.goodMotherComment} onChange={goodMotherComment => change({ goodMotherComment })} />
-      </section>
-      </div> : <div className="sheet-basic-layout">
+      </div> : <div className={'sheet-basic-layout' + (!['現役', '種牡馬'].includes(form.category) && !Object.values(form.abilities.race ?? {}).some(v => v !== undefined && v !== '') ? ' without-abilities' : '')}>
         <section className="sheet-section sheet-details">
           <div className="sheet-section-heading"><h3>基本情報</h3></div>
           <dl className="sheet-info-table">
@@ -299,10 +306,11 @@ export const HorseSheet = forwardRef<HorseSheetHandle, {
             <div><dt><label htmlFor={`${tabId}-system`}>小系統</label></dt><dd><select id={`${tabId}-system`} value={form.smallSystem} onChange={(e) => change({ smallSystem: e.target.value })}><option value="">{bloodline.rec.smallSystem && !form.smallSystem ? `${bloodline.rec.smallSystem}系` : '未確認'}</option>{smalls.map((sys) => <option key={sys} value={sys}>{sys}系</option>)}</select>{bloodline.rec.smallSystemSource === '父から推定' && <span className="sheet-info-source">父から推定</span>}</dd></div>
             <div><dt>大系統</dt><dd>{bigSystem ? <span className="sheet-system-code">{bigSystem}系</span> : <span className="muted">未確認</span>}</dd></div>
             <div><dt>配合探索</dt><dd><label className="sheet-search-exclude"><input type="checkbox" checked={form.category !== '引退' && !form.excludeFromSearch} disabled={form.category === '引退'} onChange={(e) => change({ excludeFromSearch: !e.target.checked })} />候補に含める</label></dd></div>
+            {(form.category === '繁殖牝馬' || form.goodMotherComment) && <div><dt>コメント</dt><dd><GoodMotherComment checked={form.goodMotherComment} onChange={goodMotherComment => change({ goodMotherComment })} /></dd></div>}
             {horse && <div><dt>登録日</dt><dd>{new Date(horse.createdAt).toLocaleDateString('ja-JP')}</dd></div>}
           </dl>
         </section>
-        <HorseAbilitiesEditor value={form.abilities} category={form.category} onChange={(abilities) => change({ abilities })} goodMotherComment={form.goodMotherComment} onGoodMotherCommentChange={goodMotherComment => change({ goodMotherComment })} />
+        <HorseAbilitiesEditor value={form.abilities} category={form.category} onChange={(abilities) => change({ abilities })} />
       <section className="sheet-section sheet-factors">
         <div className="sheet-section-heading"><h3>本馬の因子</h3></div>
         <div className="sheet-effect-options">{app.master.meta.crossEffects.map((effect) => <label key={effect} className={form.effects.includes(effect) ? 'selected' : ''}><input type="checkbox" aria-label={`本馬の因子 ${effect}`} checked={form.effects.includes(effect)} onChange={(e) => {

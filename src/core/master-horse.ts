@@ -11,3 +11,8 @@ export function horseUnlockConditions(horse: Pick<MasterHorse, 'unlock' | 'breed
   }
   return conditions;
 }
+
+/** 海外種牡馬の利用権は牧場ごとに購入する。 */
+export function hasStallionShare(horse: Pick<MasterHorse, 'id' | 'overseas'>, purchased: readonly string[] = []): boolean {
+  return !!horse.overseas && purchased.includes(horse.id);
+}

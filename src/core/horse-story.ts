@@ -2,11 +2,11 @@ import type { OwnedHorse } from './types';
 import type { HorseResolver } from './pedigree';
 import { nodePath } from './pedigree';
 import type { StoryFacts } from '../shared/horse-story';
-import { horseAge, isUnnamedHorse } from './owned-horse';
+import { ownedHorseAge, isUnnamedHorse } from './owned-horse';
 
 export function canReadHorseStory(horse: OwnedHorse, gameYear?: number): boolean {
   if (isUnnamedHorse(horse.name)) return false;
-  const age = horseAge(horse.profile?.birthYear, gameYear) ?? horse.observations?.findLast(o => o.age !== undefined)?.age;
+  const age = ownedHorseAge(horse, gameYear) ?? horse.observations?.findLast(o => o.age !== undefined)?.age;
   if (age === undefined || age < 3) return false;
   const starts = horse.profile?.record?.normalize('NFKC').match(/(\d+)\s*戦/);
   return !!(starts && Number(starts[1]) > 0) || !!horse.profile?.races?.some(r => /^(?:[1-9]\d*(?:着)?(?:\s*\(同着\))?|(?:競走)?中止|失格)$/.test(r.finish.normalize('NFKC').trim()));

@@ -1,3 +1,4 @@
+import { StallionShareBadge } from './StallionShare';
 import { useEffect, useMemo, useRef, useState, type ReactNode } from 'react';
 import { useApp, sireOptions, damOptions, includePlannedInSearch } from './app-context';
 import { Icon } from './icons';
@@ -47,8 +48,8 @@ function StrengthMarks({ s }: { s: JudgementSummary }) {
   return marks.length ? <span className="design-marks" title="成立した配合理論（面白・見事・凝った・ニックス）">{marks.join('')}</span> : <span className="design-marks weak" title="配合理論なし">—</span>;
 }
 /** 系統の起点と、付けていく種牡馬 */
-function LineRoute({ start, steps }: { start: string; steps: SearchStep[] }) {
-  return <span className="design-route">{start}{steps.map((s, i) => <span key={i}> → {s.sireName}<StrengthMarks s={s.judgement} /></span>)}</span>;
+function LineRoute({ start, startKey, steps }: { start: string; startKey?: string; steps: SearchStep[] }) {
+  return <span className="design-route">{start}{startKey && <StallionShareBadge horseKey={startKey} />}{steps.map((s, i) => <span key={i}> → {s.sireName} <StallionShareBadge horseKey={s.sire} /><StrengthMarks s={s.judgement} /></span>)}</span>;
 }
 
 export function DesignSearch({ filter, setFilter, params, job }: { filter: StallionFilterState; setFilter: (filter: StallionFilterState) => void; params: URLSearchParams; job: (SearchJob & { kind: 'design' }) | null }) {
@@ -59,10 +60,10 @@ export function DesignSearch({ filter, setFilter, params, job }: { filter: Stall
   const jr = job?.request ?? null;
   const [viewingJob, setViewingJob] = useState(!!job);
   // 系統の種牡馬の候補（探索に使う集合）は設定 excludePlannedFromSearch に従う。選択リストは表示設定 hidePlanned に従う（連動しない）
-  const sOpts = useMemo(() => sireOptions(app, { onlyAvailable: true, requirePedigree: true, includePlanned: includePlannedInSearch(app), includeOverseas: filter.includeOverseas }), [app, filter.includeOverseas]);
+  const sOpts = useMemo(() => sireOptions(app, { onlyAvailable: true, requirePedigree: true, includePlanned: includePlannedInSearch(app), includeUnpurchasedOverseas: filter.includeUnpurchasedOverseas }), [app, filter.includeUnpurchasedOverseas]);
   const hidePlanned = !!app.data.settings.hidePlanned;
   const damPick = useMemo(() => damOptions(app, { onlyAvailable: true, requirePedigree: true, includePlanned: !hidePlanned }), [app, hidePlanned]);
-  const sirePick = useMemo(() => sireOptions(app, { onlyAvailable: true, requirePedigree: true, includePlanned: !hidePlanned, includeOverseas: filter.includeOverseas }), [app, hidePlanned, filter.includeOverseas]);
+  const sirePick = useMemo(() => sireOptions(app, { onlyAvailable: true, requirePedigree: true, includePlanned: !hidePlanned, includeUnpurchasedOverseas: filter.includeUnpurchasedOverseas }), [app, hidePlanned, filter.includeUnpurchasedOverseas]);
   const owned = useMemo(() => ownedOrigins(app, 'mare'), [app]);
   // 計画の途中から探し直す時は、その手順の母を牝の系統の起点に固定する。保存するとその計画の手順を置き換える
   const replan = useMemo(() => replanTarget(app, params), [app, params]);
@@ -121,7 +122,7 @@ export function DesignSearch({ filter, setFilter, params, job }: { filter: Stall
       : coltMin > coltMax || fillyMin > fillyMax ? '世代数の最小が最大を超えています'
       : coltRequired && coltMax < 1 ? '牡の系統で使う種牡馬を指定するときは、牡の系統の世代数の最大を1以上にしてください'
       : fillyRequired && fillyMax < 1 ? '牝の系統で使う種牡馬を指定するときは、牝の系統の世代数の最大を1以上にしてください'
-      : !filter.includeOverseas && app.master.stallions.some((h) => h.overseas && [coltSire, coltRequired, fillyRequired].includes(h.id)) ? '指定した種牡馬に海外種牡馬が含まれています。「海外種牡馬を除外」のチェックを外すか、指定を解除してください'
+      : !filter.includeUnpurchasedOverseas && app.master.stallions.some((h) => h.overseas && !app.data.settings.purchasedStallionShares?.includes(h.id) && [coltSire, coltRequired, fillyRequired].includes(h.id)) ? '指定した種牡馬に株未購入の海外種牡馬が含まれています。「未購入の海外種牡馬も含める」にチェックするか、指定を解除してください'
       : '';
     setErr(e);
     return !e;
@@ -220,7 +221,7 @@ export function DesignSearch({ filter, setFilter, params, job }: { filter: Stall
     ? <a href={`#/plans?id=${saved[resultKey(r)].id}`} className="small" onClick={(e) => e.stopPropagation()}>保存済み</a>
     : <button title={replan ? `計画の${replan.from + 1}回目以降をこの設計に置き換える` : 'この設計を計画として保存'} onClick={(e) => { e.stopPropagation(); if (replan) setReplacing(r); else setSavingResult(r); }}>{replan ? '置き換え' : '保存'}</button>;
   // 種付料未確認の札は、その配合がある系統の側に出す（世代数0の牡は最後の配合の種付料）
-  const coltCell = (r: DesignResult, tag = true) => <>{r.colt.steps.length ? <LineRoute start={r.colt.startName} steps={r.colt.steps} /> : <span className="design-route">{r.colt.startName}</span>} {tag && <CostUnknownTag steps={[...r.colt.steps, r.merge]} />}</>;
+  const coltCell = (r: DesignResult, tag = true) => <>{r.colt.steps.length ? <LineRoute startKey={r.colt.start} start={r.colt.startName} steps={r.colt.steps} /> : <span className="design-route">{r.colt.startName} <StallionShareBadge horseKey={r.colt.start} /></span>} {tag && <CostUnknownTag steps={[...r.colt.steps, r.merge]} />}</>;
   const fillyCell = (r: DesignResult, tag = true) => <><LineRoute start={r.filly.startName} steps={r.filly.steps} /> {tag && <CostUnknownTag steps={r.filly.steps} />}</>;
   const years = (r: DesignResult) => estimateYears(r.generations).estimatedYears;
 
